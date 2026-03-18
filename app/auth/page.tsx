@@ -1,38 +1,36 @@
-import type { Metadata } from "next";
-import Link from "next/link";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Authentication",
-  description: "Choose how you want to continue into Midilli AI.",
-  robots: {
-    index: false,
-    follow: false,
-  },
-};
+import { useEffect } from "react";
 
-export default function AuthPage() {
+import { supabase } from "@/lib/supabase";
+
+export default function AuthCallbackPage() {
+  useEffect(() => {
+    const finalizeAuth = async () => {
+      const currentUrl = new URL(window.location.href);
+      const nextPath = currentUrl.searchParams.get("next") || "/dashboard";
+
+      await supabase.auth.getSession();
+      window.location.replace(nextPath);
+    };
+
+    void finalizeAuth();
+  }, []);
+
   return (
-    <main className="auth-shell auth-shell-single">
-      <section className="auth-panel auth-panel-wide">
-        <div className="auth-card auth-center-card">
-          <span className="auth-eyebrow">Authentication</span>
-          <h1 className="auth-center-title">Continue to Midilli AI</h1>
-          <p className="auth-center-copy">
-            Choose the path that fits where you are in the flow.
-          </p>
-          <div className="auth-center-actions">
-            <Link href="/login" className="auth-submit auth-submit-link">
-              Log in
-            </Link>
-            <Link href="/signup" className="auth-secondary-link">
-              Create account
-            </Link>
-          </div>
-          <Link href="/" className="auth-back-link auth-back-link-centered">
-            Back to home
-          </Link>
-        </div>
-      </section>
+    <main
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background:
+          "radial-gradient(circle at top left, rgba(124,92,252,0.18), transparent 30%), #070b16",
+        color: "white",
+        fontFamily: "Arial, Helvetica, sans-serif",
+      }}
+    >
+      Google girisi tamamlanıyor...
     </main>
   );
 }
