@@ -1,7 +1,4 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
-
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const SYSTEM_PROMPT = `You are MIDILLI's friendly AI support assistant. MIDILLI is a premium AI image and video generation platform.
 
@@ -29,8 +26,10 @@ YOUR BEHAVIOR:
 - If unsure, say "I'll connect you with our team" and suggest emailing support`;
 
 export async function POST(req: NextRequest) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return NextResponse.json({ error: "ANTHROPIC_API_KEY not configured." }, { status: 500 });
+  const groqKey = process.env.GROQ_API_KEY;
+
+  if (!groqKey) {
+    return NextResponse.json({ error: "GROQ_API_KEY not configured." }, { status: 500 });
   }
 
   let body: { messages?: { role: string; content: string }[] };
@@ -47,18 +46,32 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const response = await client.messages.create({
-      model: "claude-3-haiku-20240307",
-      max_tokens: 400,
-      system: SYSTEM_PROMPT,
-      messages: messages.map((m) => ({
-        role: m.role as "user" | "assistant",
-        content: m.content,
-      })),
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${groqKey}`,
+      },
+      body: JSON.stringify({
+        model: "llama-3.1-8b-instant",
+        max_tokens: 400,
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          ...messages.map((m) => ({
+            role: m.role as "user" | "assistant",
+            content: m.content,
+          })),
+        ],
+      }),
     });
 
-    const text = response.content[0].type === "text" ? response.content[0].text : "";
+    const data = await response.json();
 
+    if (!response.ok) {
+      return NextResponse.json({ error: JSON.stringify(data) }, { status: 500 });
+    }
+
+    const text = data.choices?.[0]?.message?.content ?? "";
     return NextResponse.json({ reply: text });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Chat failed.";
