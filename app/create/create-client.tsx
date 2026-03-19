@@ -50,6 +50,15 @@ const EXAMPLE_PROMPTS = [
   "Watercolor painting of a Japanese garden",
 ];
 
+type Session = {
+  id: string;
+  title: string;
+  imageUrl: string;
+  prompt: string;
+  model: string;
+  createdAt: number;
+};
+
 export default function CreateClient() {
   const [tab, setTab] = useState<"image" | "video">("image");
   const [prompt, setPrompt] = useState("");
@@ -71,8 +80,46 @@ export default function CreateClient() {
   // Popup states
   const [openPopup, setOpenPopup] = useState<"model" | "ratio" | "duration" | "resolution" | "videoModel" | null>(null);
 
+  // Sessions
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
+
+  // Load sessions from localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("midilli_sessions");
+      if (saved) setSessions(JSON.parse(saved) as Session[]);
+    } catch {}
+  }, []);
+
+  const saveSessions = (updated: Session[]) => {
+    setSessions(updated);
+    try { localStorage.setItem("midilli_sessions", JSON.stringify(updated)); } catch {}
+  };
+
+  const newSession = () => {
+    setPrompt("");
+    setImageResult(null);
+    setError(null);
+    setActiveSessionId(null);
+  };
+
+  const loadSession = (s: Session) => {
+    setPrompt(s.prompt);
+    setImageResult(s.imageUrl);
+    setError(null);
+    setActiveSessionId(s.id);
+  };
+
+  const deleteSession = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const updated = sessions.filter(s => s.id !== id);
+    saveSessions(updated);
+    if (activeSessionId === id) newSession();
+  };
 
   // Close popup on outside click
   useEffect(() => {
@@ -98,8 +145,21 @@ export default function CreateClient() {
         body: JSON.stringify({ prompt: prompt.trim(), model: selectedModel, aspect_ratio: aspectRatio }),
       });
       const data = await res.json();
-      if (data.url) setImageResult(data.url);
-      else setError(data.error ?? "Generation failed.");
+      if (data.url) {
+        setImageResult(data.url);
+        // Save session
+        const session: Session = {
+          id: Date.now().toString(),
+          title: prompt.trim().slice(0, 40),
+          imageUrl: data.url,
+          prompt: prompt.trim(),
+          model: selectedModel,
+          createdAt: Date.now(),
+        };
+        const updated = [session, ...sessions].slice(0, 30);
+        saveSessions(updated);
+        setActiveSessionId(session.id);
+      } else setError(data.error ?? "Generation failed.");
     } catch {
       setError("Network error. Please try again.");
     } finally {
@@ -221,6 +281,65 @@ export default function CreateClient() {
         </div>
       </nav>
 
+      {/* ── BODY (sidebar + canvas) ── */}
+      <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
+
+      {/* ── SESSIONS SIDEBAR ── */}
+      <div style={{ width: 200, flexShrink: 0, background: "#0d0d18", borderRight: "1px solid rgba(255,255,255,0.06)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        {/* Header */}
+        <div style={{ padding: "14px 14px 8px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#6b5a8a", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>Sessions</div>
+          <button onClick={newSession}
+            style={{ width: "100%", display: "flex", alignItems: "center", gap: 8, padding: "9px 12px", borderRadius: 10, border: "1px solid rgba(168,85,247,0.3)", background: "rgba(124,92,252,0.1)", color: "#c4b8ff", fontSize: 13, fontWeight: 600, cursor: "pointer", transition: "all 0.15s", fontFamily: "inherit" }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(124,92,252,0.2)"; e.currentTarget.style.borderColor = "rgba(168,85,247,0.5)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(124,92,252,0.1)"; e.currentTarget.style.borderColor = "rgba(168,85,247,0.3)"; }}
+          >
+            <span style={{ fontSize: 16, lineHeight: 1 }}>+</span>
+            New Session
+          </button>
+        </div>
+
+        {/* Session list */}
+        <div style={{ flex: 1, overflowY: "auto", padding: "8px 8px" }}>
+          {sessions.length === 0 && (
+            <div style={{ textAlign: "center", padding: "32px 12px", color: "#3a3a5a", fontSize: 12, lineHeight: 1.6 }}>
+              No sessions yet.<br />Generate your first image!
+            </div>
+          )}
+          {sessions.map((s) => (
+            <div key={s.id}
+              onClick={() => loadSession(s)}
+              style={{ display: "flex", alignItems: "center", gap: 9, padding: "8px 8px", borderRadius: 10, cursor: "pointer", transition: "all 0.15s", marginBottom: 2, border: `1px solid ${activeSessionId === s.id ? "rgba(168,85,247,0.4)" : "transparent"}`, background: activeSessionId === s.id ? "rgba(124,92,252,0.12)" : "transparent", position: "relative", group: "true" } as React.CSSProperties}
+              onMouseEnter={(e) => {
+                if (activeSessionId !== s.id) e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+                const del = e.currentTarget.querySelector(".del-btn") as HTMLElement;
+                if (del) del.style.opacity = "1";
+              }}
+              onMouseLeave={(e) => {
+                if (activeSessionId !== s.id) e.currentTarget.style.background = "transparent";
+                const del = e.currentTarget.querySelector(".del-btn") as HTMLElement;
+                if (del) del.style.opacity = "0";
+              }}
+            >
+              {/* Thumbnail */}
+              <div style={{ width: 36, height: 36, borderRadius: 7, flexShrink: 0, overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.05)" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={s.imageUrl} alt={s.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              </div>
+              {/* Title */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 12, fontWeight: 500, color: activeSessionId === s.id ? "#e2d9ff" : "#9ca3af", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.title}</div>
+                <div style={{ fontSize: 10, color: "#3a3a5a", marginTop: 1 }}>{MODELS.find(m => m.id === s.model)?.name ?? "Model"}</div>
+              </div>
+              {/* Delete btn */}
+              <button className="del-btn" onClick={(e) => deleteSession(s.id, e)}
+                style={{ opacity: 0, position: "absolute", right: 6, top: "50%", transform: "translateY(-50%)", width: 20, height: 20, borderRadius: "50%", background: "rgba(239,68,68,0.2)", border: "1px solid rgba(239,68,68,0.3)", color: "#f87171", fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "opacity 0.15s", fontFamily: "inherit", flexShrink: 0 }}
+              >×</button>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* ── MAIN CANVAS ── */}
       <div style={{ flex: 1, position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
 
@@ -321,6 +440,7 @@ export default function CreateClient() {
           </div>
         )}
       </div>
+      </div>{/* end body wrapper */}
 
       {/* ── BOTTOM BAR ── */}
       <div ref={popupRef} style={{ flexShrink: 0, padding: "12px 20px 16px", background: "rgba(10,10,15,0.98)", borderTop: "1px solid rgba(255,255,255,0.06)", backdropFilter: "blur(20px)", position: "relative" }}>
