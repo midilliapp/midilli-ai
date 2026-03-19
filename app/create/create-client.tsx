@@ -92,6 +92,14 @@ export default function CreateClient() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [uploadedPreview, setUploadedPreview] = useState<string | null>(null);
   const [motionPrompt, setMotionPrompt] = useState("");
+  const [videoDuration, setVideoDuration] = useState("5s");
+  const [videoFps, setVideoFps] = useState("24fps");
+  const [videoResolution, setVideoResolution] = useState("1080p");
+  const [motionIntensity, setMotionIntensity] = useState(50);
+  const [outputFormat, setOutputFormat] = useState("mp4");
+  const [videoLoop, setVideoLoop] = useState(false);
+  const [selectedVideoModel, setSelectedVideoModel] = useState("kling");
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const T = THEME[tab];
@@ -493,177 +501,268 @@ export default function CreateClient() {
 
           ) : (
             /* ── VIDEO TAB ── */
-            <div style={{ animation: "tabSwitch 0.3s ease" }}>
+            <div style={{ animation: "tabSwitch 0.3s ease", display: "flex", flexDirection: "column", gap: 20 }}>
 
-              {/* Section header */}
+              {/* Header banner */}
               <div style={{
-                marginBottom: 24,
-                padding: "16px 18px",
+                padding: "14px 18px",
                 borderRadius: 14,
-                background: "linear-gradient(135deg, rgba(0,100,150,0.3), rgba(0,180,220,0.12))",
-                border: "1px solid rgba(0,212,255,0.2)",
+                background: "linear-gradient(135deg, rgba(0,100,150,0.35), rgba(0,180,220,0.15))",
+                border: "1px solid rgba(0,212,255,0.25)",
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
               }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: "#00d4ff", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 6 }}>
-                  ▶ VIDEO STUDIO
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(0,212,255,0.15)", border: "1px solid rgba(0,212,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>▶</div>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#00d4ff", letterSpacing: "0.04em" }}>VIDEO STUDIO</div>
+                  <div style={{ fontSize: 11, color: "#38a3c4", marginTop: 1 }}>Transform images into cinematic AI video</div>
                 </div>
-                <div style={{ fontSize: 13, color: "#94a3b8", lineHeight: 1.5 }}>
-                  Transform your images into cinematic video clips with AI motion.
+                <div style={{ marginLeft: "auto", fontSize: 10, fontWeight: 700, background: "rgba(0,212,255,0.15)", color: "#00d4ff", border: "1px solid rgba(0,212,255,0.3)", borderRadius: 6, padding: "3px 8px", letterSpacing: "0.06em" }}>BETA</div>
+              </div>
+
+              {/* Video Model */}
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 700, color: "#38a3c4", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10, display: "block" }}>
+                  AI Model
+                </label>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {[
+                    { id: "kling",    name: "Kling 1.6",     desc: "Best quality · Realistic motion",  badge: "TOP",     speed: "~30s" },
+                    { id: "runway",   name: "Runway Gen-3",  desc: "Creative · Cinematic style",        badge: "PRO",     speed: "~25s" },
+                    { id: "luma",     name: "Luma Dream",    desc: "Fast · Great for objects",          badge: "",        speed: "~20s" },
+                    { id: "animate",  name: "AnimateDiff",   desc: "Open source · Custom control",      badge: "FREE",    speed: "~15s" },
+                  ].map((m) => (
+                    <button
+                      key={m.id}
+                      onClick={() => setSelectedVideoModel(m.id)}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        padding: "10px 14px",
+                        borderRadius: 10,
+                        border: `1px solid ${selectedVideoModel === m.id ? "rgba(0,212,255,0.5)" : "rgba(0,212,255,0.1)"}`,
+                        background: selectedVideoModel === m.id ? "rgba(0,180,220,0.15)" : "rgba(0,212,255,0.03)",
+                        cursor: "pointer",
+                        transition: "all 0.15s",
+                        textAlign: "left",
+                      }}
+                    >
+                      <div style={{ width: 8, height: 8, borderRadius: "50%", background: selectedVideoModel === m.id ? "#00d4ff" : "rgba(0,212,255,0.3)", flexShrink: 0, boxShadow: selectedVideoModel === m.id ? "0 0 8px rgba(0,212,255,0.8)" : "none", transition: "all 0.15s" }} />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 1 }}>
+                          <span style={{ color: selectedVideoModel === m.id ? "white" : "#94a3b8", fontSize: 13, fontWeight: 600 }}>{m.name}</span>
+                          {m.badge && <span style={{ fontSize: 9, fontWeight: 700, padding: "1px 6px", borderRadius: 4, background: m.badge === "FREE" ? "rgba(34,197,94,0.2)" : m.badge === "TOP" ? "rgba(251,191,36,0.2)" : "rgba(232,79,188,0.2)", color: m.badge === "FREE" ? "#4ade80" : m.badge === "TOP" ? "#fbbf24" : "#e84fbf", border: `1px solid ${m.badge === "FREE" ? "rgba(34,197,94,0.3)" : m.badge === "TOP" ? "rgba(251,191,36,0.3)" : "rgba(232,79,188,0.3)"}` }}>{m.badge}</span>}
+                        </div>
+                        <div style={{ color: "#38a3c4", fontSize: 11 }}>{m.desc}</div>
+                      </div>
+                      <span style={{ color: "#38a3c4", fontSize: 11 }}>{m.speed}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* Upload */}
-              <div style={{ marginBottom: 20 }}>
+              {/* Source Image Upload */}
+              <div>
                 <label style={{ fontSize: 11, fontWeight: 700, color: "#38a3c4", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10, display: "block" }}>
                   Source Image
                 </label>
                 <div
                   onClick={() => fileInputRef.current?.click()}
                   style={{
-                    border: `2px dashed ${uploadedFile ? "rgba(0,212,255,0.5)" : "rgba(0,212,255,0.2)"}`,
+                    border: `2px dashed ${uploadedFile ? "rgba(0,212,255,0.5)" : "rgba(0,212,255,0.18)"}`,
                     borderRadius: 14,
-                    padding: "32px 20px",
+                    padding: uploadedFile ? "12px" : "28px 20px",
                     textAlign: "center",
                     cursor: "pointer",
                     transition: "all 0.25s",
-                    background: uploadedFile ? "rgba(0,180,220,0.08)" : "rgba(0,212,255,0.03)",
-                    position: "relative",
-                    overflow: "hidden",
+                    background: uploadedFile ? "rgba(0,180,220,0.07)" : "rgba(0,212,255,0.02)",
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(0,212,255,0.6)"; e.currentTarget.style.background = "rgba(0,212,255,0.07)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = uploadedFile ? "rgba(0,212,255,0.5)" : "rgba(0,212,255,0.2)"; e.currentTarget.style.background = uploadedFile ? "rgba(0,180,220,0.08)" : "rgba(0,212,255,0.03)"; }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(0,212,255,0.6)"; e.currentTarget.style.background = "rgba(0,212,255,0.06)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = uploadedFile ? "rgba(0,212,255,0.5)" : "rgba(0,212,255,0.18)"; e.currentTarget.style.background = uploadedFile ? "rgba(0,180,220,0.07)" : "rgba(0,212,255,0.02)"; }}
                 >
                   {uploadedFile && uploadedPreview ? (
-                    <>
+                    <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={uploadedPreview} alt="preview" style={{ width: "100%", maxHeight: 140, objectFit: "cover", borderRadius: 8, marginBottom: 10 }} />
-                      <div style={{ color: "#00d4ff", fontSize: 12, fontWeight: 600 }}>{uploadedFile.name}</div>
-                      <div style={{ color: "#38a3c4", fontSize: 11, marginTop: 4 }}>Click to change</div>
-                    </>
+                      <img src={uploadedPreview} alt="preview" style={{ width: 64, height: 64, objectFit: "cover", borderRadius: 8, flexShrink: 0, border: "1px solid rgba(0,212,255,0.3)" }} />
+                      <div style={{ textAlign: "left" }}>
+                        <div style={{ color: "#00d4ff", fontSize: 12, fontWeight: 600, marginBottom: 2 }}>✓ Image loaded</div>
+                        <div style={{ color: "#38a3c4", fontSize: 11 }}>{uploadedFile.name}</div>
+                        <div style={{ color: "#1a4a5a", fontSize: 10, marginTop: 3 }}>Click to replace</div>
+                      </div>
+                    </div>
                   ) : (
                     <>
-                      <div style={{
-                        width: 48,
-                        height: 48,
-                        borderRadius: "50%",
-                        background: "rgba(0,212,255,0.1)",
-                        border: "1px solid rgba(0,212,255,0.3)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        margin: "0 auto 12px",
-                        fontSize: 20,
-                      }}>
-                        ↑
-                      </div>
-                      <div style={{ color: "white", fontSize: 14, fontWeight: 600, marginBottom: 4 }}>Upload source image</div>
-                      <div style={{ color: "#38a3c4", fontSize: 12 }}>PNG, JPG, WEBP · Max 10MB</div>
+                      <div style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(0,212,255,0.08)", border: "1px solid rgba(0,212,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 10px", fontSize: 18 }}>↑</div>
+                      <div style={{ color: "white", fontSize: 13, fontWeight: 600, marginBottom: 3 }}>Upload source image</div>
+                      <div style={{ color: "#38a3c4", fontSize: 11 }}>PNG, JPG, WEBP · Max 10MB</div>
                     </>
                   )}
                 </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  style={{ display: "none" }}
-                  onChange={handleFileChange}
-                />
+                <input ref={fileInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleFileChange} />
               </div>
 
               {/* Motion Prompt */}
-              <div style={{ marginBottom: 20 }}>
+              <div>
                 <label style={{ fontSize: 11, fontWeight: 700, color: "#38a3c4", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10, display: "block" }}>
-                  Motion Prompt <span style={{ color: "#2a5a6a", fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(optional)</span>
+                  Motion Prompt
                 </label>
                 <textarea
                   value={motionPrompt}
                   onChange={(e) => setMotionPrompt(e.target.value)}
                   placeholder="Camera slowly zooms in, cinematic motion, subtle parallax..."
-                  rows={3}
-                  style={{
-                    width: "100%",
-                    background: "rgba(0,212,255,0.04)",
-                    border: "1px solid rgba(0,212,255,0.15)",
-                    borderRadius: 12,
-                    padding: 14,
-                    color: "white",
-                    fontSize: 14,
-                    resize: "none",
-                    outline: "none",
-                    lineHeight: 1.6,
-                    transition: "border-color 0.2s",
-                  }}
+                  rows={2}
+                  style={{ width: "100%", background: "rgba(0,212,255,0.04)", border: "1px solid rgba(0,212,255,0.15)", borderRadius: 12, padding: 12, color: "white", fontSize: 13, resize: "none", outline: "none", lineHeight: 1.6, transition: "border-color 0.2s" }}
                   onFocus={(e) => e.target.style.borderColor = "rgba(0,212,255,0.5)"}
                   onBlur={(e) => e.target.style.borderColor = "rgba(0,212,255,0.15)"}
                 />
-              </div>
-
-              {/* Motion style chips */}
-              <div style={{ marginBottom: 22 }}>
-                <label style={{ fontSize: 11, fontWeight: 700, color: "#38a3c4", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10, display: "block" }}>
-                  Motion Style
-                </label>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                  {["Slow zoom in", "Pan left", "Dolly shot", "Parallax", "Orbit", "Handheld"].map((style) => (
-                    <button
-                      key={style}
-                      onClick={() => setMotionPrompt(style.toLowerCase() + " camera motion, cinematic")}
-                      style={{
-                        padding: "6px 13px",
-                        borderRadius: 999,
-                        border: "1px solid rgba(0,212,255,0.2)",
-                        background: motionPrompt.includes(style.toLowerCase()) ? "rgba(0,212,255,0.15)" : "rgba(0,212,255,0.04)",
-                        color: motionPrompt.includes(style.toLowerCase()) ? "#00d4ff" : "#38a3c4",
-                        fontSize: 12,
-                        cursor: "pointer",
-                        transition: "all 0.15s",
-                      }}
-                      onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(0,212,255,0.12)"; e.currentTarget.style.color = "#00d4ff"; }}
-                      onMouseLeave={(e) => {
-                        const active = motionPrompt.includes(style.toLowerCase());
-                        e.currentTarget.style.background = active ? "rgba(0,212,255,0.15)" : "rgba(0,212,255,0.04)";
-                        e.currentTarget.style.color = active ? "#00d4ff" : "#38a3c4";
-                      }}
+                {/* Camera motion presets */}
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 8 }}>
+                  {[
+                    { label: "🔍 Zoom In",    val: "slow zoom in, cinematic depth" },
+                    { label: "↔ Pan",          val: "smooth horizontal pan, steady" },
+                    { label: "🎬 Dolly",       val: "dolly shot forward, cinematic" },
+                    { label: "🌀 Orbit",       val: "orbital camera movement" },
+                    { label: "📷 Handheld",    val: "handheld camera, natural movement" },
+                    { label: "✨ Parallax",    val: "parallax depth effect, layered motion" },
+                    { label: "🔭 Pull Back",   val: "slow pull back reveal shot" },
+                    { label: "💫 Float",       val: "floating drift, ethereal motion" },
+                  ].map((p) => (
+                    <button key={p.label}
+                      onClick={() => setMotionPrompt(p.val)}
+                      style={{ padding: "5px 10px", borderRadius: 999, border: `1px solid ${motionPrompt === p.val ? "rgba(0,212,255,0.6)" : "rgba(0,212,255,0.15)"}`, background: motionPrompt === p.val ? "rgba(0,212,255,0.15)" : "rgba(0,212,255,0.04)", color: motionPrompt === p.val ? "#00d4ff" : "#38a3c4", fontSize: 11, cursor: "pointer", transition: "all 0.15s", whiteSpace: "nowrap" }}
                     >
-                      {style}
+                      {p.label}
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Generate Video Button */}
+              {/* Duration + FPS row */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div>
+                  <label style={{ fontSize: 11, fontWeight: 700, color: "#38a3c4", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8, display: "block" }}>Duration</label>
+                  <div style={{ display: "flex", gap: 4 }}>
+                    {["3s", "5s", "10s", "15s"].map((d) => (
+                      <button key={d} onClick={() => setVideoDuration(d)} style={{ flex: 1, padding: "7px 4px", borderRadius: 8, border: `1px solid ${videoDuration === d ? "rgba(0,212,255,0.5)" : "rgba(0,212,255,0.12)"}`, background: videoDuration === d ? "rgba(0,180,220,0.2)" : "rgba(0,212,255,0.03)", color: videoDuration === d ? "#00d4ff" : "#38a3c4", fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.15s" }}>{d}</button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label style={{ fontSize: 11, fontWeight: 700, color: "#38a3c4", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8, display: "block" }}>FPS</label>
+                  <div style={{ display: "flex", gap: 4 }}>
+                    {["24fps", "30fps", "60fps"].map((f) => (
+                      <button key={f} onClick={() => setVideoFps(f)} style={{ flex: 1, padding: "7px 4px", borderRadius: 8, border: `1px solid ${videoFps === f ? "rgba(0,212,255,0.5)" : "rgba(0,212,255,0.12)"}`, background: videoFps === f ? "rgba(0,180,220,0.2)" : "rgba(0,212,255,0.03)", color: videoFps === f ? "#00d4ff" : "#38a3c4", fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.15s" }}>{f}</button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Resolution */}
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 700, color: "#38a3c4", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8, display: "block" }}>Resolution</label>
+                <div style={{ display: "flex", gap: 6 }}>
+                  {[
+                    { val: "720p",  label: "720p",  sub: "HD" },
+                    { val: "1080p", label: "1080p", sub: "Full HD" },
+                    { val: "4k",    label: "4K",    sub: "Ultra HD" },
+                  ].map((r) => (
+                    <button key={r.val} onClick={() => setVideoResolution(r.val)} style={{ flex: 1, padding: "8px 6px", borderRadius: 10, border: `1px solid ${videoResolution === r.val ? "rgba(0,212,255,0.5)" : "rgba(0,212,255,0.12)"}`, background: videoResolution === r.val ? "rgba(0,180,220,0.18)" : "rgba(0,212,255,0.03)", color: videoResolution === r.val ? "#00d4ff" : "#38a3c4", fontSize: 12, fontWeight: 700, cursor: "pointer", transition: "all 0.15s", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                      {r.label}
+                      <span style={{ fontSize: 9, opacity: 0.6, fontWeight: 400 }}>{r.sub}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Motion Intensity slider */}
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 700, color: "#38a3c4", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10, display: "flex", justifyContent: "space-between" }}>
+                  <span>Motion Intensity</span>
+                  <span style={{ color: "#00d4ff", fontWeight: 700, fontSize: 12 }}>
+                    {motionIntensity < 25 ? "Subtle" : motionIntensity < 50 ? "Smooth" : motionIntensity < 75 ? "Dynamic" : "Extreme"}
+                  </span>
+                </label>
+                <div style={{ position: "relative" }}>
+                  <input
+                    type="range" min={0} max={100} value={motionIntensity}
+                    onChange={(e) => setMotionIntensity(Number(e.target.value))}
+                    style={{ width: "100%", accentColor: "#00d4ff", cursor: "pointer", height: 4 }}
+                  />
+                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
+                    {["Subtle", "Smooth", "Dynamic", "Extreme"].map((l) => (
+                      <span key={l} style={{ fontSize: 9, color: "#1a4a5a" }}>{l}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Advanced toggle */}
+              <button
+                onClick={() => setShowAdvanced(v => !v)}
+                style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", borderRadius: 10, border: "1px solid rgba(0,212,255,0.12)", background: "rgba(0,212,255,0.03)", color: "#38a3c4", fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.15s" }}
+              >
+                <span>⚙ Advanced Settings</span>
+                <span style={{ transition: "transform 0.2s", transform: showAdvanced ? "rotate(180deg)" : "rotate(0deg)" }}>▾</span>
+              </button>
+
+              {showAdvanced && (
+                <div style={{ animation: "tabSwitch 0.2s ease", display: "flex", flexDirection: "column", gap: 14, padding: "14px", background: "rgba(0,212,255,0.03)", border: "1px solid rgba(0,212,255,0.1)", borderRadius: 12 }}>
+                  {/* Output Format */}
+                  <div>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: "#38a3c4", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 8, display: "block" }}>Output Format</label>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      {[
+                        { val: "mp4",  label: "MP4",  sub: "Universal" },
+                        { val: "gif",  label: "GIF",  sub: "Web friendly" },
+                        { val: "webm", label: "WebM", sub: "Modern" },
+                      ].map((f) => (
+                        <button key={f.val} onClick={() => setOutputFormat(f.val)} style={{ flex: 1, padding: "7px 4px", borderRadius: 8, border: `1px solid ${outputFormat === f.val ? "rgba(0,212,255,0.5)" : "rgba(0,212,255,0.1)"}`, background: outputFormat === f.val ? "rgba(0,180,220,0.15)" : "transparent", color: outputFormat === f.val ? "#00d4ff" : "#38a3c4", fontSize: 11, fontWeight: 700, cursor: "pointer", transition: "all 0.15s", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                          {f.label}
+                          <span style={{ fontSize: 9, opacity: 0.5, fontWeight: 400 }}>{f.sub}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Loop toggle */}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <div>
+                      <div style={{ color: "#94a3b8", fontSize: 12, fontWeight: 600 }}>Loop Video</div>
+                      <div style={{ color: "#38a3c4", fontSize: 11, marginTop: 1 }}>Seamlessly repeating output</div>
+                    </div>
+                    <button
+                      onClick={() => setVideoLoop(v => !v)}
+                      style={{ width: 44, height: 24, borderRadius: 12, border: "none", background: videoLoop ? "rgba(0,212,255,0.4)" : "rgba(255,255,255,0.1)", cursor: "pointer", position: "relative", transition: "background 0.2s" }}
+                    >
+                      <div style={{ width: 18, height: 18, borderRadius: "50%", background: "white", position: "absolute", top: 3, left: videoLoop ? 23 : 3, transition: "left 0.2s", boxShadow: "0 1px 4px rgba(0,0,0,0.3)" }} />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Generate Button */}
               <button
                 className="generate-btn"
                 disabled={!uploadedFile}
                 onClick={() => alert("Video generation is coming soon! We'll notify you when it's ready.")}
                 style={{
-                  background: uploadedFile
-                    ? "linear-gradient(135deg, #0369a1, #0ea5e9, #00d4ff)"
-                    : "rgba(0,212,255,0.1)",
-                  boxShadow: uploadedFile ? "0 4px 28px rgba(0,212,255,0.3)" : "none",
-                  border: uploadedFile ? "none" : "1px solid rgba(0,212,255,0.2)",
+                  background: uploadedFile ? "linear-gradient(135deg, #0369a1, #0ea5e9, #00d4ff)" : "rgba(0,212,255,0.08)",
+                  boxShadow: uploadedFile ? "0 6px 32px rgba(0,212,255,0.35)" : "none",
+                  border: uploadedFile ? "none" : "1px solid rgba(0,212,255,0.15)",
                   color: uploadedFile ? "white" : "#38a3c4",
+                  fontSize: 15,
                 }}
               >
-                ▶ Generate Video
+                {uploadedFile ? `▶ Generate Video · ${videoDuration} · ${videoResolution}` : "▶ Upload an image to start"}
               </button>
 
-              {/* Coming soon notice */}
-              <div style={{
-                marginTop: 14,
-                padding: "14px 16px",
-                borderRadius: 12,
-                background: "linear-gradient(135deg, rgba(3,105,161,0.15), rgba(0,212,255,0.08))",
-                border: "1px solid rgba(0,212,255,0.15)",
-                display: "flex",
-                gap: 10,
-                alignItems: "flex-start",
-              }}>
-                <span style={{ fontSize: 16, flexShrink: 0, marginTop: 1 }}>🚀</span>
+              {/* Coming soon */}
+              <div style={{ padding: "12px 16px", borderRadius: 12, background: "linear-gradient(135deg, rgba(3,105,161,0.12), rgba(0,212,255,0.06))", border: "1px solid rgba(0,212,255,0.12)", display: "flex", gap: 10, alignItems: "flex-start" }}>
+                <span style={{ fontSize: 14, flexShrink: 0, marginTop: 1 }}>🚀</span>
                 <div>
-                  <div style={{ color: "#00d4ff", fontSize: 12, fontWeight: 600, marginBottom: 3 }}>Coming Soon</div>
-                  <div style={{ color: "#38a3c4", fontSize: 12, lineHeight: 1.6 }}>
-                    Video generation is in development. Upload your image now and be the first to try it.
-                  </div>
+                  <div style={{ color: "#00d4ff", fontSize: 11, fontWeight: 600, marginBottom: 2 }}>Coming Soon · Q3 2025</div>
+                  <div style={{ color: "#38a3c4", fontSize: 11, lineHeight: 1.5 }}>Video generation is in active development. Set your preferences now — be first when we launch.</div>
                 </div>
               </div>
             </div>
