@@ -215,7 +215,7 @@ export default function GalleryClient() {
       {/* Header */}
       <header style={{ position: "sticky", top: 0, zIndex: 20, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 32px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(8,8,16,0.8)", backdropFilter: "blur(20px)" }}>
         <Link href="/" style={{ textDecoration: "none", fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 20 }}>
-          <span style={{ color: "#a78bff" }}>Midilli</span> <span style={{ color: "#38d9f5" }}>AI</span>
+          <span style={{ color: "#a78bff" }}>MIDILLI</span>
         </Link>
         <nav style={{ display: "flex", gap: 24, alignItems: "center" }}>
           <Link href="/#generate" className="nav-link-g">Generate</Link>

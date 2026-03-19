@@ -391,8 +391,7 @@ export default function HomePageClient() {
         }}
       >
         <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 22, letterSpacing: -0.5 }}>
-          <span style={{ color: "#a78bff" }}>Midilli</span>{" "}
-          <span style={{ color: "#38d9f5" }}>AI</span>
+          <span style={{ color: "#a78bff" }}>MIDILLI</span>
         </div>
         <nav style={{ display: "flex", gap: 28, alignItems: "center", flexWrap: "wrap" }}>
           <a href="#generate" className="nav-link">Generate</a>

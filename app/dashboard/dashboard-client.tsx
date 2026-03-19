@@ -261,8 +261,7 @@ export default function DashboardClient() {
         backdropFilter: "blur(20px)",
       }}>
         <Link href="/" style={{ textDecoration: "none", fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 20 }}>
-          <span style={{ color: "#a78bff" }}>Midilli</span>{" "}
-          <span style={{ color: "#38d9f5" }}>AI</span>
+          <span style={{ color: "#a78bff" }}>MIDILLI</span>
         </Link>
         <nav style={{ display: "flex", gap: 24, alignItems: "center" }}>
           <Link href="/#generate" className="nav-link-dash">Generate</Link>
