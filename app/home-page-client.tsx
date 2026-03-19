@@ -88,9 +88,24 @@ export default function HomePageClient() {
   }, []);
 
   const demoExamples = [
-    { prompt: "A neon-lit cyberpunk city at midnight", src: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=700&q=80&auto=format&fit=crop", use: "Used as YouTube thumbnail — 120K views" },
-    { prompt: "Deep space nebula, purple and violet", src: "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=700&q=80&auto=format&fit=crop", use: "Used as Shopify product visual" },
-    { prompt: "Abstract colorful light explosion", src: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=700&q=80&auto=format&fit=crop", use: "Used as Instagram ad creative" },
+    {
+      prompt: "Cyberpunk city at night, neon rain, cinematic",
+      src: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=900&q=85&auto=format&fit=crop",
+      use: "YouTube Thumbnail — 120K views",
+      tag: "Sci-Fi / Cinematic",
+    },
+    {
+      prompt: "Futuristic product ad, chrome robot, dark studio",
+      src: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=900&q=85&auto=format&fit=crop",
+      use: "Product Ad — Used in paid campaign",
+      tag: "AI Product Ad",
+    },
+    {
+      prompt: "Luxury fashion editorial, minimal white background",
+      src: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=900&q=85&auto=format&fit=crop",
+      use: "Instagram Campaign — 4.1% CTR",
+      tag: "Fashion Editorial",
+    },
   ];
 
   useEffect(() => {
@@ -485,7 +500,7 @@ export default function HomePageClient() {
           right: 10px;
           padding: 4px 10px;
           border-radius: 999px;
-          background: rgba(0,0,0,0.6);
+          background: rgba(0,0,0,0.7);
           backdrop-filter: blur(8px);
           font-size: 11px;
           color: #4cebb8;
@@ -493,6 +508,13 @@ export default function HomePageClient() {
           display: flex;
           align-items: center;
           gap: 5px;
+          opacity: 0;
+          transform: translateY(-4px);
+          transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .showcase-card:hover .gen-badge {
+          opacity: 1;
+          transform: translateY(0);
         }
 
         @media (max-width: 768px) {
@@ -570,7 +592,7 @@ export default function HomePageClient() {
 
       {/* ── HERO ── */}
       <section style={{ padding: "90px 24px 70px", position: "relative", zIndex: 1 }}>
-        <div className="hero-two-col" style={{ maxWidth: 1160, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
+        <div className="hero-two-col" style={{ maxWidth: 1240, margin: "0 auto", display: "grid", gridTemplateColumns: "44% 56%", gap: 56, alignItems: "center" }}>
 
           {/* Left: Copy */}
           <div>
@@ -593,7 +615,7 @@ export default function HomePageClient() {
               <span className="shimmer-text">10 seconds.</span>
             </h1>
 
-            <p className="hero-animate-delay2" style={{ maxWidth: 480, margin: "24px 0 0", color: "#8885a8", lineHeight: 1.85, fontSize: 17 }}>
+            <p className="hero-animate-delay2" style={{ maxWidth: 420, margin: "24px 0 0", color: "#8885a8", lineHeight: 1.9, fontSize: 16 }}>
               Describe what you want in plain language. MIDILLI turns it into a ready-to-use visual instantly. No learning curve. No designer needed.
             </p>
 
@@ -607,7 +629,14 @@ export default function HomePageClient() {
             </div>
 
             <div className="hero-animate-delay2" style={{ marginTop: 16, color: "#8885a8", fontSize: 13 }}>
-              20 free credits. No credit card. No tutorial needed.
+              20 free credits · No credit card · No tutorial needed
+            </div>
+            <div className="hero-animate-delay2" style={{ marginTop: 8, display: "flex", gap: 16, flexWrap: "wrap" }}>
+              {["Ads", "Thumbnails", "Products", "Pitch decks"].map((tag) => (
+                <span key={tag} style={{ fontSize: 12, color: "#7c5cfc", display: "flex", alignItems: "center", gap: 4 }}>
+                  <span style={{ opacity: 0.5 }}>✓</span> {tag}
+                </span>
+              ))}
             </div>
 
             <div style={{ display: "flex", gap: 36, marginTop: 44, flexWrap: "wrap" }}>
@@ -649,7 +678,7 @@ export default function HomePageClient() {
               </div>
 
               {/* Output image */}
-              <div style={{ position: "relative", height: 300, background: "#0a0a14", overflow: "hidden" }}>
+              <div style={{ position: "relative", height: 420, background: "#0a0a14", overflow: "hidden" }}>
                 {demoExamples.map((ex, i) => (
                   <img
                     key={ex.src}
@@ -686,22 +715,36 @@ export default function HomePageClient() {
         </div>
       </section>
 
+      {/* ── Hero → Slider Bridge ── */}
+      <div style={{ position: "relative", zIndex: 1, textAlign: "center", padding: "0 24px 0" }}>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 12, padding: "10px 24px", borderRadius: 999, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", color: "#8885a8", fontSize: 13 }}>
+          <span style={{ display: "inline-flex", gap: 4 }}>
+            {[0,1,2].map(i => <span key={i} style={{ width: 6, height: 6, borderRadius: 999, background: i === 0 ? "#7c5cfc" : i === 1 ? "#e84fbc" : "#38d9f5", opacity: 0.7 }} />)}
+          </span>
+          Here is what people are creating right now
+          <span style={{ opacity: 0.4 }}>↓</span>
+        </div>
+      </div>
+
       {/* ── Image Showcase Slider ── */}
       <section
-        style={{ padding: "72px 0 64px", position: "relative", zIndex: 1, overflow: "hidden" }}
+        style={{ padding: "36px 0 64px", position: "relative", zIndex: 1, overflow: "hidden" }}
         onMouseEnter={() => setSliderPaused(true)}
         onMouseLeave={() => setSliderPaused(false)}
       >
         {/* Section header */}
-        <div style={{ textAlign: "center", marginBottom: 40, padding: "0 24px" }}>
+        <div style={{ textAlign: "center", marginBottom: 44, padding: "0 24px" }}>
           <div style={{ color: "#7c5cfc", fontSize: 12, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 14 }}>
-            Visual proof
+            Unlimited range
           </div>
-          <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: "clamp(22px, 3vw, 32px)", fontWeight: 700, letterSpacing: -0.5, margin: 0, color: "#f0eeff" }}>
-            Real outputs. Generated in under 10 seconds.
+          <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: "clamp(26px, 3.5vw, 42px)", fontWeight: 800, letterSpacing: -1, margin: 0, color: "#f0eeff", lineHeight: 1.1 }}>
+            Not concepts.{" "}
+            <span style={{ background: "linear-gradient(135deg,#a78bff,#e84fbc)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+              Real outputs.
+            </span>
           </h2>
-          <p style={{ color: "#8885a8", fontSize: 15, marginTop: 10, marginBottom: 0 }}>
-            Every image below was created by typing a single sentence.
+          <p style={{ color: "#8885a8", fontSize: 15, marginTop: 14, marginBottom: 0, maxWidth: 480, margin: "14px auto 0" }}>
+            Every image below was created from a single sentence. Sci-fi, fashion, product ads, gaming — no limits.
           </p>
         </div>
 
@@ -716,30 +759,30 @@ export default function HomePageClient() {
             }}
           >
             {[
-              { src: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=500&q=80&auto=format&fit=crop", label: "YouTube Thumbnail", w: 420 },
-              { src: "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=500&q=80&auto=format&fit=crop", label: "Shopify Product", w: 340 },
-              { src: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=500&q=80&auto=format&fit=crop", label: "Instagram Ad", w: 380 },
-              { src: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=500&q=80&auto=format&fit=crop", label: "Tech Visual", w: 360 },
-              { src: "https://images.unsplash.com/photo-1480796927426-f609979314bd?w=500&q=80&auto=format&fit=crop", label: "Pitch Deck Cover", w: 400 },
-              { src: "https://images.unsplash.com/photo-1549490349-8643362247b5?w=500&q=80&auto=format&fit=crop", label: "Brand Visual", w: 350 },
-              { src: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=500&q=80&auto=format&fit=crop", label: "Blog Cover", w: 390 },
-              { src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&q=80&auto=format&fit=crop", label: "Social Media Post", w: 360 },
-              { src: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=500&q=80&auto=format&fit=crop", label: "YouTube Thumbnail", w: 420 },
-              { src: "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=500&q=80&auto=format&fit=crop", label: "Shopify Product", w: 340 },
-              { src: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=500&q=80&auto=format&fit=crop", label: "Instagram Ad", w: 380 },
-              { src: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=500&q=80&auto=format&fit=crop", label: "Tech Visual", w: 360 },
-              { src: "https://images.unsplash.com/photo-1480796927426-f609979314bd?w=500&q=80&auto=format&fit=crop", label: "Pitch Deck Cover", w: 400 },
-              { src: "https://images.unsplash.com/photo-1549490349-8643362247b5?w=500&q=80&auto=format&fit=crop", label: "Brand Visual", w: 350 },
-              { src: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=500&q=80&auto=format&fit=crop", label: "Blog Cover", w: 390 },
-              { src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&q=80&auto=format&fit=crop", label: "Social Media Post", w: 360 },
+              { src: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&q=85&auto=format&fit=crop", label: "YouTube Thumbnail (ready to upload)", time: "7s", w: 440 },
+              { src: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600&q=85&auto=format&fit=crop", label: "AI Product Ad (for store)", time: "9s", w: 360 },
+              { src: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=600&q=85&auto=format&fit=crop", label: "Instagram Ad (ready to run)", time: "6s", w: 400 },
+              { src: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=600&q=85&auto=format&fit=crop", label: "Sci-Fi Scene (cinematic)", time: "11s", w: 460 },
+              { src: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=85&auto=format&fit=crop", label: "Gaming Banner (for stream)", time: "8s", w: 380 },
+              { src: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&q=85&auto=format&fit=crop", label: "Blog Cover (ready to publish)", time: "7s", w: 420 },
+              { src: "https://images.unsplash.com/photo-1549490349-8643362247b5?w=600&q=85&auto=format&fit=crop", label: "Abstract Brand Visual", time: "9s", w: 350 },
+              { src: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=85&auto=format&fit=crop", label: "Tech Visual (for deck)", time: "6s", w: 380 },
+              { src: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&q=85&auto=format&fit=crop", label: "YouTube Thumbnail (ready to upload)", time: "7s", w: 440 },
+              { src: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600&q=85&auto=format&fit=crop", label: "AI Product Ad (for store)", time: "9s", w: 360 },
+              { src: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=600&q=85&auto=format&fit=crop", label: "Instagram Ad (ready to run)", time: "6s", w: 400 },
+              { src: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=600&q=85&auto=format&fit=crop", label: "Sci-Fi Scene (cinematic)", time: "11s", w: 460 },
+              { src: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=85&auto=format&fit=crop", label: "Gaming Banner (for stream)", time: "8s", w: 380 },
+              { src: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&q=85&auto=format&fit=crop", label: "Blog Cover (ready to publish)", time: "7s", w: 420 },
+              { src: "https://images.unsplash.com/photo-1549490349-8643362247b5?w=600&q=85&auto=format&fit=crop", label: "Abstract Brand Visual", time: "9s", w: 350 },
+              { src: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=85&auto=format&fit=crop", label: "Tech Visual (for deck)", time: "6s", w: 380 },
             ].map((img, i) => (
               <div
                 key={i}
                 className="showcase-card"
                 style={{
                   width: img.w,
-                  height: 280,
-                  boxShadow: "0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.06)",
+                  height: 290,
+                  boxShadow: "0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06)",
                 }}
               >
                 <img
@@ -750,7 +793,7 @@ export default function HomePageClient() {
                 <div className="card-label">{img.label}</div>
                 <div className="gen-badge">
                   <span style={{ width: 5, height: 5, borderRadius: 999, background: "#4cebb8", boxShadow: "0 0 4px #4cebb8", display: "inline-block" }} />
-                  ~8s
+                  ~{img.time}
                 </div>
               </div>
             ))}
@@ -768,30 +811,30 @@ export default function HomePageClient() {
             }}
           >
             {[
-              { src: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=500&q=80&auto=format&fit=crop", label: "Social Media Content", w: 370 },
-              { src: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&q=80&auto=format&fit=crop", label: "Gaming Banner", w: 420 },
-              { src: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=500&q=80&auto=format&fit=crop", label: "Architecture Visual", w: 380 },
-              { src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=80&auto=format&fit=crop", label: "Product Shot", w: 350 },
-              { src: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=500&q=80&auto=format&fit=crop", label: "App Store Screenshot", w: 400 },
-              { src: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=500&q=80&auto=format&fit=crop", label: "Blog Cover", w: 360 },
-              { src: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=500&q=80&auto=format&fit=crop", label: "Fashion Editorial", w: 340 },
-              { src: "https://images.unsplash.com/photo-1573408301185-9519f94816b5?w=500&q=80&auto=format&fit=crop", label: "Pitch Deck Slide", w: 390 },
-              { src: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=500&q=80&auto=format&fit=crop", label: "Social Media Content", w: 370 },
-              { src: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&q=80&auto=format&fit=crop", label: "Gaming Banner", w: 420 },
-              { src: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=500&q=80&auto=format&fit=crop", label: "Architecture Visual", w: 380 },
-              { src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=80&auto=format&fit=crop", label: "Product Shot", w: 350 },
-              { src: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=500&q=80&auto=format&fit=crop", label: "App Store Screenshot", w: 400 },
-              { src: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=500&q=80&auto=format&fit=crop", label: "Blog Cover", w: 360 },
-              { src: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=500&q=80&auto=format&fit=crop", label: "Fashion Editorial", w: 340 },
-              { src: "https://images.unsplash.com/photo-1573408301185-9519f94816b5?w=500&q=80&auto=format&fit=crop", label: "Pitch Deck Slide", w: 390 },
+              { src: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600&q=85&auto=format&fit=crop", label: "Fashion Editorial (campaign-ready)", time: "8s", w: 370 },
+              { src: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=600&q=85&auto=format&fit=crop", label: "Cosmic Visual (for merch)", time: "12s", w: 430 },
+              { src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=85&auto=format&fit=crop", label: "Landscape (for print)", time: "9s", w: 400 },
+              { src: "https://images.unsplash.com/photo-1480796927426-f609979314bd?w=600&q=85&auto=format&fit=crop", label: "City Aerial (pitch deck)", time: "7s", w: 380 },
+              { src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=85&auto=format&fit=crop", label: "Product Image (for store)", time: "6s", w: 350 },
+              { src: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=600&q=85&auto=format&fit=crop", label: "Architecture (brand identity)", time: "10s", w: 420 },
+              { src: "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=600&q=85&auto=format&fit=crop", label: "Abstract Neon (NFT / merch)", time: "8s", w: 360 },
+              { src: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=600&q=85&auto=format&fit=crop", label: "Social Content (7-day pack)", time: "5s", w: 390 },
+              { src: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600&q=85&auto=format&fit=crop", label: "Fashion Editorial (campaign-ready)", time: "8s", w: 370 },
+              { src: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=600&q=85&auto=format&fit=crop", label: "Cosmic Visual (for merch)", time: "12s", w: 430 },
+              { src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=85&auto=format&fit=crop", label: "Landscape (for print)", time: "9s", w: 400 },
+              { src: "https://images.unsplash.com/photo-1480796927426-f609979314bd?w=600&q=85&auto=format&fit=crop", label: "City Aerial (pitch deck)", time: "7s", w: 380 },
+              { src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=85&auto=format&fit=crop", label: "Product Image (for store)", time: "6s", w: 350 },
+              { src: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=600&q=85&auto=format&fit=crop", label: "Architecture (brand identity)", time: "10s", w: 420 },
+              { src: "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=600&q=85&auto=format&fit=crop", label: "Abstract Neon (NFT / merch)", time: "8s", w: 360 },
+              { src: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=600&q=85&auto=format&fit=crop", label: "Social Content (7-day pack)", time: "5s", w: 390 },
             ].map((img, i) => (
               <div
                 key={i}
                 className="showcase-card"
                 style={{
                   width: img.w,
-                  height: 260,
-                  boxShadow: "0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.06)",
+                  height: 270,
+                  boxShadow: "0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06)",
                 }}
               >
                 <img
@@ -802,7 +845,7 @@ export default function HomePageClient() {
                 <div className="card-label">{img.label}</div>
                 <div className="gen-badge">
                   <span style={{ width: 5, height: 5, borderRadius: 999, background: "#4cebb8", boxShadow: "0 0 4px #4cebb8", display: "inline-block" }} />
-                  ~8s
+                  ~{img.time}
                 </div>
               </div>
             ))}
