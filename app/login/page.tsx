@@ -21,7 +21,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     <AuthView
       mode="login"
       confirmed={params?.confirmed === "1"}
-      nextPath={params?.next || "/dashboard"}
+      nextPath={params?.next || "/"}
     />
   );
 }
