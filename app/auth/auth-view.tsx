@@ -51,7 +51,7 @@ const modeCopy = {
 export default function AuthView({
   mode,
   confirmed = false,
-  nextPath = "/dashboard",
+  nextPath = "/",
 }: AuthViewProps) {
   const router = useRouter();
   const [fullName, setFullName] = useState("");
