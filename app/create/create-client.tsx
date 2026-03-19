@@ -280,15 +280,18 @@ export default function CreateClient() {
             letterSpacing: "-0.03em",
             background: T.logoGrad,
             WebkitBackgroundClip: "text",
+            backgroundClip: "text",
             WebkitTextFillColor: "transparent",
+            color: "transparent",
+            display: "inline-block",
             transition: "all 0.5s",
           }}>MIDILLI</span>
-          <span style={{ color: "rgba(255,255,255,0.15)", fontSize: 14 }}>/</span>
+          <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 14 }}>/</span>
           <span style={{
             color: T.accent,
             fontSize: 13,
             fontWeight: 600,
-            opacity: 0.8,
+            opacity: 0.9,
             transition: "color 0.5s",
           }}>Studio</span>
         </Link>
