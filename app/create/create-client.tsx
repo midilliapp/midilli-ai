@@ -125,8 +125,16 @@ export default function CreateClient() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
 
+  const [curtainDone, setCurtainDone] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
+
+  // Entry curtain: slide away after mount
+  useEffect(() => {
+    const t = setTimeout(() => setCurtainDone(true), 700);
+    return () => clearTimeout(t);
+  }, []);
 
   // Load sessions from localStorage
   useEffect(() => {
@@ -302,6 +310,27 @@ export default function CreateClient() {
         @keyframes scanLine { 0% { top: -4px; opacity: 0; } 10%,90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
         @keyframes pulseRing { 0%,100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.06); opacity: 0.2; } }
 
+        @keyframes studioRevealCurtain {
+          0%   { transform: translateY(0%); opacity: 1; }
+          100% { transform: translateY(-100%); opacity: 1; }
+        }
+        @keyframes studioEnterNav {
+          0%   { opacity: 0; transform: translateY(-12px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes studioEnterBody {
+          0%   { opacity: 0; transform: translateY(18px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes studioEnterBar {
+          0%   { opacity: 0; transform: translateY(20px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .studio-nav-enter  { animation: studioEnterNav  0.5s cubic-bezier(0.22,1,0.36,1) 0.15s both; }
+        .studio-body-enter { animation: studioEnterBody 0.6s cubic-bezier(0.22,1,0.36,1) 0.25s both; }
+        .studio-bar-enter  { animation: studioEnterBar  0.5s cubic-bezier(0.22,1,0.36,1) 0.35s both; }
+
         .chip-btn {
           display: flex; align-items: center; gap: 6px;
           padding: 6px 12px; border-radius: 999px;
@@ -347,8 +376,28 @@ export default function CreateClient() {
         .generate-btn-main:disabled { opacity: 0.4; cursor: not-allowed; }
       `}</style>
 
+      {/* ── Entry Curtain (slides up & away) ── */}
+      {!curtainDone && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 9998,
+          background: "#06060f",
+          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+          animation: "studioRevealCurtain 0.6s cubic-bezier(0.76, 0, 0.24, 1) 0.55s both",
+          pointerEvents: "none",
+        }}>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 34, fontWeight: 900, letterSpacing: "-0.04em", display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
+              <span style={{ background: "linear-gradient(135deg, #c4b8ff, #a78bff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>MIDILLI</span>
+              <span style={{ color: "rgba(255,255,255,0.15)", fontWeight: 300, fontSize: 28 }}>/</span>
+              <span style={{ color: "#a78bfa", fontSize: 20, fontWeight: 600 }}>Studio</span>
+            </div>
+            <div style={{ marginTop: 6, height: 1, background: "linear-gradient(90deg, transparent, rgba(167,139,250,0.4), transparent)" }} />
+          </div>
+        </div>
+      )}
+
       {/* ── TOP NAV ── */}
-      <nav style={{ height: 52, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0, background: "rgba(10,10,15,0.95)", backdropFilter: "blur(12px)" }}>
+      <nav className="studio-nav-enter" style={{ height: 52, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0, background: "rgba(10,10,15,0.95)", backdropFilter: "blur(12px)" }}>
         <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 6 }}>
           <span style={{ fontSize: 16, fontWeight: 900, letterSpacing: "-0.03em", color: tab === "video" ? "#38bdf8" : "#c4b8ff" }}>MIDILLI</span>
           <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 12 }}>/</span>
@@ -396,7 +445,7 @@ export default function CreateClient() {
       </nav>
 
       {/* ── BODY (sidebar + canvas) ── */}
-      <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
+      <div className="studio-body-enter" style={{ flex: 1, display: "flex", overflow: "hidden" }}>
 
       {/* ── SESSIONS SIDEBAR ── */}
       <div style={{ width: 200, flexShrink: 0, background: "#0d0d18", borderRight: "1px solid rgba(255,255,255,0.06)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
@@ -622,7 +671,7 @@ export default function CreateClient() {
       )}
 
       {/* ── BOTTOM BAR ── */}
-      <div ref={popupRef} style={{ flexShrink: 0, padding: "12px 20px 16px", background: "rgba(10,10,15,0.98)", borderTop: "1px solid rgba(255,255,255,0.06)", backdropFilter: "blur(20px)", position: "relative" }}>
+      <div ref={popupRef} className="studio-bar-enter" style={{ flexShrink: 0, padding: "12px 20px 16px", background: "rgba(10,10,15,0.98)", borderTop: "1px solid rgba(255,255,255,0.06)", backdropFilter: "blur(20px)", position: "relative" }}>
 
         {/* Popups */}
         {openPopup === "model" && (

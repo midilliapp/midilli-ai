@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { supabase } from "@/lib/supabase";
@@ -50,6 +51,8 @@ const MODELS = [
 type ModelId = typeof MODELS[number]["id"];
 
 export default function HomePageClient() {
+  const router = useRouter();
+  const [transitioning, setTransitioning] = useState(false);
   const [tab, setTab] = useState<"image" | "video">("image");
   const [prompt, setPrompt] = useState("");
   const [motionPrompt, setMotionPrompt] = useState("");
@@ -159,6 +162,12 @@ export default function HomePageClient() {
     window.setTimeout(() => setToast(""), 2500);
   };
 
+  const goToStudio = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setTransitioning(true);
+    setTimeout(() => router.push("/create"), 920);
+  };
+
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
 
@@ -254,6 +263,27 @@ export default function HomePageClient() {
     >
       <style jsx global>{`
         @import url("https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;700&display=swap");
+
+        @keyframes curtainUp {
+          0%   { transform: translateY(100%); }
+          100% { transform: translateY(0%); }
+        }
+        @keyframes curtainLogo {
+          0%   { opacity: 0; transform: scale(0.92) translateY(10px); }
+          100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes curtainSlash {
+          0%   { width: 0; opacity: 0; }
+          100% { width: 48px; opacity: 1; }
+        }
+        @keyframes curtainSub {
+          0%   { opacity: 0; transform: translateY(8px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes curtainDots {
+          0%, 80%, 100% { transform: scale(0.6); opacity: 0.3; }
+          40%            { transform: scale(1); opacity: 1; }
+        }
 
         @keyframes blob1 {
           0%   { transform: translate(0px, 0px) scale(1); }
@@ -599,6 +629,46 @@ export default function HomePageClient() {
         }
       `}</style>
 
+      {/* ── Page Transition Overlay ── */}
+      {transitioning && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 9999,
+          background: "#06060f",
+          animation: "curtainUp 0.72s cubic-bezier(0.76, 0, 0.24, 1) forwards",
+          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+          gap: 0, overflow: "hidden",
+        }}>
+          {/* Top edge glow line */}
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg, transparent 0%, #7c5cfc 30%, #e84fbc 70%, transparent 100%)", animation: "curtainLogo 0.4s ease 0.5s both" }} />
+
+          {/* Logo */}
+          <div style={{ animation: "curtainLogo 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.35s both", textAlign: "center" }}>
+            <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 38, fontWeight: 900, letterSpacing: "-0.04em", display: "flex", alignItems: "center", justifyContent: "center", gap: 12 }}>
+              <span style={{ background: "linear-gradient(135deg, #c4b8ff, #a78bff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>MIDILLI</span>
+              <span style={{ color: "rgba(255,255,255,0.15)", fontWeight: 300, fontSize: 32 }}>/</span>
+              <span style={{ color: "#a78bfa", fontSize: 22, fontWeight: 600, letterSpacing: "-0.02em" }}>Studio</span>
+            </div>
+            {/* Animated underline */}
+            <div style={{ margin: "14px auto 0", height: 1, background: "linear-gradient(90deg, transparent, rgba(167,139,250,0.5), transparent)", animation: "curtainSlash 0.5s ease 0.65s both", overflow: "hidden" }} />
+            {/* Sub text */}
+            <div style={{ marginTop: 18, fontSize: 13, color: "#4a4a6a", letterSpacing: "0.06em", animation: "curtainSub 0.4s ease 0.7s both" }}>
+              Entering creative studio
+            </div>
+          </div>
+
+          {/* Loading dots */}
+          <div style={{ display: "flex", gap: 7, marginTop: 40, animation: "curtainSub 0.4s ease 0.75s both" }}>
+            {[0, 1, 2].map((i) => (
+              <span key={i} style={{
+                width: 5, height: 5, borderRadius: "50%",
+                background: "#7c5cfc", display: "block",
+                animation: `curtainDots 1.2s ease-in-out ${i * 0.18}s infinite`,
+              }} />
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* ── Animated background ── */}
       <div style={{ position: "fixed", inset: 0, zIndex: 0, overflow: "hidden", pointerEvents: "none" }}>
         <div className="bg-blob bg-blob-1" />
@@ -700,9 +770,9 @@ export default function HomePageClient() {
             </p>
 
             <div className="hero-animate-delay2" style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 32 }}>
-              <Link href="/create" className="btn-primary" style={{ fontSize: 14, padding: "14px 26px" }}>
+              <button onClick={goToStudio} className="btn-primary" style={{ fontSize: 14, padding: "14px 26px", cursor: "pointer", fontFamily: "inherit", border: "none" }}>
                 ✦ Start Creating — Free
-              </Link>
+              </button>
               <Link href="/gallery" className="btn-secondary" style={{ fontSize: 14, padding: "14px 22px" }}>
                 See Results →
               </Link>
@@ -1349,9 +1419,9 @@ export default function HomePageClient() {
           <div style={{ color: "#8885a8", marginBottom: 32, fontSize: 15, lineHeight: 1.7 }}>
             No credit card. Instant result. Then decide.
           </div>
-          <Link href="/create" className="btn-primary" style={{ fontSize: 16, padding: "18px 40px" }}>
+          <button onClick={goToStudio} className="btn-primary" style={{ fontSize: 16, padding: "18px 40px", cursor: "pointer", fontFamily: "inherit", border: "none" }}>
             ✦ Start Creating — Free
-          </Link>
+          </button>
         </div>
       </section>
 
