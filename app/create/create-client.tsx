@@ -126,6 +126,14 @@ export default function CreateClient() {
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
 
   const [curtainDone, setCurtainDone] = useState(false);
+  const [tabFlash, setTabFlash] = useState<"image" | "video" | null>(null);
+
+  const switchTab = (newTab: "image" | "video") => {
+    if (newTab === tab) return;
+    setTabFlash(newTab);
+    setTimeout(() => { setTab(newTab); setOpenPopup(null); }, 260);
+    setTimeout(() => setTabFlash(null), 620);
+  };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
@@ -363,6 +371,22 @@ export default function CreateClient() {
         .popup-item:hover { background: rgba(168,85,247,0.12); color: #e2d9ff; }
         .popup-item.selected { background: rgba(168,85,247,0.2); color: white; }
 
+        @keyframes tabSweep {
+          0%   { transform: translateX(-105%); }
+          100% { transform: translateX(105%); }
+        }
+        @keyframes tabFlashBg {
+          0%   { opacity: 0; }
+          25%  { opacity: 1; }
+          75%  { opacity: 1; }
+          100% { opacity: 0; }
+        }
+        @keyframes tabContentIn {
+          0%   { opacity: 0; transform: scale(0.98) translateY(8px); }
+          100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .tab-content-enter { animation: tabContentIn 0.38s cubic-bezier(0.22,1,0.36,1) both; }
+
         .generate-btn-main {
           width: 42px; height: 42px; border-radius: 50%;
           background: linear-gradient(135deg, #7c3aed, #a855f7);
@@ -410,8 +434,8 @@ export default function CreateClient() {
             { key: "image", label: "✦ Image" },
             { key: "video", label: "▶ Video" },
           ].map((t) => (
-            <button key={t.key} onClick={() => setTab(t.key as "image" | "video")}
-              style={{ padding: "6px 16px", borderRadius: 7, border: "none", background: tab === t.key ? (t.key === "video" ? "rgba(0,180,220,0.25)" : "rgba(124,92,252,0.3)") : "transparent", color: tab === t.key ? (t.key === "video" ? "#00d4ff" : "white") : "#6b7280", fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.2s" }}
+            <button key={t.key} onClick={() => switchTab(t.key as "image" | "video")}
+              style={{ padding: "6px 16px", borderRadius: 7, border: "none", background: tab === t.key ? (t.key === "video" ? "rgba(0,180,220,0.25)" : "rgba(124,92,252,0.3)") : "transparent", color: tab === t.key ? (t.key === "video" ? "#00d4ff" : "white") : "#6b7280", fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.2s", fontFamily: "inherit" }}
             >{t.label}</button>
           ))}
         </div>
@@ -506,6 +530,48 @@ export default function CreateClient() {
       {/* ── MAIN CANVAS ── */}
       <div style={{ flex: 1, position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
 
+        {/* ── TAB SWITCH FLASH ── */}
+        {tabFlash && (
+          <>
+            {/* Background tint */}
+            <div style={{
+              position: "absolute", inset: 0, zIndex: 40, pointerEvents: "none",
+              background: tabFlash === "video"
+                ? "radial-gradient(ellipse at 50% 50%, rgba(0,180,255,0.18) 0%, rgba(0,80,160,0.10) 55%, transparent 80%)"
+                : "radial-gradient(ellipse at 50% 50%, rgba(124,92,252,0.18) 0%, rgba(80,0,160,0.10) 55%, transparent 80%)",
+              animation: "tabFlashBg 0.62s ease forwards",
+            }} />
+
+            {/* Sweep beam */}
+            <div style={{
+              position: "absolute", inset: 0, zIndex: 41, pointerEvents: "none",
+              overflow: "hidden",
+            }}>
+              <div style={{
+                position: "absolute", top: 0, bottom: 0,
+                width: "55%",
+                background: tabFlash === "video"
+                  ? "linear-gradient(90deg, transparent 0%, rgba(0,212,255,0.12) 30%, rgba(0,180,255,0.28) 50%, rgba(0,212,255,0.12) 70%, transparent 100%)"
+                  : "linear-gradient(90deg, transparent 0%, rgba(168,85,247,0.12) 30%, rgba(124,92,252,0.28) 50%, rgba(168,85,247,0.12) 70%, transparent 100%)",
+                animation: "tabSweep 0.62s cubic-bezier(0.4,0,0.2,1) forwards",
+              }} />
+            </div>
+
+            {/* Horizontal glow line — center */}
+            <div style={{
+              position: "absolute", left: 0, right: 0, top: "50%", height: 1,
+              background: tabFlash === "video"
+                ? "linear-gradient(90deg, transparent, rgba(0,212,255,0.6) 30%, rgba(56,189,248,0.9) 50%, rgba(0,212,255,0.6) 70%, transparent)"
+                : "linear-gradient(90deg, transparent, rgba(168,85,247,0.6) 30%, rgba(192,132,252,0.9) 50%, rgba(168,85,247,0.6) 70%, transparent)",
+              zIndex: 42, pointerEvents: "none",
+              animation: "tabFlashBg 0.62s ease forwards",
+              boxShadow: tabFlash === "video"
+                ? "0 0 24px 4px rgba(0,212,255,0.35)"
+                : "0 0 24px 4px rgba(168,85,247,0.35)",
+            }} />
+          </>
+        )}
+
         {/* Background grid */}
         <div style={{ position: "absolute", inset: 0, backgroundImage: tab === "video" ? "linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px)" : "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)", backgroundSize: "48px 48px", pointerEvents: "none", transition: "background-image 0.5s" }} />
 
@@ -569,7 +635,7 @@ export default function CreateClient() {
 
         {/* VIDEO TAB content */}
         {tab === "video" && (
-          <div style={{ textAlign: "center", zIndex: 1, padding: 40, width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+          <div className="tab-content-enter" style={{ textAlign: "center", zIndex: 1, padding: 40, width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
 
             {/* VIDEO LOADING */}
             {videoLoading && (
