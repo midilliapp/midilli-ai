@@ -591,22 +591,26 @@ export default function HomePageClient() {
       </header>
 
       {/* ── HERO ── */}
-      <section style={{ padding: "90px 24px 70px", position: "relative", zIndex: 1 }}>
-        <div className="hero-two-col" style={{ maxWidth: 1240, margin: "0 auto", display: "grid", gridTemplateColumns: "44% 56%", gap: 56, alignItems: "center" }}>
+      <section style={{ padding: "108px 48px 96px", position: "relative", zIndex: 1 }}>
+        <div
+          className="hero-two-col"
+          style={{ maxWidth: 1440, margin: "0 auto", display: "grid", gridTemplateColumns: "38% 62%", gap: 72, alignItems: "center" }}
+        >
 
-          {/* Left: Copy */}
-          <div>
+          {/* ── LEFT: Editorial copy ── */}
+          <div style={{ paddingRight: 8 }}>
+
             <div
               className="badge-pulse hero-animate"
-              style={{ display: "inline-flex", gap: 10, padding: "8px 18px", borderRadius: 999, fontSize: 13, marginBottom: 28, color: "#c4b8ff", border: "1px solid rgba(124,92,252,0.35)", background: "rgba(124,92,252,0.1)" }}
+              style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 999, fontSize: 12, marginBottom: 36, color: "#c4b8ff", border: "1px solid rgba(124,92,252,0.3)", background: "rgba(124,92,252,0.08)", letterSpacing: 0.3 }}
             >
-              <span style={{ width: 8, height: 8, borderRadius: 999, background: "#38d9f5", marginTop: 4, boxShadow: "0 0 8px #38d9f5", flexShrink: 0 }} />
-              No prompt skills needed — just describe it
+              <span style={{ width: 7, height: 7, borderRadius: 999, background: "#38d9f5", boxShadow: "0 0 8px #38d9f5", flexShrink: 0 }} />
+              No prompt skills needed
             </div>
 
             <h1
               className="hero-animate-delay"
-              style={{ margin: 0, fontFamily: "'Syne', sans-serif", fontSize: "clamp(44px, 5.5vw, 80px)", lineHeight: 0.96, letterSpacing: -3 }}
+              style={{ margin: 0, fontFamily: "'Syne', sans-serif", fontSize: "clamp(52px, 6.2vw, 96px)", lineHeight: 0.93, letterSpacing: -4, fontWeight: 800 }}
             >
               From idea
               <br />
@@ -615,70 +619,71 @@ export default function HomePageClient() {
               <span className="shimmer-text">10 seconds.</span>
             </h1>
 
-            <p className="hero-animate-delay2" style={{ maxWidth: 420, margin: "24px 0 0", color: "#8885a8", lineHeight: 1.9, fontSize: 16 }}>
-              Describe what you want in plain language. MIDILLI turns it into a ready-to-use visual instantly. No learning curve. No designer needed.
+            <p
+              className="hero-animate-delay2"
+              style={{ maxWidth: 460, margin: "32px 0 0", color: "#8885a8", lineHeight: 1.9, fontSize: 17 }}
+            >
+              Describe what you want in plain language. MIDILLI turns it into a ready-to-use visual. No learning curve. No designer needed.
             </p>
 
-            <div className="hero-animate-delay2" style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 36 }}>
-              <a href="#generate" className="btn-primary" style={{ fontSize: 15, padding: "16px 30px" }}>
+            <div className="hero-animate-delay2" style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 44 }}>
+              <a href="#generate" className="btn-primary" style={{ fontSize: 15, padding: "17px 32px" }}>
                 Create Your First Image — Free
               </a>
-              <Link href="/gallery" className="btn-secondary" style={{ fontSize: 15, padding: "16px 28px" }}>
+              <Link href="/gallery" className="btn-secondary" style={{ fontSize: 15, padding: "17px 28px" }}>
                 See Real Results →
               </Link>
             </div>
 
-            <div className="hero-animate-delay2" style={{ marginTop: 16, color: "#8885a8", fontSize: 13 }}>
-              20 free credits · No credit card · No tutorial needed
+            <div className="hero-animate-delay2" style={{ marginTop: 20, color: "#8885a8", fontSize: 13 }}>
+              20 free credits · No credit card · No tutorial
             </div>
-            <div className="hero-animate-delay2" style={{ marginTop: 8, display: "flex", gap: 16, flexWrap: "wrap" }}>
+
+            <div className="hero-animate-delay2" style={{ marginTop: 10, display: "flex", gap: 18, flexWrap: "wrap" }}>
               {["Ads", "Thumbnails", "Products", "Pitch decks"].map((tag) => (
-                <span key={tag} style={{ fontSize: 12, color: "#7c5cfc", display: "flex", alignItems: "center", gap: 4 }}>
-                  <span style={{ opacity: 0.5 }}>✓</span> {tag}
+                <span key={tag} style={{ fontSize: 12, color: "#7c5cfc", display: "flex", alignItems: "center", gap: 5 }}>
+                  <span style={{ opacity: 0.55 }}>✓</span> {tag}
                 </span>
               ))}
             </div>
 
-            <div style={{ display: "flex", gap: 36, marginTop: 44, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: 40, marginTop: 56, flexWrap: "wrap", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: 32 }}>
               {[
-                { value: "~8s", label: "Avg. generation time" },
+                { value: "~8s", label: "Avg. generation" },
                 { value: "50K+", label: "Images created" },
                 { value: "4.9★", label: "User rating" },
               ].map(({ value, label }) => (
                 <div key={label}>
-                  <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 24, fontWeight: 800, background: "linear-gradient(135deg,#a78bff,#38d9f5)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{value}</div>
-                  <div style={{ color: "#8885a8", fontSize: 12, marginTop: 2 }}>{label}</div>
+                  <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 26, fontWeight: 800, background: "linear-gradient(135deg,#a78bff,#38d9f5)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", lineHeight: 1 }}>{value}</div>
+                  <div style={{ color: "#8885a8", fontSize: 12, marginTop: 5, letterSpacing: 0.3 }}>{label}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Right: Live Demo Output */}
+          {/* ── RIGHT: Cinematic output canvas ── */}
           <div className="hero-animate-delay" style={{ position: "relative" }}>
-            <div style={{ position: "absolute", inset: -40, background: "radial-gradient(ellipse, rgba(124,92,252,0.2) 0%, transparent 70%)", pointerEvents: "none" }} />
 
-            <div style={{ borderRadius: 24, overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(15,15,26,0.9)", backdropFilter: "blur(16px)", boxShadow: "0 32px 80px rgba(0,0,0,0.5)" }}>
-              {/* Mock toolbar */}
-              <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ display: "flex", gap: 6 }}>
-                  {["#fc5c5c","#fbbf24","#4cebb8"].map((c) => (
-                    <div key={c} style={{ width: 10, height: 10, borderRadius: 999, background: c, opacity: 0.7 }} />
-                  ))}
-                </div>
-                <div style={{ flex: 1, textAlign: "center", fontSize: 12, color: "#8885a8" }}>midilli.app — Live Preview</div>
-              </div>
+            {/* Multi-layer ambient glow behind panel */}
+            <div style={{ position: "absolute", top: "10%", left: "5%", width: "90%", height: "80%", background: "radial-gradient(ellipse at 60% 50%, rgba(124,92,252,0.28) 0%, rgba(232,79,188,0.12) 45%, transparent 70%)", filter: "blur(40px)", pointerEvents: "none", zIndex: 0 }} />
+            <div style={{ position: "absolute", top: "20%", right: "0%", width: "60%", height: "60%", background: "radial-gradient(ellipse, rgba(56,217,245,0.12) 0%, transparent 65%)", filter: "blur(50px)", pointerEvents: "none", zIndex: 0 }} />
 
-              {/* Mock prompt input */}
-              <div style={{ padding: "14px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(22,22,42,0.6)" }}>
-                <div style={{ fontSize: 11, color: "#8885a8", marginBottom: 8, letterSpacing: 1, textTransform: "uppercase" }}>Prompt</div>
-                <div style={{ fontSize: 14, color: "#e0dcff", minHeight: 22, display: "flex", alignItems: "center" }}>
-                  {typedText}
-                  <span style={{ display: "inline-block", width: 2, height: 16, background: "#7c5cfc", marginLeft: 2, animation: "glow-pulse 0.8s ease-in-out infinite" }} />
-                </div>
-              </div>
+            {/* Main cinematic panel — image-first, no fake chrome */}
+            <div
+              style={{
+                position: "relative",
+                zIndex: 1,
+                borderRadius: 28,
+                overflow: "hidden",
+                border: "1px solid rgba(255,255,255,0.12)",
+                boxShadow: "0 48px 140px rgba(0,0,0,0.75), 0 0 0 1px rgba(124,92,252,0.12), inset 0 1px 0 rgba(255,255,255,0.07)",
+                background: "#08080f",
+              }}
+            >
+              {/* Image canvas */}
+              <div style={{ position: "relative", height: 540, background: "linear-gradient(135deg, #0a0a18 0%, #08080f 100%)", overflow: "hidden" }}>
 
-              {/* Output image */}
-              <div style={{ position: "relative", height: 420, background: "#0a0a14", overflow: "hidden" }}>
+                {/* Generated images */}
                 {demoExamples.map((ex, i) => (
                   <img
                     key={ex.src}
@@ -688,30 +693,69 @@ export default function HomePageClient() {
                       position: "absolute", inset: 0, width: "100%", height: "100%",
                       objectFit: "cover", display: "block",
                       opacity: i === demoIndex && showDemoOutput ? 1 : 0,
-                      transition: "opacity 0.6s ease",
+                      transition: "opacity 0.9s ease",
                     }}
                   />
                 ))}
+
+                {/* Loading state — minimal, centered */}
                 {!showDemoOutput && (
-                  <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12 }}>
-                    <div style={{ width: 40, height: 40, borderRadius: 999, border: "2px solid transparent", borderTopColor: "#7c5cfc", borderRightColor: "#e84fbc", animation: "spin-slow 0.8s linear infinite" }} />
-                    <div style={{ color: "#8885a8", fontSize: 13 }}>Generating...</div>
+                  <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 18 }}>
+                    <div style={{ position: "relative", width: 56, height: 56 }}>
+                      <div style={{ position: "absolute", inset: 0, borderRadius: 999, border: "1.5px solid transparent", borderTopColor: "#7c5cfc", borderRightColor: "#e84fbc", animation: "spin-slow 0.9s linear infinite" }} />
+                      <div style={{ position: "absolute", inset: 8, borderRadius: 999, border: "1px solid rgba(56,217,245,0.3)", borderTopColor: "#38d9f5", animation: "spin-slow 1.4s linear infinite reverse" }} />
+                    </div>
+                    {/* Typing prompt visible during loading */}
+                    <div style={{ maxWidth: 320, textAlign: "center", padding: "10px 18px", borderRadius: 12, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", fontSize: 14, color: "#a78bff", fontStyle: "italic" }}>
+                      {typedText || "\u00a0"}
+                      <span style={{ display: "inline-block", width: 1.5, height: 14, background: "#7c5cfc", marginLeft: 2, verticalAlign: "middle", animation: "glow-pulse 0.8s ease-in-out infinite" }} />
+                    </div>
+                    <div style={{ color: "#8885a8", fontSize: 12, letterSpacing: 1 }}>Generating...</div>
                   </div>
                 )}
+
+                {/* Result overlays */}
                 {showDemoOutput && (
-                  <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "32px 14px 14px", background: "linear-gradient(to top, rgba(0,0,0,0.75), transparent)" }}>
-                    <div style={{ color: "#4cebb8", fontSize: 12, marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}>
-                      <div style={{ width: 6, height: 6, borderRadius: 999, background: "#4cebb8", boxShadow: "0 0 6px #4cebb8" }} />
-                      Generated in ~8s
+                  <>
+                    {/* Category tag — top right */}
+                    <div style={{ position: "absolute", top: 20, right: 20, padding: "6px 14px", borderRadius: 999, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(12px)", fontSize: 11, fontWeight: 700, color: "#c4b8ff", border: "1px solid rgba(124,92,252,0.25)", letterSpacing: 0.5, textTransform: "uppercase" }}>
+                      {demoExamples[demoIndex].tag}
                     </div>
-                    <div style={{ color: "rgba(255,255,255,0.7)", fontSize: 12 }}>
-                      {demoExamples[demoIndex].use}
+
+                    {/* Bottom gradient overlay with prompt + result */}
+                    <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "80px 28px 28px", background: "linear-gradient(to top, rgba(4,4,12,0.95) 0%, rgba(4,4,12,0.5) 55%, transparent 100%)" }}>
+                      {/* Prompt shown at bottom */}
+                      <div style={{ fontSize: 13, color: "rgba(255,255,255,0.55)", fontStyle: "italic", marginBottom: 10, lineHeight: 1.5 }}>
+                        &ldquo;{demoExamples[demoIndex].prompt}&rdquo;
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#4cebb8", fontSize: 13, fontWeight: 600 }}>
+                          <span style={{ width: 7, height: 7, borderRadius: 999, background: "#4cebb8", boxShadow: "0 0 8px #4cebb8", display: "inline-block", flexShrink: 0 }} />
+                          {demoExamples[demoIndex].use}
+                        </div>
+                        <div style={{ fontSize: 12, color: "#8885a8", padding: "4px 10px", borderRadius: 999, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                          Generated in ~8s
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  </>
                 )}
+              </div>
+
+              {/* Bottom strip: progress dots */}
+              <div style={{ padding: "14px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(8,8,15,0.95)", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                <div style={{ display: "flex", gap: 6 }}>
+                  {demoExamples.map((_, i) => (
+                    <div key={i} style={{ width: i === demoIndex ? 20 : 6, height: 6, borderRadius: 999, background: i === demoIndex ? "linear-gradient(90deg,#7c5cfc,#e84fbc)" : "rgba(255,255,255,0.15)", transition: "width 0.4s ease", backgroundImage: i === demoIndex ? "linear-gradient(90deg,#7c5cfc,#e84fbc)" : "none" }} />
+                  ))}
+                </div>
+                <div style={{ fontSize: 11, color: "#8885a8", letterSpacing: 0.5 }}>
+                  Live demo · Loops automatically
+                </div>
               </div>
             </div>
           </div>
+
         </div>
       </section>
 
