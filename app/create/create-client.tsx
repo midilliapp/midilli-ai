@@ -83,10 +83,42 @@ export default function CreateClient() {
   // Popup states
   const [openPopup, setOpenPopup] = useState<"model" | "ratio" | "duration" | "resolution" | "videoModel" | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [notifPerm, setNotifPerm] = useState<NotificationPermission>("default");
 
   const showToast = (msg: string) => {
     setToast(msg);
     setTimeout(() => setToast(null), 3500);
+  };
+
+  // ── NOTIFICATIONS ──
+  useEffect(() => {
+    if (typeof window !== "undefined" && "Notification" in window) {
+      setNotifPerm(Notification.permission);
+    }
+  }, []);
+
+  const requestNotifPermission = async () => {
+    if (!("Notification" in window)) { showToast("Your browser doesn't support notifications."); return; }
+    const perm = await Notification.requestPermission();
+    setNotifPerm(perm);
+    if (perm === "granted") showToast("🔔 Notifications enabled!");
+    else if (perm === "denied") showToast("Notifications blocked. Enable in browser settings.");
+  };
+
+  const sendNotif = (title: string, body: string, icon?: string) => {
+    if (typeof window === "undefined" || !("Notification" in window)) return;
+    if (Notification.permission !== "granted") return;
+    try {
+      const n = new Notification(title, {
+        body,
+        icon: icon ?? "/favicon.ico",
+        badge: "/favicon.ico",
+        tag: "midilli-studio",
+        requireInteraction: false,
+      });
+      n.onclick = () => { window.focus(); n.close(); };
+      setTimeout(() => n.close(), 6000);
+    } catch {}
   };
 
   // Sessions
@@ -156,6 +188,7 @@ export default function CreateClient() {
       const data = await res.json();
       if (data.url) {
         setImageResult(data.url);
+        sendNotif("✦ Image Ready!", `"${prompt.trim().slice(0, 60)}" generated successfully.`);
         // Save session
         const session: Session = {
           id: Date.now().toString(),
@@ -168,7 +201,10 @@ export default function CreateClient() {
         const updated = [session, ...sessions].slice(0, 30);
         saveSessions(updated);
         setActiveSessionId(session.id);
-      } else setError(data.error ?? "Generation failed.");
+      } else {
+        setError(data.error ?? "Generation failed.");
+        sendNotif("⚠️ Generation Failed", data.error ?? "Image generation failed. Please try again.");
+      }
     } catch {
       setError("Network error. Please try again.");
     } finally {
@@ -194,11 +230,15 @@ export default function CreateClient() {
 
       if (data.url) {
         setVideoResult(data.url);
+        const modelName = VIDEO_MODELS.find(m => m.id === selectedVideoModel)?.name ?? "Video";
+        sendNotif("▶ Video Ready!", `Your ${modelName} video has been generated. Click to view.`);
       } else {
         setVideoError(data.error ?? "Video generation failed.");
+        sendNotif("⚠️ Video Failed", data.error ?? "Video generation failed. Please try again.");
       }
     } catch {
       setVideoError("Network error. Please try again.");
+      sendNotif("⚠️ Video Failed", "Network error during video generation.");
     } finally {
       setVideoLoading(false);
     }
@@ -327,8 +367,30 @@ export default function CreateClient() {
           ))}
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span style={{ fontSize: 12, color: tab === "video" ? "#38bdf8" : "#a78bfa", fontWeight: 600 }}>{credits} credits</span>
+
+          {/* Notification bell */}
+          <button
+            onClick={() => notifPerm === "granted" ? showToast("🔔 Notifications already enabled!") : void requestNotifPermission()}
+            title={notifPerm === "granted" ? "Notifications enabled" : notifPerm === "denied" ? "Notifications blocked — enable in browser settings" : "Enable notifications"}
+            style={{
+              width: 32, height: 32, borderRadius: "50%", border: "none", cursor: "pointer",
+              background: notifPerm === "granted" ? "rgba(34,197,94,0.15)" : "rgba(255,255,255,0.06)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 15, transition: "all 0.2s", position: "relative",
+              fontFamily: "inherit",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = notifPerm === "granted" ? "rgba(34,197,94,0.25)" : "rgba(255,255,255,0.12)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = notifPerm === "granted" ? "rgba(34,197,94,0.15)" : "rgba(255,255,255,0.06)"; }}
+          >
+            {notifPerm === "granted" ? "🔔" : notifPerm === "denied" ? "🔕" : "🔔"}
+            {/* green dot if granted */}
+            {notifPerm === "granted" && (
+              <span style={{ position: "absolute", top: 4, right: 4, width: 7, height: 7, borderRadius: "50%", background: "#4ade80", border: "1.5px solid #0a0a0f", boxShadow: "0 0 6px rgba(74,222,128,0.8)" }} />
+            )}
+          </button>
+
           <Link href="/" style={{ padding: "5px 14px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.1)", color: "#6b7280", fontSize: 12, textDecoration: "none" }}>← Home</Link>
         </div>
       </nav>
