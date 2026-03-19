@@ -778,7 +778,7 @@ export default function HomePageClient() {
         />
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 20, marginTop: 52 }}>
           {[
-            { step: "01", icon: "✎", title: "Write your idea", desc: "Type anything. "A dragon in a neon city" is enough. Plain language works perfectly." },
+            { step: "01", icon: "✎", title: "Write your idea", desc: "Type anything. 'A dragon in a neon city' is enough. Plain language works perfectly." },
             { step: "02", icon: "⚡", title: "Hit generate", desc: "MIDILLI processes in under 10 seconds. No queue. No waiting room. Just instant output." },
             { step: "03", icon: "↓", title: "Download & use", desc: "PNG, JPG, or video. Ready to post, share, or sell. No watermark on paid plans." },
           ].map(({ step, icon, title, desc }) => (
