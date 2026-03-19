@@ -26,10 +26,10 @@ YOUR BEHAVIOR:
 - If unsure, say "I'll connect you with our team" and suggest emailing support`;
 
 export async function POST(req: NextRequest) {
-  const groqKey = process.env.GROQ_API_KEY;
+  const groqKey = process.env.GROQ_KEY;
 
   if (!groqKey) {
-    return NextResponse.json({ error: "GROQ_API_KEY not configured." }, { status: 500 });
+    return NextResponse.json({ error: "GROQ_KEY not configured." }, { status: 500 });
   }
 
   let body: { messages?: { role: string; content: string }[] };
