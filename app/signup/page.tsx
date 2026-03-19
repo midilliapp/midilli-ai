@@ -16,5 +16,5 @@ type SignupPageProps = {
 export default async function SignupPage({ searchParams }: SignupPageProps) {
   const params = searchParams ? await searchParams : undefined;
 
-  return <AuthView mode="signup" nextPath={params?.next || "/dashboard"} />;
+  return <AuthView mode="signup" nextPath={params?.next || "/"} />;
 }
