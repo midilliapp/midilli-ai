@@ -20,7 +20,7 @@ export const MODELS = [
 export type ModelId = typeof MODELS[number]["id"];
 
 export async function POST(req: NextRequest) {
-  const falKey = process.env.FAL_KEY;
+  const falKey = process.env.FAL_KEY ?? process.env.FAL_API_KEY;
 
   if (!falKey) {
     return NextResponse.json(
