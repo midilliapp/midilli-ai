@@ -692,9 +692,9 @@ export default function HomePageClient() {
             </p>
 
             <div className="hero-animate-delay2" style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 32 }}>
-              <a href="#generate" className="btn-primary" style={{ fontSize: 14, padding: "14px 26px" }}>
-                Create Your First Image — Free
-              </a>
+              <Link href="/create" className="btn-primary" style={{ fontSize: 14, padding: "14px 26px" }}>
+                ✦ Start Creating — Free
+              </Link>
               <Link href="/gallery" className="btn-secondary" style={{ fontSize: 14, padding: "14px 22px" }}>
                 See Results →
               </Link>
@@ -1341,9 +1341,9 @@ export default function HomePageClient() {
           <div style={{ color: "#8885a8", marginBottom: 32, fontSize: 15, lineHeight: 1.7 }}>
             No credit card. Instant result. Then decide.
           </div>
-          <a href="#generate" className="btn-primary" style={{ fontSize: 16, padding: "18px 40px" }}>
-            Create Your First Image — Free
-          </a>
+          <Link href="/create" className="btn-primary" style={{ fontSize: 16, padding: "18px 40px" }}>
+            ✦ Start Creating — Free
+          </Link>
         </div>
       </section>
 
