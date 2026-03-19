@@ -18,9 +18,16 @@ export const MODELS = [
 export type ModelId = typeof MODELS[number]["id"];
 
 function getImageSize(aspect_ratio: string) {
-  if (aspect_ratio === "16:9") return "landscape_16_9";
-  if (aspect_ratio === "9:16") return "portrait_16_9";
-  return "square_hd";
+  switch (aspect_ratio) {
+    case "16:9":  return "landscape_16_9";
+    case "9:16":  return "portrait_16_9";
+    case "4:3":   return "landscape_4_3";
+    case "3:4":   return "portrait_4_3";
+    case "3:2":   return "landscape_4_3";   // closest supported
+    case "2:3":   return "portrait_4_3";    // closest supported
+    case "21:9":  return "landscape_16_9";  // closest supported
+    default:      return "square_hd";
+  }
 }
 
 // Build model-specific input to avoid unsupported param errors
@@ -31,15 +38,20 @@ function buildInput(model: string, prompt: string, aspect_ratio: string): Record
   // GPT-Image-1: uses 'size' string format
   if (model === "fal-ai/gpt-image-1") {
     const size =
-      aspect_ratio === "16:9" ? "1792x1024" :
-      aspect_ratio === "9:16" ? "1024x1792" :
+      (aspect_ratio === "16:9" || aspect_ratio === "3:2" || aspect_ratio === "21:9") ? "1792x1024" :
+      (aspect_ratio === "9:16" || aspect_ratio === "2:3" || aspect_ratio === "3:4") ? "1024x1792" :
       "1024x1024";
     return { prompt, size };
   }
 
-  // Imagen 4: minimal params
+  // Imagen 4: supports aspect_ratio string directly
   if (model === "fal-ai/imagen4/preview") {
-    return { prompt, aspect_ratio: aspect_ratio === "1:1" ? "1:1" : aspect_ratio };
+    const ar =
+      aspect_ratio === "21:9" ? "16:9" :
+      aspect_ratio === "3:2"  ? "4:3"  :
+      aspect_ratio === "2:3"  ? "3:4"  :
+      aspect_ratio;
+    return { prompt, aspect_ratio: ar };
   }
 
   // Recraft v3: uses image_size but no safety checker

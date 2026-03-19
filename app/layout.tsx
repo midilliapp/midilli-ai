@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import ChatWidget from "./components/ChatWidget";
 
 import "./globals.css";
 
@@ -60,7 +59,6 @@ export default function RootLayout({
     <html lang="tr">
       <body>
         {children}
-        <ChatWidget />
       </body>
     </html>
   );

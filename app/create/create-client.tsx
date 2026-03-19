@@ -19,9 +19,14 @@ const MODELS = [
 type ModelId = typeof MODELS[number]["id"];
 
 const ASPECT_RATIOS = [
-  { value: "1:1",  label: "1:1",  icon: "■" },
-  { value: "16:9", label: "16:9", icon: "▬" },
-  { value: "9:16", label: "9:16", icon: "▮" },
+  { value: "1:1",  label: "1:1",   desc: "Square",    w: 18, h: 18 },
+  { value: "4:3",  label: "4:3",   desc: "Standard",  w: 24, h: 18 },
+  { value: "3:4",  label: "3:4",   desc: "Portrait",  w: 18, h: 24 },
+  { value: "16:9", label: "16:9",  desc: "Widescreen",w: 28, h: 16 },
+  { value: "9:16", label: "9:16",  desc: "Vertical",  w: 14, h: 25 },
+  { value: "21:9", label: "21:9",  desc: "Cinematic", w: 32, h: 14 },
+  { value: "2:3",  label: "2:3",   desc: "Photo",     w: 14, h: 21 },
+  { value: "3:2",  label: "3:2",   desc: "Landscape", w: 24, h: 16 },
 ];
 
 const SUGGESTIONS = [
@@ -119,19 +124,20 @@ export default function CreateClient() {
         .model-chip.active { background: rgba(124,92,252,0.25); border-color: rgba(124,92,252,0.6); color: white; }
 
         .ratio-btn {
-          padding: 8px 16px;
+          padding: 6px 10px;
           border-radius: 10px;
           border: 1px solid rgba(255,255,255,0.1);
           background: rgba(255,255,255,0.04);
           color: #8885a8;
-          font-size: 12px;
+          font-size: 11px;
           font-weight: 700;
           cursor: pointer;
           transition: all 0.15s;
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 3px;
+          gap: 4px;
+          min-width: 52px;
         }
         .ratio-btn:hover { background: rgba(124,92,252,0.15); border-color: rgba(124,92,252,0.4); color: white; }
         .ratio-btn.active { background: rgba(124,92,252,0.2); border-color: rgba(124,92,252,0.6); color: white; }
@@ -327,15 +333,25 @@ export default function CreateClient() {
                 <label style={{ fontSize: 11, fontWeight: 700, color: "#8885a8", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10, display: "block" }}>
                   Aspect Ratio
                 </label>
-                <div style={{ display: "flex", gap: 8 }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                   {ASPECT_RATIOS.map((r) => (
                     <button
                       key={r.value}
                       className={`ratio-btn ${aspectRatio === r.value ? "active" : ""}`}
                       onClick={() => setAspectRatio(r.value)}
                     >
-                      <span style={{ fontSize: 18 }}>{r.icon}</span>
-                      {r.label}
+                      {/* Visual preview box */}
+                      <div style={{
+                        width: r.w,
+                        height: r.h,
+                        border: `2px solid ${aspectRatio === r.value ? "#a78bfa" : "rgba(255,255,255,0.25)"}`,
+                        borderRadius: 3,
+                        background: aspectRatio === r.value ? "rgba(124,92,252,0.3)" : "rgba(255,255,255,0.06)",
+                        transition: "all 0.15s",
+                        flexShrink: 0,
+                      }} />
+                      <span>{r.label}</span>
+                      <span style={{ fontSize: 9, opacity: 0.6, fontWeight: 400 }}>{r.desc}</span>
                     </button>
                   ))}
                 </div>

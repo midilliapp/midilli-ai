@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { supabase } from "@/lib/supabase";
+import ChatWidget from "./components/ChatWidget";
 
 const galleryItems = [
   ["Moonlight concept", "@cosmic_art", "linear-gradient(135deg,#1a0a2e,#3d1173,#7c5cfc)"],
@@ -1627,6 +1628,7 @@ export default function HomePageClient() {
           {toast}
         </div>
       )}
+      <ChatWidget />
     </main>
   );
 }
