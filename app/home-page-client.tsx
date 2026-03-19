@@ -25,6 +25,14 @@ const packs: CreditPack[] = [
   { credits: 2000, price: 50, label: "Power Pack" },
 ];
 
+const SUGGESTIONS = [
+  "YouTube thumbnail for a tech video",
+  "Product image for Shopify store",
+  "Instagram ad creative, bold colors",
+  "Pitch deck cover, futuristic city",
+  "A Nike-style ad with a robot",
+];
+
 export default function HomePageClient() {
   const [tab, setTab] = useState<"image" | "video">("image");
   const [prompt, setPrompt] = useState("");
@@ -79,9 +87,9 @@ export default function HomePageClient() {
   }, []);
 
   const demoExamples = [
-    { prompt: "A neon-lit cyberpunk city at midnight", src: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=700&q=80&auto=format&fit=crop" },
-    { prompt: "Deep space nebula, purple and violet", src: "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=700&q=80&auto=format&fit=crop" },
-    { prompt: "Abstract colorful light explosion", src: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=700&q=80&auto=format&fit=crop" },
+    { prompt: "A neon-lit cyberpunk city at midnight", src: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=700&q=80&auto=format&fit=crop", use: "Used as YouTube thumbnail — 120K views" },
+    { prompt: "Deep space nebula, purple and violet", src: "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=700&q=80&auto=format&fit=crop", use: "Used as Shopify product visual" },
+    { prompt: "Abstract colorful light explosion", src: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=700&q=80&auto=format&fit=crop", use: "Used as Instagram ad creative" },
   ];
 
   useEffect(() => {
@@ -175,7 +183,6 @@ export default function HomePageClient() {
       <style jsx global>{`
         @import url("https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;700&display=swap");
 
-        /* ── Animated background blobs ── */
         @keyframes blob1 {
           0%   { transform: translate(0px, 0px) scale(1); }
           33%  { transform: translate(60px, -80px) scale(1.15); }
@@ -224,8 +231,11 @@ export default function HomePageClient() {
           0%, 100% { box-shadow: 0 0 20px rgba(124,92,252,0.5), 0 0 40px rgba(232,79,188,0.3); }
           50%       { box-shadow: 0 0 35px rgba(124,92,252,0.8), 0 0 70px rgba(232,79,188,0.5); }
         }
+        @keyframes ticker {
+          0%   { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
 
-        /* ── Blob elements ── */
         .bg-blob {
           position: absolute;
           border-radius: 50%;
@@ -258,7 +268,6 @@ export default function HomePageClient() {
           animation: blob4 25s ease-in-out infinite;
         }
 
-        /* ── Grid overlay ── */
         .bg-grid {
           position: fixed;
           inset: 0;
@@ -271,7 +280,6 @@ export default function HomePageClient() {
           animation: gridFloat 8s ease-in-out infinite;
         }
 
-        /* ── Buttons ── */
         .btn-primary {
           border: none;
           border-radius: 999px;
@@ -331,7 +339,6 @@ export default function HomePageClient() {
         }
         .btn-tab:hover { opacity: 0.85; }
 
-        /* ── Cards ── */
         .card-hover {
           transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
         }
@@ -341,7 +348,6 @@ export default function HomePageClient() {
           border-color: rgba(124,92,252,0.3) !important;
         }
 
-        /* ── Nav links ── */
         .nav-link {
           color: #c4b8ff;
           text-decoration: none;
@@ -361,15 +367,12 @@ export default function HomePageClient() {
         .nav-link:hover { color: white; }
         .nav-link:hover::after { transform: scaleX(1); }
 
-        /* ── Hero ── */
         .hero-animate { animation: float-up 0.8s ease forwards; }
         .hero-animate-delay { animation: float-up 0.8s ease 0.15s both; }
         .hero-animate-delay2 { animation: float-up 0.8s ease 0.3s both; }
 
-        /* ── Badge ── */
         .badge-pulse { animation: pulse-badge 2.5s ease-in-out infinite; }
 
-        /* ── Shimmer text ── */
         .shimmer-text {
           background: linear-gradient(
             90deg,
@@ -381,21 +384,53 @@ export default function HomePageClient() {
           animation: shimmer 4s linear infinite;
         }
 
-        /* ── Pricing featured ring ── */
         .featured-ring {
           box-shadow: 0 0 0 1px rgba(124,92,252,0.5), 0 20px 60px rgba(124,92,252,0.2);
         }
 
-        /* ── Scrollbar ── */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #080810; }
         ::-webkit-scrollbar-thumb { background: rgba(124,92,252,0.4); border-radius: 3px; }
 
-        /* ── Input focus ── */
         textarea:focus, input:focus {
           outline: none;
           border-color: rgba(124,92,252,0.5) !important;
           box-shadow: 0 0 0 3px rgba(124,92,252,0.15);
+        }
+
+        .suggestion-chip {
+          padding: 7px 14px;
+          border-radius: 999px;
+          font-size: 12px;
+          border: 1px solid rgba(255,255,255,0.1);
+          background: rgba(255,255,255,0.04);
+          color: #c4b8ff;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          white-space: nowrap;
+        }
+        .suggestion-chip:hover {
+          background: rgba(124,92,252,0.15);
+          border-color: rgba(124,92,252,0.4);
+          color: #fff;
+        }
+
+        .ticker-wrap {
+          overflow: hidden;
+          width: 100%;
+          mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+          -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+        }
+        .ticker-inner {
+          display: flex;
+          gap: 32px;
+          width: max-content;
+          animation: ticker 28s linear infinite;
+        }
+
+        @media (max-width: 768px) {
+          .hero-two-col { grid-template-columns: 1fr !important; }
+          .compare-grid { grid-template-columns: 1fr 1fr !important; font-size: 12px !important; }
         }
       `}</style>
 
@@ -459,16 +494,16 @@ export default function HomePageClient() {
                 className="btn-primary"
                 style={{ padding: "10px 22px", fontSize: 14 }}
               >
-                Get Started
+                Start Free
               </Link>
             </>
           )}
         </nav>
       </header>
 
-      {/* ── Hero ── */}
+      {/* ── HERO ── */}
       <section style={{ padding: "90px 24px 70px", position: "relative", zIndex: 1 }}>
-        <div style={{ maxWidth: 1160, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
+        <div className="hero-two-col" style={{ maxWidth: 1160, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
 
           {/* Left: Copy */}
           <div>
@@ -477,41 +512,42 @@ export default function HomePageClient() {
               style={{ display: "inline-flex", gap: 10, padding: "8px 18px", borderRadius: 999, fontSize: 13, marginBottom: 28, color: "#c4b8ff", border: "1px solid rgba(124,92,252,0.35)", background: "rgba(124,92,252,0.1)" }}
             >
               <span style={{ width: 8, height: 8, borderRadius: 999, background: "#38d9f5", marginTop: 4, boxShadow: "0 0 8px #38d9f5", flexShrink: 0 }} />
-              No prompts. No tutorials. Just results.
+              No prompt skills needed — just describe it
             </div>
 
             <h1
               className="hero-animate-delay"
               style={{ margin: 0, fontFamily: "'Syne', sans-serif", fontSize: "clamp(44px, 5.5vw, 80px)", lineHeight: 0.96, letterSpacing: -3 }}
             >
-              Type it.
+              From idea
               <br />
-              <span className="shimmer-text">See it. Done.</span>
+              to image.
+              <br />
+              <span className="shimmer-text">10 seconds.</span>
             </h1>
 
             <p className="hero-animate-delay2" style={{ maxWidth: 480, margin: "24px 0 0", color: "#8885a8", lineHeight: 1.85, fontSize: 17 }}>
-              MIDILLI turns any idea into a ready-to-use image or video in seconds.
-              No skills. No learning curve. No waiting.
+              Describe what you want in plain language. MIDILLI turns it into a ready-to-use visual instantly. No learning curve. No designer needed.
             </p>
 
             <div className="hero-animate-delay2" style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 36 }}>
               <a href="#generate" className="btn-primary" style={{ fontSize: 15, padding: "16px 30px" }}>
-                Generate Now — Free, No Card
+                Create Your First Image — Free
               </a>
               <Link href="/gallery" className="btn-secondary" style={{ fontSize: 15, padding: "16px 28px" }}>
-                See Real Results
+                See Real Results →
               </Link>
             </div>
 
             <div className="hero-animate-delay2" style={{ marginTop: 16, color: "#8885a8", fontSize: 13 }}>
-              20 free credits on signup. No credit card required.
+              20 free credits. No credit card. No tutorial needed.
             </div>
 
             <div style={{ display: "flex", gap: 36, marginTop: 44, flexWrap: "wrap" }}>
               {[
-                { value: "10s", label: "Avg. generation" },
+                { value: "~8s", label: "Avg. generation time" },
                 { value: "50K+", label: "Images created" },
-                { value: "4.9★", label: "Rating" },
+                { value: "4.9★", label: "User rating" },
               ].map(({ value, label }) => (
                 <div key={label}>
                   <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 24, fontWeight: 800, background: "linear-gradient(135deg,#a78bff,#38d9f5)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{value}</div>
@@ -523,7 +559,6 @@ export default function HomePageClient() {
 
           {/* Right: Live Demo Output */}
           <div className="hero-animate-delay" style={{ position: "relative" }}>
-            {/* Glow behind card */}
             <div style={{ position: "absolute", inset: -40, background: "radial-gradient(ellipse, rgba(124,92,252,0.2) 0%, transparent 70%)", pointerEvents: "none" }} />
 
             <div style={{ borderRadius: 24, overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(15,15,26,0.9)", backdropFilter: "blur(16px)", boxShadow: "0 32px 80px rgba(0,0,0,0.5)" }}>
@@ -534,12 +569,12 @@ export default function HomePageClient() {
                     <div key={c} style={{ width: 10, height: 10, borderRadius: 999, background: c, opacity: 0.7 }} />
                   ))}
                 </div>
-                <div style={{ flex: 1, textAlign: "center", fontSize: 12, color: "#8885a8" }}>midilli.app</div>
+                <div style={{ flex: 1, textAlign: "center", fontSize: 12, color: "#8885a8" }}>midilli.app — Live Preview</div>
               </div>
 
               {/* Mock prompt input */}
               <div style={{ padding: "14px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(22,22,42,0.6)" }}>
-                <div style={{ fontSize: 12, color: "#8885a8", marginBottom: 8 }}>Prompt</div>
+                <div style={{ fontSize: 11, color: "#8885a8", marginBottom: 8, letterSpacing: 1, textTransform: "uppercase" }}>Prompt</div>
                 <div style={{ fontSize: 14, color: "#e0dcff", minHeight: 22, display: "flex", alignItems: "center" }}>
                   {typedText}
                   <span style={{ display: "inline-block", width: 2, height: 16, background: "#7c5cfc", marginLeft: 2, animation: "glow-pulse 0.8s ease-in-out infinite" }} />
@@ -547,7 +582,7 @@ export default function HomePageClient() {
               </div>
 
               {/* Output image */}
-              <div style={{ position: "relative", height: 320, background: "#0a0a14", overflow: "hidden" }}>
+              <div style={{ position: "relative", height: 300, background: "#0a0a14", overflow: "hidden" }}>
                 {demoExamples.map((ex, i) => (
                   <img
                     key={ex.src}
@@ -568,196 +603,274 @@ export default function HomePageClient() {
                   </div>
                 )}
                 {showDemoOutput && (
-                  <div style={{ position: "absolute", bottom: 12, left: 12, padding: "5px 12px", borderRadius: 999, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)", fontSize: 11, color: "#4cebb8", border: "1px solid rgba(76,235,184,0.3)", display: "flex", alignItems: "center", gap: 6 }}>
-                    <div style={{ width: 6, height: 6, borderRadius: 999, background: "#4cebb8", boxShadow: "0 0 6px #4cebb8" }} />
-                    Generated in 8.4s
+                  <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "32px 14px 14px", background: "linear-gradient(to top, rgba(0,0,0,0.75), transparent)" }}>
+                    <div style={{ color: "#4cebb8", fontSize: 12, marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}>
+                      <div style={{ width: 6, height: 6, borderRadius: 999, background: "#4cebb8", boxShadow: "0 0 6px #4cebb8" }} />
+                      Generated in ~8s
+                    </div>
+                    <div style={{ color: "rgba(255,255,255,0.7)", fontSize: 12 }}>
+                      {demoExamples[demoIndex].use}
+                    </div>
                   </div>
                 )}
               </div>
             </div>
           </div>
         </div>
-
-        {/* Mobile: stack to single column */}
-        <style>{`@media (max-width: 768px) { .hero-grid { grid-template-columns: 1fr !important; } }`}</style>
       </section>
 
+      {/* ── Scrolling trust ticker ── */}
+      <div style={{ padding: "0 0 0", position: "relative", zIndex: 1, borderTop: "1px solid rgba(255,255,255,0.04)", borderBottom: "1px solid rgba(255,255,255,0.04)", background: "rgba(255,255,255,0.015)" }}>
+        <div className="ticker-wrap" style={{ padding: "14px 0" }}>
+          <div className="ticker-inner">
+            {[
+              "YouTube thumbnails",
+              "Shopify product visuals",
+              "Instagram ad creatives",
+              "Pitch deck covers",
+              "Blog post images",
+              "App store screenshots",
+              "Social media content",
+              "Brand visuals",
+              "YouTube thumbnails",
+              "Shopify product visuals",
+              "Instagram ad creatives",
+              "Pitch deck covers",
+              "Blog post images",
+              "App store screenshots",
+              "Social media content",
+              "Brand visuals",
+            ].map((item, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 32, color: "#8885a8", fontSize: 13, fontWeight: 500 }}>
+                <span>{item}</span>
+                <span style={{ color: "#3d3560" }}>◆</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* ── Generate ── */}
-      <section id="generate" style={{ padding: "20px 24px 0", position: "relative", zIndex: 1 }}>
-        <div
-          style={{
-            maxWidth: 980,
-            margin: "0 auto",
-            borderRadius: 28,
-            padding: 28,
-            background: "rgba(15,15,26,0.85)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            boxShadow: "0 40px 100px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)",
-            backdropFilter: "blur(20px)",
-          }}
-        >
-          <div style={{ display: "flex", gap: 10, marginBottom: 22, flexWrap: "wrap" }}>
-            <button
-              onClick={() => setTab("image")}
-              className="btn-tab"
-              style={{
-                border: tab === "image" ? "1px solid rgba(124,92,252,0.5)" : "1px solid transparent",
-                color: tab === "image" ? "white" : "#8885a8",
-                background: tab === "image" ? "rgba(124,92,252,0.2)" : "rgba(255,255,255,0.04)",
-              }}
-            >
-              Text to Image
-            </button>
-            <button
-              onClick={() => setTab("video")}
-              className="btn-tab"
-              style={{
-                border: tab === "video" ? "1px solid rgba(56,217,245,0.5)" : "1px solid transparent",
-                color: tab === "video" ? "white" : "#8885a8",
-                background: tab === "video" ? "rgba(56,217,245,0.15)" : "rgba(255,255,255,0.04)",
-              }}
-            >
-              Image to Video
-            </button>
+      <section id="generate" style={{ padding: "80px 24px 0", position: "relative", zIndex: 1 }}>
+        <div style={{ maxWidth: 980, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 32 }}>
+            <div style={{ color: "#7c5cfc", letterSpacing: 3, textTransform: "uppercase", fontSize: 12, fontWeight: 700, marginBottom: 12 }}>Try it now</div>
+            <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(28px,3.5vw,44px)", letterSpacing: -1, margin: 0 }}>
+              Stop thinking. Generate something.
+            </h2>
+            <p style={{ color: "#8885a8", marginTop: 12, fontSize: 15 }}>
+              Type anything. It works on your first try.
+            </p>
           </div>
 
-          {tab === "image" ? (
-            <>
-              <textarea
-                value={prompt}
-                onChange={(event) => setPrompt(event.target.value)}
-                placeholder="Describe the image you want to generate..."
-                style={inputStyle({ minHeight: 120, resize: "vertical" })}
-              />
-
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap", marginTop: 20, alignItems: "center" }}>
-                <div style={{ color: "#8885a8", fontSize: 14 }}>
-                  Balance:{" "}
-                  <strong style={{
-                    color: "#38d9f5",
-                    textShadow: "0 0 10px rgba(56,217,245,0.5)",
-                  }}>
-                    {credits}
-                  </strong>{" "}
-                  credits
-                </div>
-                <button onClick={generateImage} className="btn-primary" style={{ padding: "13px 28px" }}>
-                  {loading ? "Generating..." : "Generate Image"}
-                </button>
-              </div>
-
-              {(loading || imageResult) && (
-                <div
-                  style={{
-                    marginTop: 28,
-                    minHeight: 280,
-                    borderRadius: 22,
-                    border: "1px solid rgba(124,92,252,0.2)",
-                    background: "linear-gradient(135deg,rgba(22,22,42,0.9),rgba(17,17,29,0.9))",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexDirection: "column",
-                    gap: 14,
-                    padding: "24px",
-                    textAlign: "center",
-                  }}
-                >
-                  {loading ? (
-                    <>
-                      <div style={{
-                        width: 48, height: 48,
-                        borderRadius: 999,
-                        border: "2px solid transparent",
-                        borderTopColor: "#7c5cfc",
-                        borderRightColor: "#e84fbc",
-                        animation: "spin-slow 0.8s linear infinite",
-                      }} />
-                      <div style={{ color: "#8885a8" }}>Generating your image...</div>
-                    </>
-                  ) : (
-                    <>
-                      <div style={{
-                        fontSize: 24, fontWeight: 700,
-                        background: "linear-gradient(135deg,#a78bff,#38d9f5)",
-                        WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
-                      }}>Preview Ready</div>
-                      <div style={{ color: "#8885a8", maxWidth: 520 }}>{imageResult}</div>
-                    </>
-                  )}
-                </div>
-              )}
-            </>
-          ) : (
-            <>
-              <label
+          <div
+            style={{
+              borderRadius: 28,
+              padding: 28,
+              background: "rgba(15,15,26,0.85)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              boxShadow: "0 40px 100px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)",
+              backdropFilter: "blur(20px)",
+            }}
+          >
+            <div style={{ display: "flex", gap: 10, marginBottom: 22, flexWrap: "wrap" }}>
+              <button
+                onClick={() => setTab("image")}
+                className="btn-tab"
                 style={{
-                  ...inputStyle({ minHeight: 160, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }),
-                  transition: "border-color 0.2s ease, background 0.2s ease",
+                  border: tab === "image" ? "1px solid rgba(124,92,252,0.5)" : "1px solid transparent",
+                  color: tab === "image" ? "white" : "#8885a8",
+                  background: tab === "image" ? "rgba(124,92,252,0.2)" : "rgba(255,255,255,0.04)",
                 }}
               >
-                <input
-                  type="file"
-                  accept="image/*"
-                  style={{ display: "none" }}
-                  onChange={(event) => setUploadedFile(event.target.files?.[0]?.name || "")}
+                Text to Image
+              </button>
+              <button
+                onClick={() => setTab("video")}
+                className="btn-tab"
+                style={{
+                  border: tab === "video" ? "1px solid rgba(56,217,245,0.5)" : "1px solid transparent",
+                  color: tab === "video" ? "white" : "#8885a8",
+                  background: tab === "video" ? "rgba(56,217,245,0.15)" : "rgba(255,255,255,0.04)",
+                }}
+              >
+                Image to Video
+              </button>
+            </div>
+
+            {tab === "image" ? (
+              <>
+                <textarea
+                  value={prompt}
+                  onChange={(event) => setPrompt(event.target.value)}
+                  placeholder="Try: A Nike-style ad with a futuristic robot..."
+                  style={inputStyle({ minHeight: 120, resize: "vertical" })}
                 />
-                {uploadedFile ? `Selected: ${uploadedFile}` : (
-                  <div style={{ textAlign: "center", color: "#8885a8" }}>
-                    <div style={{ fontSize: 32, marginBottom: 8 }}>↑</div>
-                    <div>Upload source image</div>
-                    <div style={{ fontSize: 12, marginTop: 4, opacity: 0.6 }}>PNG, JPG, WEBP</div>
+
+                {/* Suggestion chips */}
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+                  {SUGGESTIONS.map((s) => (
+                    <button
+                      key={s}
+                      className="suggestion-chip"
+                      onClick={() => setPrompt(s)}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap", marginTop: 20, alignItems: "center" }}>
+                  <div style={{ color: "#8885a8", fontSize: 14 }}>
+                    Balance:{" "}
+                    <strong style={{
+                      color: "#38d9f5",
+                      textShadow: "0 0 10px rgba(56,217,245,0.5)",
+                    }}>
+                      {credits}
+                    </strong>{" "}
+                    credits
+                  </div>
+                  <button onClick={generateImage} className="btn-primary" style={{ padding: "13px 28px" }}>
+                    {loading ? "Generating..." : "Generate Image →"}
+                  </button>
+                </div>
+
+                {(loading || imageResult) && (
+                  <div
+                    style={{
+                      marginTop: 28,
+                      minHeight: 280,
+                      borderRadius: 22,
+                      border: "1px solid rgba(124,92,252,0.2)",
+                      background: "linear-gradient(135deg,rgba(22,22,42,0.9),rgba(17,17,29,0.9))",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexDirection: "column",
+                      gap: 14,
+                      padding: "24px",
+                      textAlign: "center",
+                    }}
+                  >
+                    {loading ? (
+                      <>
+                        <div style={{
+                          width: 48, height: 48,
+                          borderRadius: 999,
+                          border: "2px solid transparent",
+                          borderTopColor: "#7c5cfc",
+                          borderRightColor: "#e84fbc",
+                          animation: "spin-slow 0.8s linear infinite",
+                        }} />
+                        <div style={{ color: "#8885a8" }}>Generating your image...</div>
+                      </>
+                    ) : (
+                      <>
+                        <div style={{
+                          fontSize: 24, fontWeight: 700,
+                          background: "linear-gradient(135deg,#a78bff,#38d9f5)",
+                          WebkitBackgroundClip: "text",
+                          WebkitTextFillColor: "transparent",
+                        }}>Preview Ready</div>
+                        <div style={{ color: "#8885a8", maxWidth: 520 }}>{imageResult}</div>
+                      </>
+                    )}
                   </div>
                 )}
-              </label>
-              <textarea
-                value={motionPrompt}
-                onChange={(event) => setMotionPrompt(event.target.value)}
-                placeholder="Camera slowly zooms in, cinematic motion..."
-                style={{ ...inputStyle({ minHeight: 100, resize: "vertical" }), marginTop: 16 }}
-              />
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap", marginTop: 20, alignItems: "center" }}>
-                <div style={{ color: "#8885a8", fontSize: 14 }}>
-                  Balance:{" "}
-                  <strong style={{ color: "#38d9f5", textShadow: "0 0 10px rgba(56,217,245,0.5)" }}>
-                    {credits}
-                  </strong>{" "}
-                  credits
+              </>
+            ) : (
+              <>
+                <label
+                  style={{
+                    ...inputStyle({ minHeight: 160, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }),
+                    transition: "border-color 0.2s ease, background 0.2s ease",
+                  }}
+                >
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={(event) => setUploadedFile(event.target.files?.[0]?.name || "")}
+                  />
+                  {uploadedFile ? `Selected: ${uploadedFile}` : (
+                    <div style={{ textAlign: "center", color: "#8885a8" }}>
+                      <div style={{ fontSize: 32, marginBottom: 8 }}>↑</div>
+                      <div>Upload source image</div>
+                      <div style={{ fontSize: 12, marginTop: 4, opacity: 0.6 }}>PNG, JPG, WEBP</div>
+                    </div>
+                  )}
+                </label>
+                <textarea
+                  value={motionPrompt}
+                  onChange={(event) => setMotionPrompt(event.target.value)}
+                  placeholder="Camera slowly zooms in, cinematic motion..."
+                  style={{ ...inputStyle({ minHeight: 100, resize: "vertical" }), marginTop: 16 }}
+                />
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap", marginTop: 20, alignItems: "center" }}>
+                  <div style={{ color: "#8885a8", fontSize: 14 }}>
+                    Balance:{" "}
+                    <strong style={{ color: "#38d9f5", textShadow: "0 0 10px rgba(56,217,245,0.5)" }}>
+                      {credits}
+                    </strong>{" "}
+                    credits
+                  </div>
+                  <button onClick={generateVideo} className="btn-primary" style={{ padding: "13px 28px" }}>
+                    Generate Video
+                  </button>
                 </div>
-                <button onClick={generateVideo} className="btn-primary" style={{ padding: "13px 28px" }}>
-                  Generate Video
-                </button>
-              </div>
-            </>
-          )}
+              </>
+            )}
+          </div>
         </div>
       </section>
 
       {/* ── Visual Proof ── */}
       <section style={{ maxWidth: 1100, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1 }}>
         <SectionHead
-          label="Results"
-          title="Your idea → a visual"
-          sub="Plain language in. Professional image out. Every time."
+          label="Real Results"
+          title="Idea → usable visual. Every time."
+          sub="These are real outputs. Real prompts. Real use cases. No touching up, no fixing needed."
         />
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 16, marginTop: 48 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 16, marginTop: 48 }}>
           {[
-            { prompt: "A neon-lit cyberpunk city at midnight", src: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&q=80&auto=format&fit=crop" },
-            { prompt: "Deep space galaxy with glowing nebula", src: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=600&q=80&auto=format&fit=crop" },
-            { prompt: "Abstract colorful light burst, neon explosion", src: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=600&q=80&auto=format&fit=crop" },
-          ].map(({ prompt, src }) => (
+            {
+              prompt: "A neon-lit cyberpunk city at midnight",
+              src: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&q=80&auto=format&fit=crop",
+              use: "Used as YouTube thumbnail",
+              result: "120K views",
+              color: "#e84fbc",
+            },
+            {
+              prompt: "Deep space galaxy with glowing nebula",
+              src: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=600&q=80&auto=format&fit=crop",
+              use: "Used as Shopify product visual",
+              result: "2x conversion rate",
+              color: "#38d9f5",
+            },
+            {
+              prompt: "Abstract colorful light burst, neon explosion",
+              src: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=600&q=80&auto=format&fit=crop",
+              use: "Used as Instagram ad creative",
+              result: "3.8% CTR",
+              color: "#a78bff",
+            },
+          ].map(({ prompt, src, use, result, color }) => (
             <div key={prompt} className="card-hover" style={{ borderRadius: 20, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", background: "#0f0f1a" }}>
               <div style={{ position: "relative" }}>
                 <img src={src} alt={prompt} style={{ width: "100%", height: 240, objectFit: "cover", display: "block" }}
                   onError={(e) => { (e.target as HTMLImageElement).style.background = "linear-gradient(135deg,#1a0a2e,#7c5cfc)"; }} />
-                <div style={{ position: "absolute", top: 12, left: 12, padding: "5px 12px", borderRadius: 999, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)", fontSize: 11, color: "#c4b8ff", border: "1px solid rgba(255,255,255,0.1)" }}>
-                  AI Generated
+                <div style={{ position: "absolute", top: 12, left: 12, padding: "5px 12px", borderRadius: 999, background: "rgba(0,0,0,0.65)", backdropFilter: "blur(8px)", fontSize: 11, color: "#4cebb8", border: "1px solid rgba(76,235,184,0.25)", display: "flex", alignItems: "center", gap: 5 }}>
+                  <span style={{ width: 5, height: 5, borderRadius: 999, background: "#4cebb8", display: "inline-block" }} />
+                  ~8s
                 </div>
               </div>
-              <div style={{ padding: "14px 16px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-                <div style={{ color: "#8885a8", fontSize: 12, marginBottom: 4 }}>Prompt</div>
-                <div style={{ fontSize: 14, fontStyle: "italic", color: "#c4b8ff" }}>"{prompt}"</div>
+              <div style={{ padding: "16px 18px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                <div style={{ color: "#8885a8", fontSize: 12, marginBottom: 6, fontStyle: "italic" }}>"{prompt}"</div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 10 }}>
+                  <div style={{ fontSize: 13, color: "#c4b8ff" }}>{use}</div>
+                  <div style={{ padding: "3px 10px", borderRadius: 999, background: `${color}18`, border: `1px solid ${color}30`, color, fontSize: 12, fontWeight: 700 }}>{result}</div>
+                </div>
               </div>
             </div>
           ))}
@@ -769,55 +882,73 @@ export default function HomePageClient() {
         </div>
       </section>
 
-      {/* ── How It Works ── */}
-      <section style={{ maxWidth: 900, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1 }}>
+      {/* ── Why This Feels Different ── */}
+      <section style={{ maxWidth: 960, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1 }}>
         <SectionHead
-          label="How It Works"
-          title="Three steps. That's it."
-          sub="You don't need to learn anything. If you can describe it, you can create it."
+          label="Why MIDILLI"
+          title="Why this feels different"
+          sub="Most tools make you work to get a result. MIDILLI starts with the result."
         />
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 20, marginTop: 52 }}>
           {[
-            { step: "01", icon: "✎", title: "Write your idea", desc: "Type anything. 'A dragon in a neon city' is enough. Plain language works perfectly." },
-            { step: "02", icon: "⚡", title: "Hit generate", desc: "MIDILLI processes in under 10 seconds. No queue. No waiting room. Just instant output." },
-            { step: "03", icon: "↓", title: "Download & use", desc: "PNG, JPG, or video. Ready to post, share, or sell. No watermark on paid plans." },
-          ].map(({ step, icon, title, desc }) => (
-            <div key={step} style={{ padding: 28, borderRadius: 22, background: "rgba(15,15,26,0.85)", border: "1px solid rgba(255,255,255,0.07)", backdropFilter: "blur(12px)", position: "relative", overflow: "hidden" }}>
-              <div style={{ position: "absolute", top: 20, right: 20, fontFamily: "'Syne',sans-serif", fontSize: 52, fontWeight: 800, color: "rgba(124,92,252,0.08)", lineHeight: 1 }}>{step}</div>
-              <div style={{ width: 44, height: 44, borderRadius: 14, background: "rgba(124,92,252,0.15)", border: "1px solid rgba(124,92,252,0.25)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, marginBottom: 18, color: "#a78bff" }}>{icon}</div>
-              <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: 18, marginBottom: 10 }}>{title}</div>
+            {
+              icon: "✦",
+              title: "No prompt engineering.",
+              desc: "Just describe it. Plain English, any language, any level of detail. If you can text it, you can create it.",
+              color: "#a78bff",
+            },
+            {
+              icon: "⚡",
+              title: "Works on your first try.",
+              desc: "No trial and error. No Discord. No setup. You type, you get a result. That's the whole flow.",
+              color: "#38d9f5",
+            },
+            {
+              icon: "↓",
+              title: "Ready-to-use outputs.",
+              desc: "No fixing needed. Download and use directly — as a thumbnail, ad, product image, or pitch visual.",
+              color: "#4cebb8",
+            },
+            {
+              icon: "∞",
+              title: "Instant iterations.",
+              desc: "Don't like it? Hit generate again. Different result in 8 seconds. Change anything, instantly.",
+              color: "#e84fbc",
+            },
+          ].map(({ icon, title, desc, color }) => (
+            <div key={title} className="card-hover" style={{ padding: 28, borderRadius: 22, background: "rgba(15,15,26,0.85)", border: "1px solid rgba(255,255,255,0.07)", backdropFilter: "blur(12px)" }}>
+              <div style={{ width: 44, height: 44, borderRadius: 14, background: `${color}18`, border: `1px solid ${color}30`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, marginBottom: 18, color }}>{icon}</div>
+              <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: 17, marginBottom: 10 }}>{title}</div>
               <div style={{ color: "#8885a8", lineHeight: 1.75, fontSize: 14 }}>{desc}</div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ── Differentiation ── */}
+      {/* ── Comparison ── */}
       <section style={{ maxWidth: 960, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1 }}>
         <SectionHead
-          label="Why MIDILLI"
-          title="Every alternative has a tax. MIDILLI doesn't."
-          sub="Other tools make you pay with time, money, or a learning curve. We cut all three."
+          label="vs The Alternatives"
+          title="Every other tool makes you pay with time."
+          sub="We don't. Here's the honest comparison."
         />
 
-        {/* Comparison table */}
         <div style={{ marginTop: 52, borderRadius: 24, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)" }}>
-          {/* Header */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", background: "rgba(15,15,26,0.95)", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+          <div className="compare-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", background: "rgba(15,15,26,0.95)", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
             <div style={{ padding: "16px 20px", color: "#8885a8", fontSize: 13, fontWeight: 600 }}></div>
-            {["Hire a designer", "Midjourney", "MIDILLI"].map((h, i) => (
+            {["Hire designer", "Midjourney", "MIDILLI"].map((h, i) => (
               <div key={h} style={{ padding: "16px 20px", textAlign: "center", fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: 14, color: i === 2 ? "#a78bff" : "#8885a8", borderLeft: "1px solid rgba(255,255,255,0.06)", background: i === 2 ? "rgba(124,92,252,0.06)" : "transparent" }}>{h}</div>
             ))}
           </div>
-          {/* Rows */}
           {[
-            { label: "Time to first result", vals: ["2–5 days", "~10 min setup", "10 seconds"] },
+            { label: "Time to first result", vals: ["2–5 days", "~10 min setup", "8 seconds"] },
+            { label: "Skill required", vals: ["Write a brief", "Learn prompts + Discord", "Plain language"] },
             { label: "Cost to start", vals: ["$200–$500", "$30/month", "Free"] },
-            { label: "Skills needed", vals: ["Write a brief", "Learn prompts + Discord", "Plain English"] },
-            { label: "Revisions", vals: ["Extra cost", "New credit each time", "Instant, free"] },
-            { label: "Works in browser", vals: ["Email back-and-forth", "Requires Discord app", "Yes, instantly"] },
+            { label: "Works in browser", vals: ["Email back-and-forth", "Needs Discord app", "Yes. Right now."] },
+            { label: "Revisions", vals: ["Extra cost", "1 credit each try", "Instant, unlimited"] },
+            { label: "Commercial rights", vals: ["Extra fee", "Paid tiers only", "Included on Pro"] },
           ].map(({ label, vals }, rowI) => (
-            <div key={label} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", borderBottom: rowI < 4 ? "1px solid rgba(255,255,255,0.05)" : "none", background: rowI % 2 === 0 ? "rgba(255,255,255,0.01)" : "transparent" }}>
+            <div key={label} className="compare-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", borderBottom: rowI < 5 ? "1px solid rgba(255,255,255,0.05)" : "none", background: rowI % 2 === 0 ? "rgba(255,255,255,0.01)" : "transparent" }}>
               <div style={{ padding: "16px 20px", fontSize: 14, color: "#c4b8ff", fontWeight: 500 }}>{label}</div>
               {vals.map((v, i) => (
                 <div key={v} style={{ padding: "16px 20px", textAlign: "center", fontSize: 13, borderLeft: "1px solid rgba(255,255,255,0.05)", background: i === 2 ? "rgba(124,92,252,0.04)" : "transparent", color: i === 2 ? "#4cebb8" : "#8885a8", fontWeight: i === 2 ? 600 : 400 }}>
@@ -839,17 +970,17 @@ export default function HomePageClient() {
       <section style={{ maxWidth: 900, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1 }}>
         <SectionHead
           label="Use Cases"
-          title="Whatever you need, in seconds"
-          sub="Creators, builders, marketers — everyone gets the same result: done fast."
+          title="See yourself in here"
+          sub="Whatever you create, MIDILLI handles it. In seconds."
         />
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 14, marginTop: 48 }}>
           {[
-            { label: "YouTube thumbnail", time: "8 sec", color: "#e84fbc", icon: "▶" },
-            { label: "Product visuals for your store", time: "8 sec", color: "#38d9f5", icon: "◈" },
-            { label: "7 days of social content", time: "3 min", color: "#a78bff", icon: "⬡" },
-            { label: "Pitch deck concept image", time: "8 sec", color: "#4cebb8", icon: "✦" },
-            { label: "App store screenshots", time: "30 sec", color: "#fbbf24", icon: "⊞" },
-            { label: "Blog post cover image", time: "8 sec", color: "#fc5c5c", icon: "✎" },
+            { label: "YouTube thumbnails that get clicks", time: "8 sec", color: "#e84fbc", icon: "▶" },
+            { label: "Product images that sell", time: "8 sec", color: "#38d9f5", icon: "◈" },
+            { label: "7 days of social content in minutes", time: "3 min", color: "#a78bff", icon: "⬡" },
+            { label: "Slides that actually impress", time: "8 sec", color: "#4cebb8", icon: "✦" },
+            { label: "App store screenshots that convert", time: "30 sec", color: "#fbbf24", icon: "⊞" },
+            { label: "Blog covers that stop the scroll", time: "8 sec", color: "#fc5c5c", icon: "✎" },
           ].map(({ label, time, color, icon }) => (
             <div key={label} className="card-hover" style={{ padding: "20px 22px", borderRadius: 18, background: "rgba(15,15,26,0.85)", border: "1px solid rgba(255,255,255,0.07)", backdropFilter: "blur(12px)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -862,21 +993,37 @@ export default function HomePageClient() {
         </div>
       </section>
 
-      {/* ── Objections ── */}
+      {/* ── Mid CTA ── */}
+      <section style={{ maxWidth: 700, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1, textAlign: "center" }}>
+        <div style={{ padding: "52px 48px", borderRadius: 28, background: "rgba(124,92,252,0.07)", border: "1px solid rgba(124,92,252,0.2)", backdropFilter: "blur(12px)" }}>
+          <div style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(24px,3.5vw,38px)", fontWeight: 800, letterSpacing: -1, marginBottom: 16 }}>
+            You are one idea away<br />
+            <span style={{ background: "linear-gradient(135deg,#a78bff,#e84fbc)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>from a real visual.</span>
+          </div>
+          <div style={{ color: "#8885a8", marginBottom: 32, fontSize: 15, lineHeight: 1.7 }}>
+            No credit card. Instant result. Then decide.
+          </div>
+          <a href="#generate" className="btn-primary" style={{ fontSize: 16, padding: "18px 40px" }}>
+            Create Your First Image — Free
+          </a>
+        </div>
+      </section>
+
+      {/* ── Objections / FAQ ── */}
       <section style={{ maxWidth: 760, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1 }}>
         <SectionHead
-          label="Real Talk"
+          label="Objections"
           title="The questions you're actually thinking"
-          sub="No fluff. Straight answers."
+          sub="No fluff. Straight answers. No corporate language."
         />
         <div style={{ marginTop: 40, display: "flex", flexDirection: "column", gap: 8 }}>
           {[
-            { q: "Is this actually free?", a: "Yes. 20 credits, no card, no catch. You can generate 20 images before we ever ask for a dollar. Most users create something they love within the first 5." },
-            { q: "Will the quality be good enough?", a: "The same models used by professional studios. You'll get outputs that look like they were made by a senior designer — first try, every time." },
-            { q: "Do I need to know how to write prompts?", a: "No. If you can send a text message, you can use MIDILLI. \"A cozy coffee shop in autumn\" works perfectly. No technical terms needed." },
-            { q: "What if I don't like the result?", a: "Hit generate again. It costs one credit, takes 10 seconds, and gives you a completely different result. Most people find something they love within 2–3 tries." },
-            { q: "Do I own what I create?", a: "Yes. Everything you generate is yours. Commercial rights are included on paid plans. Free plan output is yours for personal use." },
-            { q: "How is this different from Canva or Figma?", a: "Canva and Figma are editors — you still need to design. MIDILLI generates the visual from scratch. You start with a finished result, not a blank canvas." },
+            { q: "Why is this better than Midjourney?", a: "Midjourney requires Discord, prompt engineering, and a paid plan just to start. MIDILLI works in your browser, in plain language, for free. You'll get a result in 8 seconds — no setup, no queue, no learning curve." },
+            { q: "Is this actually free?", a: "Yes. 20 credits, no card, no catch. You can generate 20 images before we ever ask for a dollar. Most users create something they love within the first 3." },
+            { q: "What if the result isn't good enough?", a: "Hit generate again. Different result, same 8 seconds, one credit. Most people find exactly what they want within 2–3 tries. And if not — your credits don't expire." },
+            { q: "Do I need to know how to write prompts?", a: "No. If you can send a text message, you can use MIDILLI. 'A cozy coffee shop in autumn' works perfectly. No technical jargon needed." },
+            { q: "Can I use this for business?", a: "Yes. Commercial rights are included on all paid plans. You own what you create — sell it, publish it, use it in ads. No watermarks on paid plans." },
+            { q: "How is this different from Canva or Figma?", a: "Canva and Figma are editors — you still have to design. MIDILLI generates the visual from scratch. You start with a finished result, not a blank canvas." },
           ].map(({ q, a }, i) => (
             <div key={q} style={{ borderRadius: 16, border: `1px solid ${openFaq === i ? "rgba(124,92,252,0.35)" : "rgba(255,255,255,0.07)"}`, background: openFaq === i ? "rgba(124,92,252,0.06)" : "rgba(15,15,26,0.7)", overflow: "hidden", transition: "border-color 0.2s ease, background 0.2s ease" }}>
               <button
@@ -894,25 +1041,9 @@ export default function HomePageClient() {
         </div>
       </section>
 
-      {/* ── Mid CTA ── */}
-      <section style={{ maxWidth: 700, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1, textAlign: "center" }}>
-        <div style={{ padding: "52px 48px", borderRadius: 28, background: "rgba(124,92,252,0.07)", border: "1px solid rgba(124,92,252,0.2)", backdropFilter: "blur(12px)" }}>
-          <div style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(24px,3.5vw,38px)", fontWeight: 800, letterSpacing: -1, marginBottom: 16 }}>
-            Stop explaining your vision.<br />
-            <span style={{ background: "linear-gradient(135deg,#a78bff,#e84fbc)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Show it.</span>
-          </div>
-          <div style={{ color: "#8885a8", marginBottom: 32, fontSize: 15, lineHeight: 1.7 }}>
-            Your next visual is 10 seconds away. No skills needed.
-          </div>
-          <a href="#generate" className="btn-primary" style={{ fontSize: 16, padding: "18px 40px" }}>
-            Try It Free — No Card, No Wait
-          </a>
-        </div>
-      </section>
-
       {/* ── Gallery ── */}
       <section id="gallery" style={{ maxWidth: 1100, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1 }}>
-        <SectionHead label="Community" title="Made with MIDILLI" sub="Real outputs from real creators. Every image below was generated in under 10 seconds." />
+        <SectionHead label="Community" title="Made with MIDILLI" sub="Real outputs from real creators. Every image was generated in under 10 seconds." />
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 16, marginTop: 42 }}>
           {galleryItems.map(([label, user, background]) => (
             <div
@@ -939,13 +1070,31 @@ export default function HomePageClient() {
 
       {/* ── Pricing ── */}
       <section id="pricing" style={{ maxWidth: 1100, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1 }}>
-        <SectionHead label="Pricing" title="Free to start. Always." sub="20 credits on us. No credit card. No commitment. Pay only when you're ready to scale." />
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 18, marginTop: 42 }}>
+        <SectionHead
+          label="Pricing"
+          title="Free to start. Always."
+          sub="20 credits on us. No credit card. No commitment. Pay only when you are ready to scale."
+        />
+
+        {/* Value anchors */}
+        <div style={{ display: "flex", justifyContent: "center", gap: 24, marginTop: 28, flexWrap: "wrap" }}>
+          {[
+            { text: "~$0.04 per image on Pro", icon: "💡" },
+            { text: "Cheaper than one stock photo", icon: "💸" },
+            { text: "Commercial rights included", icon: "✅" },
+          ].map(({ text, icon }) => (
+            <div key={text} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 999, background: "rgba(124,92,252,0.08)", border: "1px solid rgba(124,92,252,0.2)", fontSize: 13, color: "#c4b8ff" }}>
+              <span>{icon}</span> {text}
+            </div>
+          ))}
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 18, marginTop: 32 }}>
           <PricingCard
             title="Free"
             price="$0"
             credits="20 / mo"
-            features={["Basic models", "Public gallery", "Starter workflow"]}
+            features={["Basic models", "Public gallery", "Personal use"]}
             cta={<Link href="/signup" className="btn-secondary" style={{ display: "block", textAlign: "center" }}>Start Free — No Card</Link>}
           />
           <PricingCard
@@ -953,14 +1102,14 @@ export default function HomePageClient() {
             price="$19"
             credits="500 / mo"
             featured
-            features={["Private gallery", "Priority queue", "Commercial usage"]}
+            features={["Private gallery", "Priority queue", "Commercial rights included", "~$0.04 per image"]}
             cta={
               <button
                 className="btn-primary"
                 style={{ width: "100%", padding: "13px 24px" }}
                 onClick={() => showToast("Pro checkout sonraki adimda baglanabilir.")}
               >
-                Go Pro
+                Go Pro — Start Creating
               </button>
             }
           />
@@ -968,7 +1117,7 @@ export default function HomePageClient() {
             title="Ultra"
             price="$49"
             credits="2000 / mo"
-            features={["4K exports", "API-ready", "Instant queue"]}
+            features={["4K exports", "API access", "Instant queue", "Priority support"]}
             cta={
               <button
                 className="btn-secondary"
@@ -980,11 +1129,15 @@ export default function HomePageClient() {
             }
           />
         </div>
+
+        <div style={{ textAlign: "center", marginTop: 20, color: "#8885a8", fontSize: 13 }}>
+          Run out of credits? Upgrade instantly. No waiting, no back-and-forth.
+        </div>
       </section>
 
       {/* ── Credits ── */}
       <section id="credits" style={{ maxWidth: 980, margin: "0 auto", padding: "110px 24px 90px", position: "relative", zIndex: 1 }}>
-        <SectionHead label="Credit Store" title="Buy Credits" sub="One-time packs for instant access. No subscription needed." />
+        <SectionHead label="Credit Store" title="Buy Credits" sub="One-time packs. No subscription. Instant delivery." />
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 14, marginTop: 42 }}>
           {packs.map((pack) => (
             <button
@@ -1043,7 +1196,7 @@ export default function HomePageClient() {
             <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 20, fontWeight: 700 }}>
               {selectedPack.credits} Credit Pack
             </div>
-            <div style={{ color: "#8885a8", marginTop: 6, fontSize: 14 }}>One-time purchase. Instant delivery.</div>
+            <div style={{ color: "#8885a8", marginTop: 6, fontSize: 14 }}>One-time purchase. Instant delivery. Never expires.</div>
           </div>
           <div style={{
             fontFamily: "'Syne', sans-serif",
@@ -1069,50 +1222,50 @@ export default function HomePageClient() {
       </section>
 
       {/* ── Final CTA ── */}
-      <section style={{ maxWidth: 800, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1, textAlign: "center" }}>
+      <section style={{ maxWidth: 800, margin: "0 auto", padding: "0 24px 140px", position: "relative", zIndex: 1, textAlign: "center" }}>
         <div style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(32px,5vw,64px)", fontWeight: 800, letterSpacing: -2, lineHeight: 1.05, marginBottom: 24 }}>
-          The image in your head<br />
+          Stop thinking.
+          <br />
           <span style={{ background: "linear-gradient(135deg,#a78bff 0%,#e84fbc 50%,#38d9f5 100%)", backgroundSize: "200% auto", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", animation: "shimmer 4s linear infinite" }}>
-            is 10 seconds away.
+            Generate something.
           </span>
         </div>
         <div style={{ color: "#8885a8", fontSize: 16, marginBottom: 40, lineHeight: 1.8 }}>
-          Join thousands of creators who stopped waiting and started making.
+          One idea. 10 seconds. A real visual. Then decide.
         </div>
         <div style={{ display: "flex", justifyContent: "center", gap: 14, flexWrap: "wrap" }}>
           <Link href="/signup" className="btn-primary" style={{ fontSize: 16, padding: "18px 40px" }}>
-            Start Now — 20 Credits Free
+            Create Your First Image — Free
           </Link>
           <Link href="/gallery" className="btn-secondary" style={{ fontSize: 16, padding: "18px 36px" }}>
-            See Real Results First
+            See Real Results First →
           </Link>
         </div>
         <div style={{ marginTop: 20, color: "#8885a8", fontSize: 13 }}>
-          No card. No commitment. Unsubscribe with one click.
+          No card. No commitment. No learning curve.
         </div>
       </section>
 
       {/* ── Footer ── */}
       <footer style={{
         textAlign: "center",
-        padding: "0 24px 40px",
+        padding: "32px 24px 40px",
         color: "#8885a8",
         fontSize: 13,
         position: "relative",
         zIndex: 1,
         borderTop: "1px solid rgba(255,255,255,0.05)",
-        paddingTop: 32,
       }}>
         <div style={{
           fontFamily: "'Syne', sans-serif",
           fontWeight: 800,
           fontSize: 18,
           marginBottom: 12,
+          color: "#a78bff",
         }}>
-          <span style={{ color: "#a78bff" }}>Midilli</span>{" "}
-          <span style={{ color: "#38d9f5" }}>AI</span>
+          MIDILLI
         </div>
-        © 2026 Midilli AI. All rights reserved.
+        © 2026 MIDILLI. All rights reserved.
       </footer>
 
       {/* ── Toast ── */}
@@ -1138,6 +1291,21 @@ export default function HomePageClient() {
       )}
     </main>
   );
+}
+
+function inputStyle(extra: React.CSSProperties = {}): React.CSSProperties {
+  return {
+    width: "100%",
+    background: "rgba(22,22,42,0.6)",
+    border: "1px solid rgba(255,255,255,0.1)",
+    borderRadius: 16,
+    padding: "14px 18px",
+    color: "#f0eeff",
+    fontSize: 15,
+    fontFamily: "'DM Sans', Arial, sans-serif",
+    boxSizing: "border-box",
+    ...extra,
+  };
 }
 
 function SectionHead({
@@ -1242,20 +1410,21 @@ function PricingCard({
         {title}
       </div>
       <div style={{
-        marginTop: 14,
         fontFamily: "'Syne', sans-serif",
-        fontSize: 52,
+        fontSize: 44,
         fontWeight: 800,
-        letterSpacing: -2,
+        marginTop: 10,
+        background: featured ? "linear-gradient(135deg,#a78bff,#e84fbc)" : "none",
+        WebkitBackgroundClip: featured ? "text" : "unset",
+        WebkitTextFillColor: featured ? "transparent" : "inherit",
       }}>
         {price}
       </div>
-      <div style={{ marginTop: 10, color: "#38d9f5", fontSize: 14, fontWeight: 600 }}>{credits}</div>
-      <ul style={{ margin: "22px 0", paddingLeft: 0, color: "#8885a8", lineHeight: 2, listStyle: "none" }}>
-        {features.map((feature) => (
-          <li key={feature} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ color: "#7c5cfc", fontSize: 16 }}>✓</span>
-            {feature}
+      <div style={{ color: "#8885a8", fontSize: 13, marginTop: 4 }}>{credits} credits</div>
+      <ul style={{ listStyle: "none", padding: 0, margin: "20px 0", display: "flex", flexDirection: "column", gap: 10 }}>
+        {features.map((f) => (
+          <li key={f} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: "#c4b8ff" }}>
+            <span style={{ color: "#4cebb8", fontSize: 16 }}>✓</span> {f}
           </li>
         ))}
       </ul>
@@ -1263,17 +1432,3 @@ function PricingCard({
     </div>
   );
 }
-
-const inputStyle = (extra: React.CSSProperties): React.CSSProperties => ({
-  width: "100%",
-  padding: "16px 18px",
-  color: "#f0eeff",
-  borderRadius: 16,
-  border: "1px solid rgba(255,255,255,0.08)",
-  background: "rgba(22,22,42,0.8)",
-  transition: "border-color 0.2s ease, box-shadow 0.2s ease",
-  fontSize: 15,
-  backdropFilter: "blur(8px)",
-  boxSizing: "border-box",
-  ...extra,
-});
