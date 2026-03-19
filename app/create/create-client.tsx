@@ -79,6 +79,12 @@ export default function CreateClient() {
 
   // Popup states
   const [openPopup, setOpenPopup] = useState<"model" | "ratio" | "duration" | "resolution" | "videoModel" | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 3500);
+  };
 
   // Sessions
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -442,6 +448,13 @@ export default function CreateClient() {
       </div>
       </div>{/* end body wrapper */}
 
+      {/* ── TOAST ── */}
+      {toast && (
+        <div style={{ position: "fixed", bottom: 110, left: "50%", transform: "translateX(-50%)", background: "#1a1a2e", border: "1px solid rgba(0,212,255,0.4)", borderRadius: 12, padding: "12px 20px", color: "#e2f8ff", fontSize: 13, fontWeight: 500, zIndex: 9999, boxShadow: "0 8px 32px rgba(0,0,0,0.5)", animation: "fadeUp 0.2s ease", whiteSpace: "nowrap", pointerEvents: "none" }}>
+          {toast}
+        </div>
+      )}
+
       {/* ── BOTTOM BAR ── */}
       <div ref={popupRef} style={{ flexShrink: 0, padding: "12px 20px 16px", background: "rgba(10,10,15,0.98)", borderTop: "1px solid rgba(255,255,255,0.06)", backdropFilter: "blur(20px)", position: "relative" }}>
 
@@ -541,7 +554,7 @@ export default function CreateClient() {
           />
           <button
             className="generate-btn-main"
-            onClick={() => tab === "image" ? void generateImage() : alert("Video coming soon!")}
+            onClick={() => tab === "image" ? void generateImage() : showToast("🚀 Video generation coming soon! We're working on it.")}
             disabled={loading || (tab === "image" && !prompt.trim())}
             style={{ background: tab === "video" ? "linear-gradient(135deg, #0369a1, #0ea5e9)" : undefined, boxShadow: tab === "video" ? "0 4px 20px rgba(0,180,220,0.5)" : undefined }}
           >
