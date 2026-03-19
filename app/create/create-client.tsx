@@ -30,10 +30,10 @@ const ASPECT_RATIOS = [
 ];
 
 const VIDEO_MODELS = [
-  { id: "kling",   name: "Kling 1.6",    badge: "TOP"  },
-  { id: "runway",  name: "Runway Gen-3", badge: "PRO"  },
-  { id: "luma",    name: "Luma Dream",   badge: ""     },
-  { id: "animate", name: "AnimateDiff",  badge: "FREE" },
+  { id: "kling",     name: "Kling 1.6",       badge: "TOP"  },
+  { id: "kling_pro", name: "Kling 1.6 Pro",   badge: "PRO"  },
+  { id: "luma",      name: "Luma Dream",       badge: ""     },
+  { id: "minimax",   name: "MiniMax Video",    badge: "NEW"  },
 ];
 
 const DURATIONS = ["3s", "5s", "10s", "15s"];
@@ -76,6 +76,9 @@ export default function CreateClient() {
   const [videoDuration, setVideoDuration] = useState("5s");
   const [videoResolution, setVideoResolution] = useState("1080p");
   const [selectedVideoModel, setSelectedVideoModel] = useState("kling");
+  const [videoResult, setVideoResult] = useState<string | null>(null);
+  const [videoLoading, setVideoLoading] = useState(false);
+  const [videoError, setVideoError] = useState<string | null>(null);
 
   // Popup states
   const [openPopup, setOpenPopup] = useState<"model" | "ratio" | "duration" | "resolution" | "videoModel" | null>(null);
@@ -171,6 +174,49 @@ export default function CreateClient() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const generateVideo = async () => {
+    if (!uploadedFile) { showToast("Please upload an image first."); return; }
+    setVideoLoading(true);
+    setVideoResult(null);
+    setVideoError(null);
+    setOpenPopup(null);
+    try {
+      const form = new FormData();
+      form.append("image", uploadedFile);
+      form.append("prompt", motionPrompt.trim());
+      form.append("model", selectedVideoModel);
+      form.append("duration", videoDuration.replace("s", ""));
+
+      const res = await fetch("/api/generate-video", { method: "POST", body: form });
+      const data = await res.json();
+
+      if (data.url) {
+        setVideoResult(data.url);
+      } else {
+        setVideoError(data.error ?? "Video generation failed.");
+      }
+    } catch {
+      setVideoError("Network error. Please try again.");
+    } finally {
+      setVideoLoading(false);
+    }
+  };
+
+  const downloadVideo = async (url: string) => {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = "midilli-video.mp4";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    } catch { window.open(url, "_blank"); }
   };
 
   const downloadImage = async (url: string) => {
@@ -412,36 +458,94 @@ export default function CreateClient() {
 
         {/* VIDEO TAB content */}
         {tab === "video" && (
-          <div style={{ textAlign: "center", zIndex: 1, padding: 40 }}>
-            {/* Upload area */}
-            {!uploadedPreview ? (
-              <>
-                <div style={{ width: 100, height: 100, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,212,255,0.12), transparent)", border: "1px solid rgba(0,212,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", animation: "float 4s ease-in-out infinite", cursor: "pointer", position: "relative", overflow: "hidden" }}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <span style={{ fontSize: 36, opacity: 0.5 }}>▶</span>
-                  <div style={{ position: "absolute", width: "100%", height: 2, background: "linear-gradient(90deg, transparent, rgba(0,212,255,0.7), transparent)", animation: "scanLine 3s ease-in-out infinite" }} />
+          <div style={{ textAlign: "center", zIndex: 1, padding: 40, width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+
+            {/* VIDEO LOADING */}
+            {videoLoading && (
+              <div style={{ textAlign: "center" }}>
+                <div style={{ position: "relative", width: 80, height: 80, margin: "0 auto 24px" }}>
+                  <div style={{ width: 80, height: 80, borderRadius: "50%", border: "3px solid rgba(0,212,255,0.1)", borderTopColor: "#00d4ff", animation: "spin 0.9s linear infinite" }} />
+                  <div style={{ position: "absolute", inset: 10, borderRadius: "50%", border: "2px solid rgba(0,212,255,0.08)", borderBottomColor: "#0ea5e9", animation: "spin 1.4s linear infinite reverse" }} />
+                  <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>▶</span>
                 </div>
-                <div style={{ color: "#38a3c4", fontSize: 16, fontWeight: 600, marginBottom: 8 }}>Video Studio</div>
-                <div style={{ color: "#1a4a5a", fontSize: 13, marginBottom: 24 }}>Upload an image to bring it to life with AI motion</div>
-                <button onClick={() => fileInputRef.current?.click()}
-                  style={{ padding: "10px 24px", borderRadius: 999, background: "rgba(0,212,255,0.12)", border: "1px solid rgba(0,212,255,0.3)", color: "#00d4ff", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                  ↑ Upload Image
-                </button>
-                <div style={{ display: "flex", gap: 8, marginTop: 28, justifyContent: "center", opacity: 0.25 }}>
-                  {[...Array(7)].map((_, i) => (
-                    <div key={i} style={{ width: 28, height: 20, borderRadius: 3, background: "rgba(0,212,255,0.15)", border: "1px solid rgba(0,212,255,0.3)" }} />
+                <div style={{ color: "#38bdf8", fontSize: 16, fontWeight: 600, marginBottom: 8 }}>Generating your video...</div>
+                <div style={{ color: "#1e4a5a", fontSize: 13, marginBottom: 6 }}>{VIDEO_MODELS.find(m => m.id === selectedVideoModel)?.name} · This may take 1–2 minutes</div>
+                <div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 20 }}>
+                  {[0.3, 0.6, 1, 0.6, 0.3].map((o, i) => (
+                    <div key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: "#00d4ff", opacity: o, animation: `pulseRing ${1 + i * 0.15}s ease-in-out infinite` }} />
                   ))}
                 </div>
-              </>
-            ) : (
-              <div style={{ position: "relative", display: "inline-block" }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={uploadedPreview} alt="Source" style={{ maxWidth: "min(500px, 80vw)", maxHeight: "50vh", borderRadius: 16, boxShadow: "0 24px 60px rgba(0,0,0,0.6)", border: "1px solid rgba(0,212,255,0.2)" }} />
-                <button onClick={() => { setUploadedFile(null); setUploadedPreview(null); }} style={{ position: "absolute", top: 10, right: 10, width: 28, height: 28, borderRadius: "50%", background: "rgba(0,0,0,0.7)", border: "1px solid rgba(255,255,255,0.2)", color: "white", fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit" }}>×</button>
-                <div style={{ marginTop: 16, color: "#38a3c4", fontSize: 13 }}>Ready to animate · Add a motion prompt below</div>
               </div>
             )}
+
+            {/* VIDEO ERROR */}
+            {videoError && !videoLoading && (
+              <div style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 16, padding: "24px 32px", textAlign: "center", maxWidth: 420 }}>
+                <div style={{ fontSize: 28, marginBottom: 12 }}>⚠️</div>
+                <div style={{ color: "#fca5a5", fontSize: 14, lineHeight: 1.6, marginBottom: 16 }}>{videoError}</div>
+                <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+                  <button onClick={() => void generateVideo()} style={{ padding: "8px 20px", borderRadius: 999, background: "rgba(0,212,255,0.12)", border: "1px solid rgba(0,212,255,0.3)", color: "#00d4ff", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>↻ Try Again</button>
+                  <button onClick={() => { setVideoError(null); setUploadedFile(null); setUploadedPreview(null); }} style={{ padding: "8px 20px", borderRadius: 999, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#6b7280", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>← Start Over</button>
+                </div>
+              </div>
+            )}
+
+            {/* VIDEO RESULT */}
+            {videoResult && !videoLoading && (
+              <div style={{ animation: "fadeIn 0.4s ease", display: "flex", flexDirection: "column", alignItems: "center", gap: 16, maxHeight: "calc(100vh - 180px)", padding: "0 20px" }}>
+                <div style={{ position: "relative", borderRadius: 16, overflow: "hidden", boxShadow: "0 24px 80px rgba(0,0,0,0.7)", border: "1px solid rgba(0,212,255,0.2)" }}>
+                  <video
+                    src={videoResult}
+                    controls
+                    autoPlay
+                    loop
+                    style={{ maxWidth: "min(640px, 80vw)", maxHeight: "calc(100vh - 260px)", display: "block", background: "#000" }}
+                  />
+                  {/* Cyan corner accent */}
+                  <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg, transparent, #00d4ff, transparent)", opacity: 0.6 }} />
+                </div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button onClick={() => void downloadVideo(videoResult)} style={{ padding: "9px 20px", borderRadius: 999, background: "linear-gradient(135deg, #0369a1, #0ea5e9)", border: "none", color: "white", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", boxShadow: "0 4px 16px rgba(0,180,220,0.4)" }}>↓ Download Video</button>
+                  <button onClick={() => void generateVideo()} style={{ padding: "9px 20px", borderRadius: 999, background: "rgba(0,212,255,0.1)", border: "1px solid rgba(0,212,255,0.3)", color: "#38bdf8", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>↻ Regenerate</button>
+                  <button onClick={() => { setVideoResult(null); setVideoError(null); setUploadedFile(null); setUploadedPreview(null); setMotionPrompt(""); }} style={{ padding: "9px 20px", borderRadius: 999, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "#6b7280", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>+ New</button>
+                </div>
+              </div>
+            )}
+
+            {/* UPLOAD / IDLE state — only shown when no loading/result/error */}
+            {!videoLoading && !videoResult && !videoError && (
+              <>
+                {!uploadedPreview ? (
+                  <>
+                    <div style={{ width: 100, height: 100, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,212,255,0.12), transparent)", border: "1px solid rgba(0,212,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", animation: "float 4s ease-in-out infinite", cursor: "pointer", position: "relative", overflow: "hidden" }}
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <span style={{ fontSize: 36, opacity: 0.5 }}>▶</span>
+                      <div style={{ position: "absolute", width: "100%", height: 2, background: "linear-gradient(90deg, transparent, rgba(0,212,255,0.7), transparent)", animation: "scanLine 3s ease-in-out infinite" }} />
+                    </div>
+                    <div style={{ color: "#38a3c4", fontSize: 16, fontWeight: 600, marginBottom: 8 }}>Video Studio</div>
+                    <div style={{ color: "#1a4a5a", fontSize: 13, marginBottom: 24 }}>Upload an image to bring it to life with AI motion</div>
+                    <button onClick={() => fileInputRef.current?.click()}
+                      style={{ padding: "10px 24px", borderRadius: 999, background: "rgba(0,212,255,0.12)", border: "1px solid rgba(0,212,255,0.3)", color: "#00d4ff", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                      ↑ Upload Image
+                    </button>
+                    <div style={{ display: "flex", gap: 8, marginTop: 28, justifyContent: "center", opacity: 0.25 }}>
+                      {[...Array(7)].map((_, i) => (
+                        <div key={i} style={{ width: 28, height: 20, borderRadius: 3, background: "rgba(0,212,255,0.15)", border: "1px solid rgba(0,212,255,0.3)" }} />
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ position: "relative", display: "inline-block" }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={uploadedPreview} alt="Source" style={{ maxWidth: "min(500px, 80vw)", maxHeight: "50vh", borderRadius: 16, boxShadow: "0 24px 60px rgba(0,0,0,0.6)", border: "1px solid rgba(0,212,255,0.2)" }} />
+                    <button onClick={() => { setUploadedFile(null); setUploadedPreview(null); }} style={{ position: "absolute", top: 10, right: 10, width: 28, height: 28, borderRadius: "50%", background: "rgba(0,0,0,0.7)", border: "1px solid rgba(255,255,255,0.2)", color: "white", fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit" }}>×</button>
+                    <div style={{ marginTop: 16, color: "#38a3c4", fontSize: 13 }}>Ready to animate · Add a motion prompt below ↓</div>
+                  </div>
+                )}
+              </>
+            )}
+
             <input ref={fileInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleFileChange} />
           </div>
         )}
@@ -554,11 +658,11 @@ export default function CreateClient() {
           />
           <button
             className="generate-btn-main"
-            onClick={() => tab === "image" ? void generateImage() : showToast("🚀 Video generation coming soon! We're working on it.")}
-            disabled={loading || (tab === "image" && !prompt.trim())}
+            onClick={() => tab === "image" ? void generateImage() : void generateVideo()}
+            disabled={(tab === "image" && (loading || !prompt.trim())) || (tab === "video" && (videoLoading || !uploadedFile))}
             style={{ background: tab === "video" ? "linear-gradient(135deg, #0369a1, #0ea5e9)" : undefined, boxShadow: tab === "video" ? "0 4px 20px rgba(0,180,220,0.5)" : undefined }}
           >
-            {loading ? <span style={{ width: 18, height: 18, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.4)", borderTopColor: "white", display: "inline-block", animation: "spin 0.7s linear infinite" }} /> : "+"}
+            {(loading || videoLoading) ? <span style={{ width: 18, height: 18, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.4)", borderTopColor: "white", display: "inline-block", animation: "spin 0.7s linear infinite" }} /> : "+"}
           </button>
         </div>
 
