@@ -100,6 +100,8 @@ export default function CreateClient() {
   const [videoLoop, setVideoLoop] = useState(false);
   const [selectedVideoModel, setSelectedVideoModel] = useState("kling");
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showModels, setShowModels] = useState(false);
+  const [showRatios, setShowRatios] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const T = THEME[tab];
@@ -378,30 +380,30 @@ export default function CreateClient() {
         >
 
           {tab === "image" ? (
-            <div style={{ animation: "tabSwitch 0.3s ease", display: "flex", flexDirection: "column", gap: 22 }}>
+            <div style={{ animation: "tabSwitch 0.3s ease", display: "flex", flexDirection: "column", gap: 6 }}>
 
               {/* ── PROMPT ── */}
-              <div>
+              <div style={{ marginBottom: 6 }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                    <div style={{ width: 22, height: 22, borderRadius: 6, background: "rgba(168,85,247,0.2)", border: "1px solid rgba(168,85,247,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11 }}>✏</div>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: "#c4b8ff", letterSpacing: "0.06em", textTransform: "uppercase" }}>Prompt</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 15 }}>✏️</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: "#e2d9ff", letterSpacing: "0.02em" }}>Prompt</span>
                   </div>
-                  <span style={{ fontSize: 11, color: prompt.length > 400 ? "#ef4444" : "#4a4a6a" }}>{prompt.length}/500</span>
+                  <span style={{ fontSize: 11, color: prompt.length > 400 ? "#f87171" : "#4a4a6a", fontWeight: 500 }}>{prompt.length}/500</span>
                 </div>
                 <textarea
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value.slice(0, 500))}
                   onKeyDown={(e) => { if (e.key === "Enter" && e.metaKey) void generateImage(); }}
-                  placeholder="Describe what you want to create — be as detailed as you like..."
+                  placeholder="Describe what you want to create..."
                   rows={4}
                   style={{
                     width: "100%",
-                    background: "rgba(124,92,252,0.05)",
-                    border: "1px solid rgba(124,92,252,0.2)",
-                    borderRadius: 14,
-                    padding: "14px 16px",
-                    color: "white",
+                    background: "rgba(255,255,255,0.07)",
+                    border: "1px solid rgba(168,85,247,0.3)",
+                    borderRadius: 12,
+                    padding: "13px 14px",
+                    color: "#f0ecff",
                     fontSize: 14,
                     resize: "none",
                     outline: "none",
@@ -409,135 +411,99 @@ export default function CreateClient() {
                     transition: "border-color 0.2s, box-shadow 0.2s",
                     fontFamily: "inherit",
                   }}
-                  onFocus={(e) => { e.target.style.borderColor = "rgba(168,85,247,0.6)"; e.target.style.boxShadow = "0 0 0 3px rgba(124,92,252,0.1)"; }}
-                  onBlur={(e) => { e.target.style.borderColor = "rgba(124,92,252,0.2)"; e.target.style.boxShadow = "none"; }}
+                  onFocus={(e) => { e.target.style.borderColor = "rgba(168,85,247,0.7)"; e.target.style.boxShadow = "0 0 0 3px rgba(124,92,252,0.15)"; }}
+                  onBlur={(e) => { e.target.style.borderColor = "rgba(168,85,247,0.3)"; e.target.style.boxShadow = "none"; }}
                 />
-                {/* Quick suggestions */}
-                <div style={{ marginTop: 10 }}>
-                  <div style={{ fontSize: 10, color: "#4a4a6a", fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 7 }}>Quick prompts</div>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
-                    {SUGGESTIONS.map((s) => (
-                      <button key={s}
-                        onClick={() => setPrompt(s)}
-                        style={{ padding: "5px 11px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)", color: "#6b7280", fontSize: 11, cursor: "pointer", transition: "all 0.15s", whiteSpace: "nowrap" }}
-                        onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(168,85,247,0.35)"; e.currentTarget.style.color = "#c4b8ff"; e.currentTarget.style.background = "rgba(124,92,252,0.08)"; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "#6b7280"; e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}
-                      >
-                        {s}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Divider */}
-              <div style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(124,92,252,0.2), transparent)" }} />
-
-              {/* ── MODEL ── */}
-              <div>
-                <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 12 }}>
-                  <div style={{ width: 22, height: 22, borderRadius: 6, background: "rgba(168,85,247,0.2)", border: "1px solid rgba(168,85,247,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11 }}>⚡</div>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: "#c4b8ff", letterSpacing: "0.06em", textTransform: "uppercase" }}>AI Model</span>
-                  <span style={{ marginLeft: "auto", fontSize: 10, color: "#4a4a6a" }}>
-                    {MODELS.find(m => m.id === selectedModel)?.speed}
-                  </span>
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                  {MODELS.map((m) => (
-                    <button
-                      key={m.id}
-                      onClick={() => setSelectedModel(m.id)}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 10,
-                        padding: "9px 12px",
-                        borderRadius: 10,
-                        border: `1px solid ${selectedModel === m.id ? "rgba(168,85,247,0.5)" : "rgba(255,255,255,0.06)"}`,
-                        background: selectedModel === m.id ? "rgba(124,92,252,0.15)" : "rgba(255,255,255,0.02)",
-                        cursor: "pointer",
-                        transition: "all 0.15s",
-                        textAlign: "left",
-                      }}
-                      onMouseEnter={(e) => { if (selectedModel !== m.id) { e.currentTarget.style.background = "rgba(124,92,252,0.07)"; e.currentTarget.style.borderColor = "rgba(168,85,247,0.2)"; } }}
-                      onMouseLeave={(e) => { if (selectedModel !== m.id) { e.currentTarget.style.background = "rgba(255,255,255,0.02)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; } }}
-                    >
-                      {/* Active dot */}
-                      <div style={{ width: 7, height: 7, borderRadius: "50%", flexShrink: 0, background: selectedModel === m.id ? "#a855f7" : "rgba(255,255,255,0.15)", boxShadow: selectedModel === m.id ? "0 0 8px rgba(168,85,247,0.8)" : "none", transition: "all 0.2s" }} />
-                      <span style={{ flex: 1, color: selectedModel === m.id ? "white" : "#8b8ba8", fontSize: 13, fontWeight: selectedModel === m.id ? 600 : 400 }}>{m.name}</span>
-                      <span style={{ fontSize: 11, color: selectedModel === m.id ? "#a78bfa" : "#3a3a5a" }}>{m.speed}</span>
-                      {m.tier === "pro" && (
-                        <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 5, background: "rgba(232,79,188,0.15)", color: "#e84fbf", border: "1px solid rgba(232,79,188,0.3)" }}>PRO</span>
-                      )}
-                    </button>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 9 }}>
+                  {SUGGESTIONS.map((s) => (
+                    <button key={s} onClick={() => setPrompt(s)}
+                      style={{ padding: "5px 11px", borderRadius: 999, border: "1px solid rgba(168,85,247,0.2)", background: "rgba(124,92,252,0.07)", color: "#9d8fcf", fontSize: 11, cursor: "pointer", transition: "all 0.15s", whiteSpace: "nowrap" }}
+                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(168,85,247,0.5)"; e.currentTarget.style.color = "#e2d9ff"; e.currentTarget.style.background = "rgba(124,92,252,0.15)"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(168,85,247,0.2)"; e.currentTarget.style.color = "#9d8fcf"; e.currentTarget.style.background = "rgba(124,92,252,0.07)"; }}
+                    >{s}</button>
                   ))}
                 </div>
               </div>
 
-              {/* Divider */}
-              <div style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(124,92,252,0.2), transparent)" }} />
-
-              {/* ── ASPECT RATIO ── */}
-              <div>
-                <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 12 }}>
-                  <div style={{ width: 22, height: 22, borderRadius: 6, background: "rgba(168,85,247,0.2)", border: "1px solid rgba(168,85,247,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11 }}>⊞</div>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: "#c4b8ff", letterSpacing: "0.06em", textTransform: "uppercase" }}>Aspect Ratio</span>
-                  <span style={{ marginLeft: "auto", fontSize: 11, color: "#a78bfa", fontWeight: 600 }}>{aspectRatio}</span>
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6 }}>
-                  {ASPECT_RATIOS.map((r) => {
-                    const active = aspectRatio === r.value;
-                    return (
-                      <button
-                        key={r.value}
-                        onClick={() => setAspectRatio(r.value)}
-                        style={{
-                          padding: "10px 6px 8px",
-                          borderRadius: 10,
-                          border: `1px solid ${active ? "rgba(168,85,247,0.6)" : "rgba(255,255,255,0.07)"}`,
-                          background: active ? "rgba(124,92,252,0.18)" : "rgba(255,255,255,0.02)",
-                          cursor: "pointer",
-                          transition: "all 0.15s",
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          gap: 5,
-                        }}
-                        onMouseEnter={(e) => { if (!active) { e.currentTarget.style.background = "rgba(124,92,252,0.07)"; e.currentTarget.style.borderColor = "rgba(168,85,247,0.25)"; } }}
-                        onMouseLeave={(e) => { if (!active) { e.currentTarget.style.background = "rgba(255,255,255,0.02)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)"; } }}
+              {/* ── MODEL accordion ── */}
+              <div style={{ borderRadius: 12, border: "1px solid rgba(168,85,247,0.2)", overflow: "hidden" }}>
+                <button
+                  onClick={() => setShowModels(v => !v)}
+                  style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "13px 16px", background: showModels ? "rgba(124,92,252,0.15)" : "rgba(255,255,255,0.05)", border: "none", cursor: "pointer", transition: "background 0.2s" }}
+                >
+                  <span style={{ fontSize: 15 }}>⚡</span>
+                  <span style={{ flex: 1, textAlign: "left", fontSize: 13, fontWeight: 700, color: "#e2d9ff" }}>AI Model</span>
+                  <span style={{ fontSize: 12, color: "#a78bfa", fontWeight: 600, marginRight: 8 }}>
+                    {MODELS.find(m => m.id === selectedModel)?.name} · {MODELS.find(m => m.id === selectedModel)?.speed}
+                  </span>
+                  <span style={{ color: "#6b5a8a", fontSize: 13, transition: "transform 0.25s", transform: showModels ? "rotate(180deg)" : "rotate(0deg)", display: "inline-block" }}>▾</span>
+                </button>
+                {showModels && (
+                  <div style={{ padding: "8px 10px 12px", background: "rgba(0,0,0,0.2)", display: "flex", flexDirection: "column", gap: 4, animation: "tabSwitch 0.2s ease" }}>
+                    {MODELS.map((m) => (
+                      <button key={m.id} onClick={() => { setSelectedModel(m.id); setShowModels(false); }}
+                        style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 9, border: `1px solid ${selectedModel === m.id ? "rgba(168,85,247,0.55)" : "rgba(255,255,255,0.06)"}`, background: selectedModel === m.id ? "rgba(124,92,252,0.2)" : "rgba(255,255,255,0.03)", cursor: "pointer", transition: "all 0.15s", textAlign: "left" }}
+                        onMouseEnter={(e) => { if (selectedModel !== m.id) { e.currentTarget.style.background = "rgba(124,92,252,0.08)"; e.currentTarget.style.borderColor = "rgba(168,85,247,0.25)"; } }}
+                        onMouseLeave={(e) => { if (selectedModel !== m.id) { e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; } }}
                       >
-                        <div style={{
-                          width: r.w * 0.75,
-                          height: r.h * 0.75,
-                          border: `1.5px solid ${active ? "#a78bfa" : "rgba(255,255,255,0.2)"}`,
-                          borderRadius: 2,
-                          background: active ? "rgba(124,92,252,0.35)" : "rgba(255,255,255,0.04)",
-                          transition: "all 0.15s",
-                          flexShrink: 0,
-                        }} />
-                        <span style={{ fontSize: 11, fontWeight: 700, color: active ? "white" : "#6b7280" }}>{r.label}</span>
-                        <span style={{ fontSize: 9, color: active ? "#a78bfa" : "#3a3a5a", fontWeight: 400 }}>{r.desc}</span>
+                        <div style={{ width: 8, height: 8, borderRadius: "50%", flexShrink: 0, background: selectedModel === m.id ? "#c084fc" : "rgba(255,255,255,0.12)", boxShadow: selectedModel === m.id ? "0 0 8px rgba(192,132,252,0.9)" : "none", transition: "all 0.2s" }} />
+                        <span style={{ flex: 1, color: selectedModel === m.id ? "#f0ecff" : "#9d8fcf", fontSize: 13, fontWeight: selectedModel === m.id ? 600 : 400 }}>{m.name}</span>
+                        <span style={{ fontSize: 11, color: selectedModel === m.id ? "#c084fc" : "#3a3a5a" }}>{m.speed}</span>
+                        {m.tier === "pro" && (
+                          <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 5, background: "rgba(232,79,188,0.18)", color: "#f472b6", border: "1px solid rgba(232,79,188,0.35)" }}>PRO</span>
+                        )}
                       </button>
-                    );
-                  })}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {/* Divider */}
-              <div style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(124,92,252,0.2), transparent)" }} />
+              {/* ── ASPECT RATIO accordion ── */}
+              <div style={{ borderRadius: 12, border: "1px solid rgba(168,85,247,0.2)", overflow: "hidden" }}>
+                <button
+                  onClick={() => setShowRatios(v => !v)}
+                  style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "13px 16px", background: showRatios ? "rgba(124,92,252,0.15)" : "rgba(255,255,255,0.05)", border: "none", cursor: "pointer", transition: "background 0.2s" }}
+                >
+                  <span style={{ fontSize: 15 }}>⊞</span>
+                  <span style={{ flex: 1, textAlign: "left", fontSize: 13, fontWeight: 700, color: "#e2d9ff" }}>Aspect Ratio</span>
+                  <span style={{ fontSize: 12, color: "#a78bfa", fontWeight: 700, marginRight: 8 }}>{aspectRatio} · {ASPECT_RATIOS.find(r => r.value === aspectRatio)?.desc}</span>
+                  <span style={{ color: "#6b5a8a", fontSize: 13, transition: "transform 0.25s", transform: showRatios ? "rotate(180deg)" : "rotate(0deg)", display: "inline-block" }}>▾</span>
+                </button>
+                {showRatios && (
+                  <div style={{ padding: "10px", background: "rgba(0,0,0,0.2)", animation: "tabSwitch 0.2s ease" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6 }}>
+                      {ASPECT_RATIOS.map((r) => {
+                        const active = aspectRatio === r.value;
+                        return (
+                          <button key={r.value} onClick={() => { setAspectRatio(r.value); setShowRatios(false); }}
+                            style={{ padding: "10px 4px 8px", borderRadius: 9, border: `1px solid ${active ? "rgba(168,85,247,0.6)" : "rgba(255,255,255,0.08)"}`, background: active ? "rgba(124,92,252,0.22)" : "rgba(255,255,255,0.03)", cursor: "pointer", transition: "all 0.15s", display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}
+                            onMouseEnter={(e) => { if (!active) { e.currentTarget.style.background = "rgba(124,92,252,0.08)"; e.currentTarget.style.borderColor = "rgba(168,85,247,0.3)"; } }}
+                            onMouseLeave={(e) => { if (!active) { e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; } }}
+                          >
+                            <div style={{ width: r.w * 0.7, height: r.h * 0.7, border: `1.5px solid ${active ? "#c084fc" : "rgba(255,255,255,0.18)"}`, borderRadius: 2, background: active ? "rgba(124,92,252,0.4)" : "rgba(255,255,255,0.04)", transition: "all 0.15s", flexShrink: 0 }} />
+                            <span style={{ fontSize: 11, fontWeight: 700, color: active ? "#f0ecff" : "#9d8fcf" }}>{r.label}</span>
+                            <span style={{ fontSize: 9, color: active ? "#c084fc" : "#3a3a5a" }}>{r.desc}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* ── GENERATE ── */}
-              <div>
+              <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 8 }}>
                 <button
                   className="generate-btn"
                   onClick={() => void generateImage()}
                   disabled={loading || !prompt.trim()}
                   style={{
-                    background: loading || !prompt.trim() ? "rgba(124,92,252,0.15)" : "linear-gradient(135deg, #7c3aed, #a855f7, #e84fbf)",
-                    boxShadow: loading || !prompt.trim() ? "none" : "0 6px 28px rgba(124,92,252,0.45)",
-                    border: loading || !prompt.trim() ? "1px solid rgba(124,92,252,0.2)" : "none",
-                    color: loading || !prompt.trim() ? "#6b5a8a" : "white",
+                    background: loading || !prompt.trim() ? "rgba(124,92,252,0.12)" : "linear-gradient(135deg, #6d28d9, #9333ea, #c026d3)",
+                    boxShadow: loading || !prompt.trim() ? "none" : "0 6px 28px rgba(124,92,252,0.5)",
+                    border: loading || !prompt.trim() ? "1px solid rgba(124,92,252,0.25)" : "1px solid rgba(168,85,247,0.4)",
+                    color: loading || !prompt.trim() ? "#5a4a7a" : "white",
                     fontSize: 15,
+                    fontWeight: 700,
                     letterSpacing: "0.03em",
                   }}
                 >
@@ -548,13 +514,30 @@ export default function CreateClient() {
                     </span>
                   ) : "✦ Generate Image"}
                 </button>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 10, padding: "0 2px" }}>
-                  <span style={{ fontSize: 11, color: "#3a3a5a" }}>
-                    ⌘+Enter to generate
-                  </span>
-                  <span style={{ fontSize: 11, color: "#3a3a5a" }}>
-                    Balance: <strong style={{ color: "#a78bfa" }}>{credits}</strong> credits
-                  </span>
+
+                {/* Secondary actions */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                  <button
+                    onClick={() => { setPrompt(""); setImageResult(null); setError(null); }}
+                    style={{ padding: "10px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.04)", color: "#9d8fcf", fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.15s" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "#e2d9ff"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.color = "#9d8fcf"; }}
+                  >
+                    🗑 Clear
+                  </button>
+                  <button
+                    onClick={() => { const r = SUGGESTIONS[Math.floor(Math.random() * SUGGESTIONS.length)]; setPrompt(r); }}
+                    style={{ padding: "10px", borderRadius: 10, border: "1px solid rgba(168,85,247,0.25)", background: "rgba(124,92,252,0.08)", color: "#a78bfa", fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.15s" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(124,92,252,0.15)"; e.currentTarget.style.borderColor = "rgba(168,85,247,0.5)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(124,92,252,0.08)"; e.currentTarget.style.borderColor = "rgba(168,85,247,0.25)"; }}
+                  >
+                    🎲 Random
+                  </button>
+                </div>
+
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "4px 2px" }}>
+                  <span style={{ fontSize: 11, color: "#4a4a6a" }}>⌘+Enter to generate</span>
+                  <span style={{ fontSize: 11, color: "#4a4a6a" }}>Balance: <strong style={{ color: "#c084fc" }}>{credits}</strong> credits</span>
                 </div>
               </div>
             </div>
