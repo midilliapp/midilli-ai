@@ -64,8 +64,7 @@ export default function ChatWidget() {
           ...prev,
           {
             role: "assistant",
-            content:
-              "Üzgünüm, bir hata oluştu. Lütfen tekrar deneyin.",
+            content: `Hata: ${data.error ?? "Bilinmeyen hata"}`,
           },
         ]);
       }
