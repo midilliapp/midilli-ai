@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 
 const MODELS = [
@@ -19,66 +19,36 @@ const MODELS = [
 type ModelId = typeof MODELS[number]["id"];
 
 const ASPECT_RATIOS = [
-  { value: "1:1",  label: "1:1",   desc: "Square",     w: 18, h: 18 },
-  { value: "4:3",  label: "4:3",   desc: "Standard",   w: 24, h: 18 },
-  { value: "3:4",  label: "3:4",   desc: "Portrait",   w: 18, h: 24 },
-  { value: "16:9", label: "16:9",  desc: "Widescreen", w: 28, h: 16 },
-  { value: "9:16", label: "9:16",  desc: "Vertical",   w: 14, h: 25 },
-  { value: "21:9", label: "21:9",  desc: "Cinematic",  w: 32, h: 14 },
-  { value: "2:3",  label: "2:3",   desc: "Photo",      w: 14, h: 21 },
-  { value: "3:2",  label: "3:2",   desc: "Landscape",  w: 24, h: 16 },
+  { value: "1:1",  label: "1:1",   w: 16, h: 16 },
+  { value: "4:3",  label: "4:3",   w: 20, h: 15 },
+  { value: "3:4",  label: "3:4",   w: 15, h: 20 },
+  { value: "16:9", label: "16:9",  w: 22, h: 12 },
+  { value: "9:16", label: "9:16",  w: 12, h: 22 },
+  { value: "21:9", label: "21:9",  w: 26, h: 11 },
+  { value: "2:3",  label: "2:3",   w: 13, h: 19 },
+  { value: "3:2",  label: "3:2",   w: 20, h: 13 },
 ];
 
-const SUGGESTIONS = [
+const VIDEO_MODELS = [
+  { id: "kling",   name: "Kling 1.6",    badge: "TOP"  },
+  { id: "runway",  name: "Runway Gen-3", badge: "PRO"  },
+  { id: "luma",    name: "Luma Dream",   badge: ""     },
+  { id: "animate", name: "AnimateDiff",  badge: "FREE" },
+];
+
+const DURATIONS = ["3s", "5s", "10s", "15s"];
+const RESOLUTIONS = ["720p", "1080p", "4K"];
+
+const EXAMPLE_PROMPTS = [
   "Cinematic mountain landscape at golden hour",
   "Cyberpunk city at night, neon rain",
   "Product photo, luxury perfume bottle",
   "YouTube thumbnail, tech video, bold",
   "A Nike-style ad with a robot",
   "Fashion editorial, minimal white background",
+  "Futuristic spaceship interior, dramatic lighting",
+  "Watercolor painting of a Japanese garden",
 ];
-
-// Color themes per tab
-const THEME = {
-  image: {
-    bg:         "#07071a",
-    bgDeep:     "#04041200",
-    navBg:      "rgba(7,7,26,0.95)",
-    panelBg:    "#07071a",
-    rightBg:    "radial-gradient(ellipse at center, rgba(124,92,252,0.07) 0%, transparent 70%)",
-    border:     "rgba(255,255,255,0.06)",
-    accent:     "#a855f7",
-    accentRgb:  "124,92,252",
-    accentGlow: "rgba(124,92,252,0.5)",
-    tabActive:  "rgba(124,92,252,0.3)",
-    btnGrad:    "linear-gradient(135deg, #7c3aed, #a855f7, #e84fbf)",
-    btnGlow:    "rgba(124,92,252,0.5)",
-    labelColor: "#8885a8",
-    gridColor:  "rgba(255,255,255,0.03)",
-    emptyIcon:  "✦",
-    scrollThumb:"rgba(124,92,252,0.4)",
-    logoGrad:   "linear-gradient(135deg, #a78bfa, #e84fbf)",
-  },
-  video: {
-    bg:         "#020e1a",
-    bgDeep:     "#020e1a",
-    navBg:      "rgba(2,14,26,0.97)",
-    panelBg:    "#031525",
-    rightBg:    "radial-gradient(ellipse at 50% 40%, rgba(0,180,220,0.08) 0%, rgba(6,182,212,0.04) 40%, transparent 70%)",
-    border:     "rgba(0,212,255,0.1)",
-    accent:     "#00d4ff",
-    accentRgb:  "0,212,255",
-    accentGlow: "rgba(0,212,255,0.4)",
-    tabActive:  "rgba(0,180,220,0.25)",
-    btnGrad:    "linear-gradient(135deg, #0369a1, #0ea5e9, #00d4ff)",
-    btnGlow:    "rgba(0,212,255,0.45)",
-    labelColor: "#38a3c4",
-    gridColor:  "rgba(0,212,255,0.04)",
-    emptyIcon:  "▶",
-    scrollThumb:"rgba(0,212,255,0.3)",
-    logoGrad:   "linear-gradient(135deg, #38bdf8, #00d4ff)",
-  },
-};
 
 export default function CreateClient() {
   const [tab, setTab] = useState<"image" | "video">("image");
@@ -89,28 +59,38 @@ export default function CreateClient() {
   const [imageResult, setImageResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [credits] = useState(20);
+
+  // Video states
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [uploadedPreview, setUploadedPreview] = useState<string | null>(null);
   const [motionPrompt, setMotionPrompt] = useState("");
   const [videoDuration, setVideoDuration] = useState("5s");
-  const [videoFps, setVideoFps] = useState("24fps");
   const [videoResolution, setVideoResolution] = useState("1080p");
-  const [motionIntensity, setMotionIntensity] = useState(50);
-  const [outputFormat, setOutputFormat] = useState("mp4");
-  const [videoLoop, setVideoLoop] = useState(false);
   const [selectedVideoModel, setSelectedVideoModel] = useState("kling");
-  const [showAdvanced, setShowAdvanced] = useState(false);
-  const [showModels, setShowModels] = useState(false);
-  const [showRatios, setShowRatios] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const T = THEME[tab];
+  // Popup states
+  const [openPopup, setOpenPopup] = useState<"model" | "ratio" | "duration" | "resolution" | "videoModel" | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
+
+  // Close popup on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (popupRef.current && !popupRef.current.contains(e.target as Node)) {
+        setOpenPopup(null);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   const generateImage = async () => {
     if (!prompt.trim()) return;
     setLoading(true);
     setImageResult(null);
     setError(null);
+    setOpenPopup(null);
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
@@ -139,9 +119,7 @@ export default function CreateClient() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(blobUrl);
-    } catch {
-      window.open(url, "_blank");
-    }
+    } catch { window.open(url, "_blank"); }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -151,873 +129,345 @@ export default function CreateClient() {
       const reader = new FileReader();
       reader.onload = (ev) => setUploadedPreview(ev.target?.result as string);
       reader.readAsDataURL(file);
-    } else {
-      setUploadedPreview(null);
-    }
+    } else setUploadedPreview(null);
   };
 
+  const currentModelName = MODELS.find(m => m.id === selectedModel)?.name ?? "Model";
+  const currentVideoModelName = VIDEO_MODELS.find(m => m.id === selectedVideoModel)?.name ?? "Model";
+
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: T.bg,
-      color: "white",
-      fontFamily: "'Inter', -apple-system, sans-serif",
-      transition: "background 0.5s ease",
-    }}>
+    <div style={{ height: "100vh", background: "#0a0a0f", color: "white", fontFamily: "'Inter', -apple-system, sans-serif", display: "flex", flexDirection: "column", overflow: "hidden" }}>
       <style>{`
         * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        .scrollable::-webkit-scrollbar { width: 5px; }
-        .scrollable::-webkit-scrollbar-track { background: transparent; }
-        .scrollable::-webkit-scrollbar-thumb { border-radius: 3px; }
-
-        .model-chip {
-          padding: 7px 14px;
-          border-radius: 999px;
-          font-size: 12px;
-          font-weight: 600;
-          cursor: pointer;
-          border: 1px solid rgba(255,255,255,0.1);
-          background: rgba(255,255,255,0.05);
-          color: #6b7280;
-          transition: all 0.15s;
-          white-space: nowrap;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-        }
-
-        .ratio-btn {
-          padding: 6px 10px;
-          border-radius: 10px;
-          border: 1px solid rgba(255,255,255,0.1);
-          background: rgba(255,255,255,0.04);
-          color: #6b7280;
-          font-size: 11px;
-          font-weight: 700;
-          cursor: pointer;
-          transition: all 0.15s;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 4px;
-          min-width: 52px;
-        }
-
-        .generate-btn {
-          width: 100%;
-          padding: 16px;
-          border-radius: 14px;
-          border: none;
-          color: white;
-          font-size: 16px;
-          font-weight: 700;
-          cursor: pointer;
-          transition: all 0.2s;
-          letter-spacing: 0.02em;
-          position: relative;
-          overflow: hidden;
-        }
-        .generate-btn:hover:not(:disabled) { transform: translateY(-2px); }
-        .generate-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        .suggestion-pill {
-          padding: 6px 14px;
-          border-radius: 999px;
-          border: 1px solid rgba(255,255,255,0.08);
-          background: rgba(255,255,255,0.03);
-          color: #6b7280;
-          font-size: 12px;
-          cursor: pointer;
-          transition: all 0.15s;
-          white-space: nowrap;
-        }
+        textarea:focus { outline: none; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(168,85,247,0.3); border-radius: 2px; }
 
         @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
-        @keyframes videoFloat { 0%,100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }
-        @keyframes scanLine {
-          0% { transform: translateY(-100%); opacity: 0; }
-          10% { opacity: 1; }
-          90% { opacity: 1; }
-          100% { transform: translateY(400%); opacity: 0; }
+        @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes scanLine { 0% { top: -4px; opacity: 0; } 10%,90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+        @keyframes pulseRing { 0%,100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.06); opacity: 0.2; } }
+
+        .chip-btn {
+          display: flex; align-items: center; gap: 6px;
+          padding: 6px 12px; border-radius: 999px;
+          border: 1px solid rgba(255,255,255,0.12);
+          background: rgba(255,255,255,0.06);
+          color: #d1d5db; font-size: 12px; font-weight: 600;
+          cursor: pointer; transition: all 0.15s; white-space: nowrap;
+          font-family: inherit;
         }
-        @keyframes pulseRing {
-          0% { transform: scale(0.95); opacity: 0.7; }
-          50% { transform: scale(1.05); opacity: 0.3; }
-          100% { transform: scale(0.95); opacity: 0.7; }
-        }
-        @keyframes tabSwitch {
-          from { opacity: 0; transform: translateX(12px); }
-          to { opacity: 1; transform: translateX(0); }
+        .chip-btn:hover { background: rgba(168,85,247,0.15); border-color: rgba(168,85,247,0.4); color: #e2d9ff; }
+        .chip-btn.active { background: rgba(168,85,247,0.2); border-color: rgba(168,85,247,0.55); color: #e2d9ff; }
+
+        .popup-menu {
+          position: absolute; bottom: calc(100% + 10px);
+          background: #16162a; border: 1px solid rgba(168,85,247,0.25);
+          border-radius: 14px; padding: 8px;
+          box-shadow: 0 -8px 40px rgba(0,0,0,0.6);
+          animation: fadeUp 0.15s ease;
+          z-index: 200; min-width: 180px;
         }
 
-        @media (max-width: 768px) {
-          .create-layout { flex-direction: column !important; }
-          .left-panel { width: 100% !important; border-right: none !important; }
-          .right-panel { min-height: 420px !important; }
+        .popup-item {
+          display: flex; align-items: center; gap: 10px;
+          padding: 9px 12px; border-radius: 9px;
+          cursor: pointer; transition: background 0.1s;
+          font-size: 13px; color: #9ca3af; border: none;
+          background: transparent; width: 100%; text-align: left;
+          font-family: inherit;
         }
+        .popup-item:hover { background: rgba(168,85,247,0.12); color: #e2d9ff; }
+        .popup-item.selected { background: rgba(168,85,247,0.2); color: white; }
+
+        .generate-btn-main {
+          width: 42px; height: 42px; border-radius: 50%;
+          background: linear-gradient(135deg, #7c3aed, #a855f7);
+          border: none; cursor: pointer; display: flex;
+          align-items: center; justify-content: center;
+          font-size: 20px; font-weight: 700; color: white;
+          transition: all 0.2s; flex-shrink: 0;
+          box-shadow: 0 4px 20px rgba(124,92,252,0.5);
+        }
+        .generate-btn-main:hover:not(:disabled) { transform: scale(1.08); box-shadow: 0 6px 28px rgba(124,92,252,0.7); }
+        .generate-btn-main:disabled { opacity: 0.4; cursor: not-allowed; }
       `}</style>
 
       {/* ── TOP NAV ── */}
-      <nav style={{
-        height: 60,
-        borderBottom: `1px solid ${T.border}`,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "0 24px",
-        background: T.navBg,
-        backdropFilter: "blur(16px)",
-        position: "sticky",
-        top: 0,
-        zIndex: 100,
-        transition: "background 0.5s, border-color 0.5s",
-      }}>
-        {/* Logo */}
-        <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{
-            fontSize: 18,
-            fontWeight: 900,
-            letterSpacing: "-0.03em",
-            color: tab === "video" ? "#38bdf8" : "#c4b8ff",
-            transition: "color 0.5s",
-          }}>MIDILLI</span>
-          <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 14 }}>/</span>
-          <span style={{
-            color: T.accent,
-            fontSize: 13,
-            fontWeight: 600,
-            transition: "color 0.5s",
-          }}>Studio</span>
+      <nav style={{ height: 52, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0, background: "rgba(10,10,15,0.95)", backdropFilter: "blur(12px)" }}>
+        <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 6 }}>
+          <span style={{ fontSize: 16, fontWeight: 900, letterSpacing: "-0.03em", color: tab === "video" ? "#38bdf8" : "#c4b8ff" }}>MIDILLI</span>
+          <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 12 }}>/</span>
+          <span style={{ color: tab === "video" ? "#00d4ff" : "#a78bfa", fontSize: 12, fontWeight: 600 }}>Studio</span>
         </Link>
 
-        {/* Tab switcher */}
-        <div style={{
-          display: "flex",
-          gap: 3,
-          background: "rgba(255,255,255,0.04)",
-          borderRadius: 12,
-          padding: 3,
-          border: `1px solid ${T.border}`,
-          transition: "border-color 0.5s",
-        }}>
-          <button
-            onClick={() => setTab("image")}
-            style={{
-              padding: "7px 20px",
-              borderRadius: 9,
-              border: "none",
-              background: tab === "image" ? "rgba(124,92,252,0.3)" : "transparent",
-              color: tab === "image" ? "white" : "#6b7280",
-              fontSize: 13,
-              fontWeight: 600,
-              cursor: "pointer",
-              transition: "all 0.2s",
-            }}
-          >
-            ✦ Text to Image
-          </button>
-          <button
-            onClick={() => setTab("video")}
-            style={{
-              padding: "7px 20px",
-              borderRadius: 9,
-              border: "none",
-              background: tab === "video" ? "rgba(0,180,220,0.25)" : "transparent",
-              color: tab === "video" ? "#00d4ff" : "#6b7280",
-              fontSize: 13,
-              fontWeight: 600,
-              cursor: "pointer",
-              transition: "all 0.2s",
-            }}
-          >
-            ▶ Image to Video
-          </button>
+        {/* Tab */}
+        <div style={{ display: "flex", gap: 2, background: "rgba(255,255,255,0.05)", borderRadius: 10, padding: 3 }}>
+          {[
+            { key: "image", label: "✦ Image" },
+            { key: "video", label: "▶ Video" },
+          ].map((t) => (
+            <button key={t.key} onClick={() => setTab(t.key as "image" | "video")}
+              style={{ padding: "6px 16px", borderRadius: 7, border: "none", background: tab === t.key ? (t.key === "video" ? "rgba(0,180,220,0.25)" : "rgba(124,92,252,0.3)") : "transparent", color: tab === t.key ? (t.key === "video" ? "#00d4ff" : "white") : "#6b7280", fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.2s" }}
+            >{t.label}</button>
+          ))}
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <span style={{
-            color: T.accent,
-            fontSize: 13,
-            fontWeight: 600,
-            transition: "color 0.5s",
-          }}>
-            {credits} credits
-          </span>
-          <Link href="/" style={{
-            padding: "7px 16px",
-            borderRadius: 999,
-            border: `1px solid ${T.border}`,
-            color: "#6b7280",
-            fontSize: 13,
-            textDecoration: "none",
-            transition: "all 0.3s",
-          }}>
-            ← Home
-          </Link>
+          <span style={{ fontSize: 12, color: tab === "video" ? "#38bdf8" : "#a78bfa", fontWeight: 600 }}>{credits} credits</span>
+          <Link href="/" style={{ padding: "5px 14px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.1)", color: "#6b7280", fontSize: 12, textDecoration: "none" }}>← Home</Link>
         </div>
       </nav>
 
-      {/* ── MAIN LAYOUT ── */}
-      <div className="create-layout" style={{ display: "flex", height: "calc(100vh - 60px)" }}>
+      {/* ── MAIN CANVAS ── */}
+      <div style={{ flex: 1, position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
 
-        {/* LEFT PANEL */}
-        <div
-          className="left-panel scrollable"
-          style={{
-            width: 390,
-            flexShrink: 0,
-            borderRight: `1px solid ${T.border}`,
-            overflowY: "auto",
-            padding: 24,
-            display: "flex",
-            flexDirection: "column",
-            gap: 24,
-            background: T.panelBg,
-            transition: "background 0.5s, border-color 0.5s",
-          }}
-        >
+        {/* Background grid */}
+        <div style={{ position: "absolute", inset: 0, backgroundImage: tab === "video" ? "linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px)" : "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)", backgroundSize: "48px 48px", pointerEvents: "none", transition: "background-image 0.5s" }} />
 
-          {tab === "image" ? (
-            <div style={{ animation: "tabSwitch 0.3s ease", display: "flex", flexDirection: "column", gap: 6 }}>
+        {/* Radial glow */}
+        <div style={{ position: "absolute", inset: 0, background: tab === "video" ? "radial-gradient(ellipse at 50% 40%, rgba(0,180,220,0.06) 0%, transparent 65%)" : "radial-gradient(ellipse at 50% 40%, rgba(124,92,252,0.06) 0%, transparent 65%)", pointerEvents: "none", transition: "background 0.5s" }} />
 
-              {/* ── PROMPT ── */}
-              <div style={{ marginBottom: 6 }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <span style={{ fontSize: 15 }}>✏️</span>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: "#e2d9ff", letterSpacing: "0.02em" }}>Prompt</span>
-                  </div>
-                  <span style={{ fontSize: 11, color: prompt.length > 400 ? "#f87171" : "#4a4a6a", fontWeight: 500 }}>{prompt.length}/500</span>
-                </div>
-                <textarea
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value.slice(0, 500))}
-                  onKeyDown={(e) => { if (e.key === "Enter" && e.metaKey) void generateImage(); }}
-                  placeholder="Describe what you want to create..."
-                  rows={4}
-                  style={{
-                    width: "100%",
-                    background: "rgba(255,255,255,0.07)",
-                    border: "1px solid rgba(168,85,247,0.3)",
-                    borderRadius: 12,
-                    padding: "13px 14px",
-                    color: "#f0ecff",
-                    fontSize: 14,
-                    resize: "none",
-                    outline: "none",
-                    lineHeight: 1.7,
-                    transition: "border-color 0.2s, box-shadow 0.2s",
-                    fontFamily: "inherit",
-                  }}
-                  onFocus={(e) => { e.target.style.borderColor = "rgba(168,85,247,0.7)"; e.target.style.boxShadow = "0 0 0 3px rgba(124,92,252,0.15)"; }}
-                  onBlur={(e) => { e.target.style.borderColor = "rgba(168,85,247,0.3)"; e.target.style.boxShadow = "none"; }}
-                />
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 9 }}>
-                  {SUGGESTIONS.map((s) => (
-                    <button key={s} onClick={() => setPrompt(s)}
-                      style={{ padding: "5px 11px", borderRadius: 999, border: "1px solid rgba(168,85,247,0.2)", background: "rgba(124,92,252,0.07)", color: "#9d8fcf", fontSize: 11, cursor: "pointer", transition: "all 0.15s", whiteSpace: "nowrap" }}
-                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(168,85,247,0.5)"; e.currentTarget.style.color = "#e2d9ff"; e.currentTarget.style.background = "rgba(124,92,252,0.15)"; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(168,85,247,0.2)"; e.currentTarget.style.color = "#9d8fcf"; e.currentTarget.style.background = "rgba(124,92,252,0.07)"; }}
-                    >{s}</button>
+        {/* IMAGE TAB content */}
+        {tab === "image" && (
+          <>
+            {/* Loading */}
+            {loading && (
+              <div style={{ textAlign: "center", zIndex: 1 }}>
+                <div style={{ width: 56, height: 56, borderRadius: "50%", border: "3px solid rgba(124,92,252,0.2)", borderTopColor: "#a855f7", animation: "spin 0.8s linear infinite", margin: "0 auto 20px" }} />
+                <div style={{ color: "#e2d9ff", fontSize: 16, fontWeight: 600, marginBottom: 6 }}>Creating your image...</div>
+                <div style={{ color: "#6b5a8a", fontSize: 13 }}>{MODELS.find(m => m.id === selectedModel)?.name} · {MODELS.find(m => m.id === selectedModel)?.speed}</div>
+              </div>
+            )}
+
+            {/* Empty state */}
+            {!loading && !imageResult && !error && (
+              <div style={{ textAlign: "center", zIndex: 1, userSelect: "none" }}>
+                <div style={{ fontSize: 80, marginBottom: 20, opacity: 0.07, lineHeight: 1 }}>✦</div>
+                <div style={{ color: "#3a3a5a", fontSize: 15, fontWeight: 500, marginBottom: 8 }}>Your creation will appear here</div>
+                <div style={{ color: "#2a2a3a", fontSize: 13 }}>Type a prompt below and hit generate</div>
+                {/* Example cards */}
+                <div style={{ display: "flex", gap: 12, marginTop: 40, justifyContent: "center", flexWrap: "wrap", maxWidth: 700, padding: "0 20px" }}>
+                  {EXAMPLE_PROMPTS.slice(0, 4).map((p) => (
+                    <button key={p} onClick={() => setPrompt(p)}
+                      style={{ padding: "8px 16px", borderRadius: 999, border: "1px solid rgba(124,92,252,0.2)", background: "rgba(124,92,252,0.06)", color: "#6b5a8a", fontSize: 12, cursor: "pointer", transition: "all 0.15s", fontFamily: "inherit" }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(124,92,252,0.14)"; e.currentTarget.style.color = "#c4b8ff"; e.currentTarget.style.borderColor = "rgba(168,85,247,0.4)"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(124,92,252,0.06)"; e.currentTarget.style.color = "#6b5a8a"; e.currentTarget.style.borderColor = "rgba(124,92,252,0.2)"; }}
+                    >{p}</button>
                   ))}
                 </div>
               </div>
+            )}
 
-              {/* ── MODEL accordion ── */}
-              <div style={{ borderRadius: 12, border: "1px solid rgba(168,85,247,0.2)", overflow: "hidden" }}>
-                <button
-                  onClick={() => setShowModels(v => !v)}
-                  style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "13px 16px", background: showModels ? "rgba(124,92,252,0.15)" : "rgba(255,255,255,0.05)", border: "none", cursor: "pointer", transition: "background 0.2s" }}
-                >
-                  <span style={{ fontSize: 15 }}>⚡</span>
-                  <span style={{ flex: 1, textAlign: "left", fontSize: 13, fontWeight: 700, color: "#e2d9ff" }}>AI Model</span>
-                  <span style={{ fontSize: 12, color: "#a78bfa", fontWeight: 600, marginRight: 8 }}>
-                    {MODELS.find(m => m.id === selectedModel)?.name} · {MODELS.find(m => m.id === selectedModel)?.speed}
-                  </span>
-                  <span style={{ color: "#6b5a8a", fontSize: 13, transition: "transform 0.25s", transform: showModels ? "rotate(180deg)" : "rotate(0deg)", display: "inline-block" }}>▾</span>
-                </button>
-                {showModels && (
-                  <div style={{ padding: "8px 10px 12px", background: "rgba(0,0,0,0.2)", display: "flex", flexDirection: "column", gap: 4, animation: "tabSwitch 0.2s ease" }}>
-                    {MODELS.map((m) => (
-                      <button key={m.id} onClick={() => { setSelectedModel(m.id); setShowModels(false); }}
-                        style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 9, border: `1px solid ${selectedModel === m.id ? "rgba(168,85,247,0.55)" : "rgba(255,255,255,0.06)"}`, background: selectedModel === m.id ? "rgba(124,92,252,0.2)" : "rgba(255,255,255,0.03)", cursor: "pointer", transition: "all 0.15s", textAlign: "left" }}
-                        onMouseEnter={(e) => { if (selectedModel !== m.id) { e.currentTarget.style.background = "rgba(124,92,252,0.08)"; e.currentTarget.style.borderColor = "rgba(168,85,247,0.25)"; } }}
-                        onMouseLeave={(e) => { if (selectedModel !== m.id) { e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; } }}
-                      >
-                        <div style={{ width: 8, height: 8, borderRadius: "50%", flexShrink: 0, background: selectedModel === m.id ? "#c084fc" : "rgba(255,255,255,0.12)", boxShadow: selectedModel === m.id ? "0 0 8px rgba(192,132,252,0.9)" : "none", transition: "all 0.2s" }} />
-                        <span style={{ flex: 1, color: selectedModel === m.id ? "#f0ecff" : "#9d8fcf", fontSize: 13, fontWeight: selectedModel === m.id ? 600 : 400 }}>{m.name}</span>
-                        <span style={{ fontSize: 11, color: selectedModel === m.id ? "#c084fc" : "#3a3a5a" }}>{m.speed}</span>
-                        {m.tier === "pro" && (
-                          <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 5, background: "rgba(232,79,188,0.18)", color: "#f472b6", border: "1px solid rgba(232,79,188,0.35)" }}>PRO</span>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                )}
+            {/* Error */}
+            {error && !loading && (
+              <div style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 16, padding: "24px 32px", textAlign: "center", zIndex: 1, maxWidth: 400 }}>
+                <div style={{ fontSize: 28, marginBottom: 12 }}>⚠️</div>
+                <div style={{ color: "#fca5a5", fontSize: 14, lineHeight: 1.6 }}>{error}</div>
+                <button onClick={() => void generateImage()} style={{ marginTop: 14, padding: "8px 20px", borderRadius: 999, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", color: "white", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>Try Again</button>
               </div>
+            )}
 
-              {/* ── ASPECT RATIO accordion ── */}
-              <div style={{ borderRadius: 12, border: "1px solid rgba(168,85,247,0.2)", overflow: "hidden" }}>
-                <button
-                  onClick={() => setShowRatios(v => !v)}
-                  style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "13px 16px", background: showRatios ? "rgba(124,92,252,0.15)" : "rgba(255,255,255,0.05)", border: "none", cursor: "pointer", transition: "background 0.2s" }}
-                >
-                  <span style={{ fontSize: 15 }}>⊞</span>
-                  <span style={{ flex: 1, textAlign: "left", fontSize: 13, fontWeight: 700, color: "#e2d9ff" }}>Aspect Ratio</span>
-                  <span style={{ fontSize: 12, color: "#a78bfa", fontWeight: 700, marginRight: 8 }}>{aspectRatio} · {ASPECT_RATIOS.find(r => r.value === aspectRatio)?.desc}</span>
-                  <span style={{ color: "#6b5a8a", fontSize: 13, transition: "transform 0.25s", transform: showRatios ? "rotate(180deg)" : "rotate(0deg)", display: "inline-block" }}>▾</span>
-                </button>
-                {showRatios && (
-                  <div style={{ padding: "10px", background: "rgba(0,0,0,0.2)", animation: "tabSwitch 0.2s ease" }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6 }}>
-                      {ASPECT_RATIOS.map((r) => {
-                        const active = aspectRatio === r.value;
-                        return (
-                          <button key={r.value} onClick={() => { setAspectRatio(r.value); setShowRatios(false); }}
-                            style={{ padding: "10px 4px 8px", borderRadius: 9, border: `1px solid ${active ? "rgba(168,85,247,0.6)" : "rgba(255,255,255,0.08)"}`, background: active ? "rgba(124,92,252,0.22)" : "rgba(255,255,255,0.03)", cursor: "pointer", transition: "all 0.15s", display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}
-                            onMouseEnter={(e) => { if (!active) { e.currentTarget.style.background = "rgba(124,92,252,0.08)"; e.currentTarget.style.borderColor = "rgba(168,85,247,0.3)"; } }}
-                            onMouseLeave={(e) => { if (!active) { e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; } }}
-                          >
-                            <div style={{ width: r.w * 0.7, height: r.h * 0.7, border: `1.5px solid ${active ? "#c084fc" : "rgba(255,255,255,0.18)"}`, borderRadius: 2, background: active ? "rgba(124,92,252,0.4)" : "rgba(255,255,255,0.04)", transition: "all 0.15s", flexShrink: 0 }} />
-                            <span style={{ fontSize: 11, fontWeight: 700, color: active ? "#f0ecff" : "#9d8fcf" }}>{r.label}</span>
-                            <span style={{ fontSize: 9, color: active ? "#c084fc" : "#3a3a5a" }}>{r.desc}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* ── GENERATE ── */}
-              <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 8 }}>
-                <button
-                  className="generate-btn"
-                  onClick={() => void generateImage()}
-                  disabled={loading || !prompt.trim()}
-                  style={{
-                    background: loading || !prompt.trim() ? "rgba(124,92,252,0.12)" : "linear-gradient(135deg, #6d28d9, #9333ea, #c026d3)",
-                    boxShadow: loading || !prompt.trim() ? "none" : "0 6px 28px rgba(124,92,252,0.5)",
-                    border: loading || !prompt.trim() ? "1px solid rgba(124,92,252,0.25)" : "1px solid rgba(168,85,247,0.4)",
-                    color: loading || !prompt.trim() ? "#5a4a7a" : "white",
-                    fontSize: 15,
-                    fontWeight: 700,
-                    letterSpacing: "0.03em",
-                  }}
-                >
-                  {loading ? (
-                    <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
-                      <span style={{ width: 14, height: 14, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "white", display: "inline-block", animation: "spin 0.7s linear infinite" }} />
-                      Generating...
-                    </span>
-                  ) : "✦ Generate Image"}
-                </button>
-
-                {/* Secondary actions */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-                  <button
-                    onClick={() => { setPrompt(""); setImageResult(null); setError(null); }}
-                    style={{ padding: "10px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.04)", color: "#9d8fcf", fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.15s" }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "#e2d9ff"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.color = "#9d8fcf"; }}
-                  >
-                    🗑 Clear
-                  </button>
-                  <button
-                    onClick={() => { const r = SUGGESTIONS[Math.floor(Math.random() * SUGGESTIONS.length)]; setPrompt(r); }}
-                    style={{ padding: "10px", borderRadius: 10, border: "1px solid rgba(168,85,247,0.25)", background: "rgba(124,92,252,0.08)", color: "#a78bfa", fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.15s" }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(124,92,252,0.15)"; e.currentTarget.style.borderColor = "rgba(168,85,247,0.5)"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(124,92,252,0.08)"; e.currentTarget.style.borderColor = "rgba(168,85,247,0.25)"; }}
-                  >
-                    🎲 Random
-                  </button>
-                </div>
-
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "4px 2px" }}>
-                  <span style={{ fontSize: 11, color: "#4a4a6a" }}>⌘+Enter to generate</span>
-                  <span style={{ fontSize: 11, color: "#4a4a6a" }}>Balance: <strong style={{ color: "#c084fc" }}>{credits}</strong> credits</span>
+            {/* Result */}
+            {imageResult && !loading && (
+              <div style={{ zIndex: 1, animation: "fadeIn 0.4s ease", display: "flex", flexDirection: "column", alignItems: "center", gap: 16, maxHeight: "calc(100vh - 180px)", padding: "20px 20px 0" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={imageResult} alt="Generated" style={{ maxWidth: "100%", maxHeight: "calc(100vh - 260px)", borderRadius: 16, boxShadow: "0 24px 80px rgba(0,0,0,0.7)", display: "block", objectFit: "contain" }} />
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button onClick={() => void downloadImage(imageResult)} style={{ padding: "9px 20px", borderRadius: 999, background: "linear-gradient(135deg, #7c3aed, #a855f7)", border: "none", color: "white", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>↓ Download</button>
+                  <button onClick={() => void generateImage()} style={{ padding: "9px 20px", borderRadius: 999, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", color: "#c4b8ff", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>↻ Regenerate</button>
+                  <button onClick={() => { setImageResult(null); setPrompt(""); setError(null); }} style={{ padding: "9px 20px", borderRadius: 999, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "#6b7280", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>+ New</button>
                 </div>
               </div>
-            </div>
+            )}
+          </>
+        )}
 
-          ) : (
-            /* ── VIDEO TAB ── */
-            <div style={{ animation: "tabSwitch 0.3s ease", display: "flex", flexDirection: "column", gap: 20 }}>
-
-              {/* Header banner */}
-              <div style={{
-                padding: "14px 18px",
-                borderRadius: 14,
-                background: "linear-gradient(135deg, rgba(0,100,150,0.35), rgba(0,180,220,0.15))",
-                border: "1px solid rgba(0,212,255,0.25)",
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-              }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(0,212,255,0.15)", border: "1px solid rgba(0,212,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>▶</div>
-                <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#00d4ff", letterSpacing: "0.04em" }}>VIDEO STUDIO</div>
-                  <div style={{ fontSize: 11, color: "#38a3c4", marginTop: 1 }}>Transform images into cinematic AI video</div>
-                </div>
-                <div style={{ marginLeft: "auto", fontSize: 10, fontWeight: 700, background: "rgba(0,212,255,0.15)", color: "#00d4ff", border: "1px solid rgba(0,212,255,0.3)", borderRadius: 6, padding: "3px 8px", letterSpacing: "0.06em" }}>BETA</div>
-              </div>
-
-              {/* Video Model */}
-              <div>
-                <label style={{ fontSize: 11, fontWeight: 700, color: "#38a3c4", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10, display: "block" }}>
-                  AI Model
-                </label>
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  {[
-                    { id: "kling",    name: "Kling 1.6",     desc: "Best quality · Realistic motion",  badge: "TOP",     speed: "~30s" },
-                    { id: "runway",   name: "Runway Gen-3",  desc: "Creative · Cinematic style",        badge: "PRO",     speed: "~25s" },
-                    { id: "luma",     name: "Luma Dream",    desc: "Fast · Great for objects",          badge: "",        speed: "~20s" },
-                    { id: "animate",  name: "AnimateDiff",   desc: "Open source · Custom control",      badge: "FREE",    speed: "~15s" },
-                  ].map((m) => (
-                    <button
-                      key={m.id}
-                      onClick={() => setSelectedVideoModel(m.id)}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 10,
-                        padding: "10px 14px",
-                        borderRadius: 10,
-                        border: `1px solid ${selectedVideoModel === m.id ? "rgba(0,212,255,0.5)" : "rgba(0,212,255,0.1)"}`,
-                        background: selectedVideoModel === m.id ? "rgba(0,180,220,0.15)" : "rgba(0,212,255,0.03)",
-                        cursor: "pointer",
-                        transition: "all 0.15s",
-                        textAlign: "left",
-                      }}
-                    >
-                      <div style={{ width: 8, height: 8, borderRadius: "50%", background: selectedVideoModel === m.id ? "#00d4ff" : "rgba(0,212,255,0.3)", flexShrink: 0, boxShadow: selectedVideoModel === m.id ? "0 0 8px rgba(0,212,255,0.8)" : "none", transition: "all 0.15s" }} />
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 1 }}>
-                          <span style={{ color: selectedVideoModel === m.id ? "white" : "#94a3b8", fontSize: 13, fontWeight: 600 }}>{m.name}</span>
-                          {m.badge && <span style={{ fontSize: 9, fontWeight: 700, padding: "1px 6px", borderRadius: 4, background: m.badge === "FREE" ? "rgba(34,197,94,0.2)" : m.badge === "TOP" ? "rgba(251,191,36,0.2)" : "rgba(232,79,188,0.2)", color: m.badge === "FREE" ? "#4ade80" : m.badge === "TOP" ? "#fbbf24" : "#e84fbf", border: `1px solid ${m.badge === "FREE" ? "rgba(34,197,94,0.3)" : m.badge === "TOP" ? "rgba(251,191,36,0.3)" : "rgba(232,79,188,0.3)"}` }}>{m.badge}</span>}
-                        </div>
-                        <div style={{ color: "#38a3c4", fontSize: 11 }}>{m.desc}</div>
-                      </div>
-                      <span style={{ color: "#38a3c4", fontSize: 11 }}>{m.speed}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Source Image Upload */}
-              <div>
-                <label style={{ fontSize: 11, fontWeight: 700, color: "#38a3c4", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10, display: "block" }}>
-                  Source Image
-                </label>
-                <div
+        {/* VIDEO TAB content */}
+        {tab === "video" && (
+          <div style={{ textAlign: "center", zIndex: 1, padding: 40 }}>
+            {/* Upload area */}
+            {!uploadedPreview ? (
+              <>
+                <div style={{ width: 100, height: 100, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,212,255,0.12), transparent)", border: "1px solid rgba(0,212,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", animation: "float 4s ease-in-out infinite", cursor: "pointer", position: "relative", overflow: "hidden" }}
                   onClick={() => fileInputRef.current?.click()}
-                  style={{
-                    border: `2px dashed ${uploadedFile ? "rgba(0,212,255,0.5)" : "rgba(0,212,255,0.18)"}`,
-                    borderRadius: 14,
-                    padding: uploadedFile ? "12px" : "28px 20px",
-                    textAlign: "center",
-                    cursor: "pointer",
-                    transition: "all 0.25s",
-                    background: uploadedFile ? "rgba(0,180,220,0.07)" : "rgba(0,212,255,0.02)",
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(0,212,255,0.6)"; e.currentTarget.style.background = "rgba(0,212,255,0.06)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = uploadedFile ? "rgba(0,212,255,0.5)" : "rgba(0,212,255,0.18)"; e.currentTarget.style.background = uploadedFile ? "rgba(0,180,220,0.07)" : "rgba(0,212,255,0.02)"; }}
                 >
-                  {uploadedFile && uploadedPreview ? (
-                    <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={uploadedPreview} alt="preview" style={{ width: 64, height: 64, objectFit: "cover", borderRadius: 8, flexShrink: 0, border: "1px solid rgba(0,212,255,0.3)" }} />
-                      <div style={{ textAlign: "left" }}>
-                        <div style={{ color: "#00d4ff", fontSize: 12, fontWeight: 600, marginBottom: 2 }}>✓ Image loaded</div>
-                        <div style={{ color: "#38a3c4", fontSize: 11 }}>{uploadedFile.name}</div>
-                        <div style={{ color: "#1a4a5a", fontSize: 10, marginTop: 3 }}>Click to replace</div>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <div style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(0,212,255,0.08)", border: "1px solid rgba(0,212,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 10px", fontSize: 18 }}>↑</div>
-                      <div style={{ color: "white", fontSize: 13, fontWeight: 600, marginBottom: 3 }}>Upload source image</div>
-                      <div style={{ color: "#38a3c4", fontSize: 11 }}>PNG, JPG, WEBP · Max 10MB</div>
-                    </>
-                  )}
+                  <span style={{ fontSize: 36, opacity: 0.5 }}>▶</span>
+                  <div style={{ position: "absolute", width: "100%", height: 2, background: "linear-gradient(90deg, transparent, rgba(0,212,255,0.7), transparent)", animation: "scanLine 3s ease-in-out infinite" }} />
                 </div>
-                <input ref={fileInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleFileChange} />
-              </div>
-
-              {/* Motion Prompt */}
-              <div>
-                <label style={{ fontSize: 11, fontWeight: 700, color: "#38a3c4", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10, display: "block" }}>
-                  Motion Prompt
-                </label>
-                <textarea
-                  value={motionPrompt}
-                  onChange={(e) => setMotionPrompt(e.target.value)}
-                  placeholder="Camera slowly zooms in, cinematic motion, subtle parallax..."
-                  rows={2}
-                  style={{ width: "100%", background: "rgba(0,212,255,0.04)", border: "1px solid rgba(0,212,255,0.15)", borderRadius: 12, padding: 12, color: "white", fontSize: 13, resize: "none", outline: "none", lineHeight: 1.6, transition: "border-color 0.2s" }}
-                  onFocus={(e) => e.target.style.borderColor = "rgba(0,212,255,0.5)"}
-                  onBlur={(e) => e.target.style.borderColor = "rgba(0,212,255,0.15)"}
-                />
-                {/* Camera motion presets */}
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 8 }}>
-                  {[
-                    { label: "🔍 Zoom In",    val: "slow zoom in, cinematic depth" },
-                    { label: "↔ Pan",          val: "smooth horizontal pan, steady" },
-                    { label: "🎬 Dolly",       val: "dolly shot forward, cinematic" },
-                    { label: "🌀 Orbit",       val: "orbital camera movement" },
-                    { label: "📷 Handheld",    val: "handheld camera, natural movement" },
-                    { label: "✨ Parallax",    val: "parallax depth effect, layered motion" },
-                    { label: "🔭 Pull Back",   val: "slow pull back reveal shot" },
-                    { label: "💫 Float",       val: "floating drift, ethereal motion" },
-                  ].map((p) => (
-                    <button key={p.label}
-                      onClick={() => setMotionPrompt(p.val)}
-                      style={{ padding: "5px 10px", borderRadius: 999, border: `1px solid ${motionPrompt === p.val ? "rgba(0,212,255,0.6)" : "rgba(0,212,255,0.15)"}`, background: motionPrompt === p.val ? "rgba(0,212,255,0.15)" : "rgba(0,212,255,0.04)", color: motionPrompt === p.val ? "#00d4ff" : "#38a3c4", fontSize: 11, cursor: "pointer", transition: "all 0.15s", whiteSpace: "nowrap" }}
-                    >
-                      {p.label}
-                    </button>
+                <div style={{ color: "#38a3c4", fontSize: 16, fontWeight: 600, marginBottom: 8 }}>Video Studio</div>
+                <div style={{ color: "#1a4a5a", fontSize: 13, marginBottom: 24 }}>Upload an image to bring it to life with AI motion</div>
+                <button onClick={() => fileInputRef.current?.click()}
+                  style={{ padding: "10px 24px", borderRadius: 999, background: "rgba(0,212,255,0.12)", border: "1px solid rgba(0,212,255,0.3)", color: "#00d4ff", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                  ↑ Upload Image
+                </button>
+                <div style={{ display: "flex", gap: 8, marginTop: 28, justifyContent: "center", opacity: 0.25 }}>
+                  {[...Array(7)].map((_, i) => (
+                    <div key={i} style={{ width: 28, height: 20, borderRadius: 3, background: "rgba(0,212,255,0.15)", border: "1px solid rgba(0,212,255,0.3)" }} />
                   ))}
                 </div>
+              </>
+            ) : (
+              <div style={{ position: "relative", display: "inline-block" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={uploadedPreview} alt="Source" style={{ maxWidth: "min(500px, 80vw)", maxHeight: "50vh", borderRadius: 16, boxShadow: "0 24px 60px rgba(0,0,0,0.6)", border: "1px solid rgba(0,212,255,0.2)" }} />
+                <button onClick={() => { setUploadedFile(null); setUploadedPreview(null); }} style={{ position: "absolute", top: 10, right: 10, width: 28, height: 28, borderRadius: "50%", background: "rgba(0,0,0,0.7)", border: "1px solid rgba(255,255,255,0.2)", color: "white", fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit" }}>×</button>
+                <div style={{ marginTop: 16, color: "#38a3c4", fontSize: 13 }}>Ready to animate · Add a motion prompt below</div>
               </div>
+            )}
+            <input ref={fileInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleFileChange} />
+          </div>
+        )}
+      </div>
 
-              {/* Duration + FPS row */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                <div>
-                  <label style={{ fontSize: 11, fontWeight: 700, color: "#38a3c4", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8, display: "block" }}>Duration</label>
-                  <div style={{ display: "flex", gap: 4 }}>
-                    {["3s", "5s", "10s", "15s"].map((d) => (
-                      <button key={d} onClick={() => setVideoDuration(d)} style={{ flex: 1, padding: "7px 4px", borderRadius: 8, border: `1px solid ${videoDuration === d ? "rgba(0,212,255,0.5)" : "rgba(0,212,255,0.12)"}`, background: videoDuration === d ? "rgba(0,180,220,0.2)" : "rgba(0,212,255,0.03)", color: videoDuration === d ? "#00d4ff" : "#38a3c4", fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.15s" }}>{d}</button>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <label style={{ fontSize: 11, fontWeight: 700, color: "#38a3c4", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8, display: "block" }}>FPS</label>
-                  <div style={{ display: "flex", gap: 4 }}>
-                    {["24fps", "30fps", "60fps"].map((f) => (
-                      <button key={f} onClick={() => setVideoFps(f)} style={{ flex: 1, padding: "7px 4px", borderRadius: 8, border: `1px solid ${videoFps === f ? "rgba(0,212,255,0.5)" : "rgba(0,212,255,0.12)"}`, background: videoFps === f ? "rgba(0,180,220,0.2)" : "rgba(0,212,255,0.03)", color: videoFps === f ? "#00d4ff" : "#38a3c4", fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.15s" }}>{f}</button>
-                    ))}
-                  </div>
-                </div>
-              </div>
+      {/* ── BOTTOM BAR ── */}
+      <div ref={popupRef} style={{ flexShrink: 0, padding: "12px 20px 16px", background: "rgba(10,10,15,0.98)", borderTop: "1px solid rgba(255,255,255,0.06)", backdropFilter: "blur(20px)", position: "relative" }}>
 
-              {/* Resolution */}
-              <div>
-                <label style={{ fontSize: 11, fontWeight: 700, color: "#38a3c4", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8, display: "block" }}>Resolution</label>
-                <div style={{ display: "flex", gap: 6 }}>
-                  {[
-                    { val: "720p",  label: "720p",  sub: "HD" },
-                    { val: "1080p", label: "1080p", sub: "Full HD" },
-                    { val: "4k",    label: "4K",    sub: "Ultra HD" },
-                  ].map((r) => (
-                    <button key={r.val} onClick={() => setVideoResolution(r.val)} style={{ flex: 1, padding: "8px 6px", borderRadius: 10, border: `1px solid ${videoResolution === r.val ? "rgba(0,212,255,0.5)" : "rgba(0,212,255,0.12)"}`, background: videoResolution === r.val ? "rgba(0,180,220,0.18)" : "rgba(0,212,255,0.03)", color: videoResolution === r.val ? "#00d4ff" : "#38a3c4", fontSize: 12, fontWeight: 700, cursor: "pointer", transition: "all 0.15s", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                      {r.label}
-                      <span style={{ fontSize: 9, opacity: 0.6, fontWeight: 400 }}>{r.sub}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Motion Intensity slider */}
-              <div>
-                <label style={{ fontSize: 11, fontWeight: 700, color: "#38a3c4", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10, display: "flex", justifyContent: "space-between" }}>
-                  <span>Motion Intensity</span>
-                  <span style={{ color: "#00d4ff", fontWeight: 700, fontSize: 12 }}>
-                    {motionIntensity < 25 ? "Subtle" : motionIntensity < 50 ? "Smooth" : motionIntensity < 75 ? "Dynamic" : "Extreme"}
-                  </span>
-                </label>
-                <div style={{ position: "relative" }}>
-                  <input
-                    type="range" min={0} max={100} value={motionIntensity}
-                    onChange={(e) => setMotionIntensity(Number(e.target.value))}
-                    style={{ width: "100%", accentColor: "#00d4ff", cursor: "pointer", height: 4 }}
-                  />
-                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
-                    {["Subtle", "Smooth", "Dynamic", "Extreme"].map((l) => (
-                      <span key={l} style={{ fontSize: 9, color: "#1a4a5a" }}>{l}</span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Advanced toggle */}
-              <button
-                onClick={() => setShowAdvanced(v => !v)}
-                style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", borderRadius: 10, border: "1px solid rgba(0,212,255,0.12)", background: "rgba(0,212,255,0.03)", color: "#38a3c4", fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.15s" }}
+        {/* Popups */}
+        {openPopup === "model" && (
+          <div className="popup-menu" style={{ left: 0, width: 260 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "#6b5a8a", letterSpacing: "0.08em", textTransform: "uppercase", padding: "4px 12px 8px" }}>Select Model</div>
+            {MODELS.map((m) => (
+              <button key={m.id} className={`popup-item ${selectedModel === m.id ? "selected" : ""}`}
+                onClick={() => { setSelectedModel(m.id); setOpenPopup(null); }}
               >
-                <span>⚙ Advanced Settings</span>
-                <span style={{ transition: "transform 0.2s", transform: showAdvanced ? "rotate(180deg)" : "rotate(0deg)" }}>▾</span>
+                <div style={{ width: 7, height: 7, borderRadius: "50%", background: selectedModel === m.id ? "#a855f7" : "rgba(255,255,255,0.15)", boxShadow: selectedModel === m.id ? "0 0 8px rgba(168,85,247,0.8)" : "none", flexShrink: 0 }} />
+                <span style={{ flex: 1 }}>{m.name}</span>
+                <span style={{ fontSize: 11, color: "#3a3a5a" }}>{m.speed}</span>
+                {m.tier === "pro" && <span style={{ fontSize: 9, padding: "2px 5px", borderRadius: 4, background: "rgba(232,79,188,0.15)", color: "#f472b6", border: "1px solid rgba(232,79,188,0.3)" }}>PRO</span>}
               </button>
+            ))}
+          </div>
+        )}
 
-              {showAdvanced && (
-                <div style={{ animation: "tabSwitch 0.2s ease", display: "flex", flexDirection: "column", gap: 14, padding: "14px", background: "rgba(0,212,255,0.03)", border: "1px solid rgba(0,212,255,0.1)", borderRadius: 12 }}>
-                  {/* Output Format */}
-                  <div>
-                    <label style={{ fontSize: 11, fontWeight: 700, color: "#38a3c4", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 8, display: "block" }}>Output Format</label>
-                    <div style={{ display: "flex", gap: 6 }}>
-                      {[
-                        { val: "mp4",  label: "MP4",  sub: "Universal" },
-                        { val: "gif",  label: "GIF",  sub: "Web friendly" },
-                        { val: "webm", label: "WebM", sub: "Modern" },
-                      ].map((f) => (
-                        <button key={f.val} onClick={() => setOutputFormat(f.val)} style={{ flex: 1, padding: "7px 4px", borderRadius: 8, border: `1px solid ${outputFormat === f.val ? "rgba(0,212,255,0.5)" : "rgba(0,212,255,0.1)"}`, background: outputFormat === f.val ? "rgba(0,180,220,0.15)" : "transparent", color: outputFormat === f.val ? "#00d4ff" : "#38a3c4", fontSize: 11, fontWeight: 700, cursor: "pointer", transition: "all 0.15s", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                          {f.label}
-                          <span style={{ fontSize: 9, opacity: 0.5, fontWeight: 400 }}>{f.sub}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  {/* Loop toggle */}
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <div>
-                      <div style={{ color: "#94a3b8", fontSize: 12, fontWeight: 600 }}>Loop Video</div>
-                      <div style={{ color: "#38a3c4", fontSize: 11, marginTop: 1 }}>Seamlessly repeating output</div>
-                    </div>
-                    <button
-                      onClick={() => setVideoLoop(v => !v)}
-                      style={{ width: 44, height: 24, borderRadius: 12, border: "none", background: videoLoop ? "rgba(0,212,255,0.4)" : "rgba(255,255,255,0.1)", cursor: "pointer", position: "relative", transition: "background 0.2s" }}
-                    >
-                      <div style={{ width: 18, height: 18, borderRadius: "50%", background: "white", position: "absolute", top: 3, left: videoLoop ? 23 : 3, transition: "left 0.2s", boxShadow: "0 1px 4px rgba(0,0,0,0.3)" }} />
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Generate Button */}
-              <button
-                className="generate-btn"
-                disabled={!uploadedFile}
-                onClick={() => alert("Video generation is coming soon! We'll notify you when it's ready.")}
-                style={{
-                  background: uploadedFile ? "linear-gradient(135deg, #0369a1, #0ea5e9, #00d4ff)" : "rgba(0,212,255,0.08)",
-                  boxShadow: uploadedFile ? "0 6px 32px rgba(0,212,255,0.35)" : "none",
-                  border: uploadedFile ? "none" : "1px solid rgba(0,212,255,0.15)",
-                  color: uploadedFile ? "white" : "#38a3c4",
-                  fontSize: 15,
-                }}
-              >
-                {uploadedFile ? `▶ Generate Video · ${videoDuration} · ${videoResolution}` : "▶ Upload an image to start"}
-              </button>
-
-              {/* Coming soon */}
-              <div style={{ padding: "12px 16px", borderRadius: 12, background: "linear-gradient(135deg, rgba(3,105,161,0.12), rgba(0,212,255,0.06))", border: "1px solid rgba(0,212,255,0.12)", display: "flex", gap: 10, alignItems: "flex-start" }}>
-                <span style={{ fontSize: 14, flexShrink: 0, marginTop: 1 }}>🚀</span>
-                <div>
-                  <div style={{ color: "#00d4ff", fontSize: 11, fontWeight: 600, marginBottom: 2 }}>Coming Soon · Q3 2025</div>
-                  <div style={{ color: "#38a3c4", fontSize: 11, lineHeight: 1.5 }}>Video generation is in active development. Set your preferences now — be first when we launch.</div>
-                </div>
-              </div>
+        {openPopup === "ratio" && (
+          <div className="popup-menu" style={{ left: 0, width: 300 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "#6b5a8a", letterSpacing: "0.08em", textTransform: "uppercase", padding: "4px 12px 8px" }}>Aspect Ratio</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, padding: "4px" }}>
+              {ASPECT_RATIOS.map((r) => {
+                const active = aspectRatio === r.value;
+                return (
+                  <button key={r.value} onClick={() => { setAspectRatio(r.value); setOpenPopup(null); }}
+                    style={{ padding: "10px 4px 8px", borderRadius: 9, border: `1px solid ${active ? "rgba(168,85,247,0.55)" : "rgba(255,255,255,0.07)"}`, background: active ? "rgba(124,92,252,0.2)" : "rgba(255,255,255,0.03)", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 5, transition: "all 0.15s", fontFamily: "inherit" }}
+                    onMouseEnter={(e) => { if (!active) { e.currentTarget.style.background = "rgba(124,92,252,0.08)"; e.currentTarget.style.borderColor = "rgba(168,85,247,0.3)"; } }}
+                    onMouseLeave={(e) => { if (!active) { e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)"; } }}
+                  >
+                    <div style={{ width: r.w, height: r.h, border: `1.5px solid ${active ? "#c084fc" : "rgba(255,255,255,0.2)"}`, borderRadius: 2, background: active ? "rgba(124,92,252,0.4)" : "rgba(255,255,255,0.05)", flexShrink: 0 }} />
+                    <span style={{ fontSize: 11, fontWeight: 700, color: active ? "#f0ecff" : "#6b7280" }}>{r.label}</span>
+                  </button>
+                );
+              })}
             </div>
-          )}
+          </div>
+        )}
+
+        {openPopup === "videoModel" && (
+          <div className="popup-menu" style={{ left: 0, width: 220 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "#1a4a5a", letterSpacing: "0.08em", textTransform: "uppercase", padding: "4px 12px 8px" }}>Video Model</div>
+            {VIDEO_MODELS.map((m) => (
+              <button key={m.id} className={`popup-item ${selectedVideoModel === m.id ? "selected" : ""}`}
+                style={{ color: selectedVideoModel === m.id ? "#00d4ff" : "#38a3c4" }}
+                onClick={() => { setSelectedVideoModel(m.id); setOpenPopup(null); }}
+              >
+                <div style={{ width: 7, height: 7, borderRadius: "50%", background: selectedVideoModel === m.id ? "#00d4ff" : "rgba(0,212,255,0.2)", boxShadow: selectedVideoModel === m.id ? "0 0 8px rgba(0,212,255,0.8)" : "none", flexShrink: 0 }} />
+                <span style={{ flex: 1 }}>{m.name}</span>
+                {m.badge && <span style={{ fontSize: 9, padding: "2px 5px", borderRadius: 4, background: m.badge === "FREE" ? "rgba(34,197,94,0.15)" : m.badge === "TOP" ? "rgba(251,191,36,0.15)" : "rgba(232,79,188,0.15)", color: m.badge === "FREE" ? "#4ade80" : m.badge === "TOP" ? "#fbbf24" : "#f472b6", border: `1px solid ${m.badge === "FREE" ? "rgba(34,197,94,0.3)" : m.badge === "TOP" ? "rgba(251,191,36,0.3)" : "rgba(232,79,188,0.3)"}` }}>{m.badge}</span>}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {openPopup === "duration" && (
+          <div className="popup-menu" style={{ left: 200, width: 180 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "#1a4a5a", letterSpacing: "0.08em", textTransform: "uppercase", padding: "4px 12px 8px" }}>Duration</div>
+            {DURATIONS.map((d) => (
+              <button key={d} className={`popup-item ${videoDuration === d ? "selected" : ""}`}
+                style={{ color: videoDuration === d ? "#00d4ff" : "#38a3c4" }}
+                onClick={() => { setVideoDuration(d); setOpenPopup(null); }}
+              >
+                <div style={{ width: 7, height: 7, borderRadius: "50%", background: videoDuration === d ? "#00d4ff" : "rgba(0,212,255,0.2)", flexShrink: 0 }} />
+                {d} seconds
+              </button>
+            ))}
+          </div>
+        )}
+
+        {openPopup === "resolution" && (
+          <div className="popup-menu" style={{ left: 330, width: 160 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "#1a4a5a", letterSpacing: "0.08em", textTransform: "uppercase", padding: "4px 12px 8px" }}>Resolution</div>
+            {RESOLUTIONS.map((r) => (
+              <button key={r} className={`popup-item ${videoResolution === r ? "selected" : ""}`}
+                style={{ color: videoResolution === r ? "#00d4ff" : "#38a3c4" }}
+                onClick={() => { setVideoResolution(r); setOpenPopup(null); }}
+              >
+                <div style={{ width: 7, height: 7, borderRadius: "50%", background: videoResolution === r ? "#00d4ff" : "rgba(0,212,255,0.2)", flexShrink: 0 }} />
+                {r}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Input row */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "10px 12px 10px 16px", marginBottom: 10 }}>
+          <textarea
+            value={tab === "image" ? prompt : motionPrompt}
+            onChange={(e) => tab === "image" ? setPrompt(e.target.value) : setMotionPrompt(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && tab === "image") { e.preventDefault(); void generateImage(); } }}
+            placeholder={tab === "image" ? "Describe an image and press Enter..." : "Describe the motion (optional)..."}
+            rows={1}
+            style={{ flex: 1, background: "transparent", border: "none", color: "#f0ecff", fontSize: 14, resize: "none", outline: "none", lineHeight: 1.5, fontFamily: "inherit", padding: 0 }}
+          />
+          <button
+            className="generate-btn-main"
+            onClick={() => tab === "image" ? void generateImage() : alert("Video coming soon!")}
+            disabled={loading || (tab === "image" && !prompt.trim())}
+            style={{ background: tab === "video" ? "linear-gradient(135deg, #0369a1, #0ea5e9)" : undefined, boxShadow: tab === "video" ? "0 4px 20px rgba(0,180,220,0.5)" : undefined }}
+          >
+            {loading ? <span style={{ width: 18, height: 18, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.4)", borderTopColor: "white", display: "inline-block", animation: "spin 0.7s linear infinite" }} /> : "+"}
+          </button>
         </div>
 
-        {/* ── RIGHT PANEL — Output ── */}
-        <div
-          className="right-panel"
-          style={{
-            flex: 1,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background: T.rightBg,
-            position: "relative",
-            overflow: "hidden",
-            transition: "background 0.5s",
-          }}
-        >
-          {/* Background grid */}
-          <div style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage: `linear-gradient(${T.gridColor} 1px, transparent 1px), linear-gradient(90deg, ${T.gridColor} 1px, transparent 1px)`,
-            backgroundSize: "40px 40px",
-            pointerEvents: "none",
-            transition: "background-image 0.5s",
-          }} />
-
-          {/* Video tab: animated decorative elements */}
-          {tab === "video" && (
+        {/* Chip bar */}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+          {tab === "image" ? (
             <>
-              {/* Outer glow ring */}
-              <div style={{
-                position: "absolute",
-                width: 400,
-                height: 400,
-                borderRadius: "50%",
-                border: "1px solid rgba(0,212,255,0.07)",
-                animation: "pulseRing 4s ease-in-out infinite",
-                pointerEvents: "none",
-              }} />
-              <div style={{
-                position: "absolute",
-                width: 280,
-                height: 280,
-                borderRadius: "50%",
-                border: "1px solid rgba(0,212,255,0.1)",
-                animation: "pulseRing 4s ease-in-out infinite 1s",
-                pointerEvents: "none",
-              }} />
-              {/* Corner accents */}
-              {[
-                { top: 24, left: 24 },
-                { top: 24, right: 24 },
-                { bottom: 24, left: 24 },
-                { bottom: 24, right: 24 },
-              ].map((pos, i) => (
-                <div key={i} style={{
-                  position: "absolute",
-                  ...pos,
-                  width: 32,
-                  height: 32,
-                  border: "2px solid rgba(0,212,255,0.2)",
-                  borderRadius: 4,
-                  pointerEvents: "none",
-                }} />
-              ))}
+              <button className={`chip-btn ${openPopup === "model" ? "active" : ""}`} onClick={() => setOpenPopup(openPopup === "model" ? null : "model")}>
+                <span style={{ fontSize: 11 }}>⚡</span> {currentModelName} <span style={{ opacity: 0.5, fontSize: 10 }}>▾</span>
+              </button>
+              <button className={`chip-btn ${openPopup === "ratio" ? "active" : ""}`} onClick={() => setOpenPopup(openPopup === "ratio" ? null : "ratio")}>
+                <span style={{ fontSize: 11 }}>⊞</span> {aspectRatio} <span style={{ opacity: 0.5, fontSize: 10 }}>▾</span>
+              </button>
+              <div style={{ width: 1, height: 18, background: "rgba(255,255,255,0.1)", margin: "0 2px" }} />
+              <button className="chip-btn" onClick={() => { const r = EXAMPLE_PROMPTS[Math.floor(Math.random() * EXAMPLE_PROMPTS.length)]; setPrompt(r); }}>
+                🎲 Random
+              </button>
+              <button className="chip-btn" onClick={() => { setPrompt(""); setImageResult(null); setError(null); }}>
+                🗑 Clear
+              </button>
+            </>
+          ) : (
+            <>
+              <button className={`chip-btn ${openPopup === "videoModel" ? "active" : ""}`} style={{ borderColor: "rgba(0,212,255,0.25)", color: "#38a3c4" }} onClick={() => setOpenPopup(openPopup === "videoModel" ? null : "videoModel")}>
+                <span style={{ fontSize: 11 }}>🎬</span> {currentVideoModelName} <span style={{ opacity: 0.5, fontSize: 10 }}>▾</span>
+              </button>
+              <button className={`chip-btn ${openPopup === "duration" ? "active" : ""}`} style={{ borderColor: "rgba(0,212,255,0.25)", color: "#38a3c4" }} onClick={() => setOpenPopup(openPopup === "duration" ? null : "duration")}>
+                <span style={{ fontSize: 11 }}>⏱</span> {videoDuration} <span style={{ opacity: 0.5, fontSize: 10 }}>▾</span>
+              </button>
+              <button className={`chip-btn ${openPopup === "resolution" ? "active" : ""}`} style={{ borderColor: "rgba(0,212,255,0.25)", color: "#38a3c4" }} onClick={() => setOpenPopup(openPopup === "resolution" ? null : "resolution")}>
+                <span style={{ fontSize: 11 }}>📺</span> {videoResolution} <span style={{ opacity: 0.5, fontSize: 10 }}>▾</span>
+              </button>
+              <div style={{ width: 1, height: 18, background: "rgba(0,212,255,0.15)", margin: "0 2px" }} />
+              {!uploadedFile && (
+                <button className="chip-btn" style={{ borderColor: "rgba(0,212,255,0.3)", color: "#38a3c4" }} onClick={() => fileInputRef.current?.click()}>
+                  ↑ Upload Image
+                </button>
+              )}
             </>
           )}
 
-          {/* IMAGE TAB: Loading */}
-          {tab === "image" && loading && (
-            <div style={{ textAlign: "center", zIndex: 1 }}>
-              <div style={{
-                width: 64, height: 64,
-                borderRadius: "50%",
-                border: "3px solid rgba(124,92,252,0.2)",
-                borderTopColor: "#a855f7",
-                animation: "spin 0.8s linear infinite",
-                margin: "0 auto 24px",
-              }} />
-              <div style={{ color: "white", fontSize: 16, fontWeight: 600, marginBottom: 8 }}>Creating your image...</div>
-              <div style={{ color: "#8885a8", fontSize: 13 }}>
-                {MODELS.find(m => m.id === selectedModel)?.name} · {MODELS.find(m => m.id === selectedModel)?.speed}
-              </div>
-            </div>
-          )}
-
-          {/* IMAGE TAB: Empty state */}
-          {tab === "image" && !loading && !imageResult && !error && (
-            <div style={{ textAlign: "center", zIndex: 1, padding: 40 }}>
-              <div style={{ fontSize: 56, marginBottom: 16, opacity: 0.1 }}>✦</div>
-              <div style={{ color: "#4a4a6a", fontSize: 15, fontWeight: 500 }}>Your creation will appear here</div>
-              <div style={{ color: "#2a2a4a", fontSize: 13, marginTop: 8 }}>Write a prompt and click Generate</div>
-            </div>
-          )}
-
-          {/* VIDEO TAB: Empty / preview state */}
-          {tab === "video" && (
-            <div style={{ textAlign: "center", zIndex: 1, padding: 40, animation: "tabSwitch 0.4s ease" }}>
-              <div style={{
-                width: 120,
-                height: 120,
-                borderRadius: "50%",
-                background: "radial-gradient(circle, rgba(0,212,255,0.15) 0%, rgba(0,100,150,0.08) 60%, transparent 100%)",
-                border: "1px solid rgba(0,212,255,0.2)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                margin: "0 auto 24px",
-                animation: "videoFloat 4s ease-in-out infinite",
-                position: "relative",
-              }}>
-                <span style={{ fontSize: 40, opacity: 0.6 }}>▶</span>
-                {/* Scan line effect */}
-                <div style={{
-                  position: "absolute",
-                  inset: 0,
-                  borderRadius: "50%",
-                  overflow: "hidden",
-                  pointerEvents: "none",
-                }}>
-                  <div style={{
-                    width: "100%",
-                    height: "2px",
-                    background: "linear-gradient(90deg, transparent, rgba(0,212,255,0.6), transparent)",
-                    animation: "scanLine 3s ease-in-out infinite",
-                  }} />
-                </div>
-              </div>
-              <div style={{ color: "#38a3c4", fontSize: 16, fontWeight: 600, marginBottom: 8 }}>
-                Video Studio
-              </div>
-              <div style={{ color: "#1a4a5a", fontSize: 13, maxWidth: 260, margin: "0 auto", lineHeight: 1.6 }}>
-                Upload an image on the left to bring it to life with AI motion
-              </div>
-              {/* Film strip decoration */}
-              <div style={{ display: "flex", gap: 4, justifyContent: "center", marginTop: 28, opacity: 0.3 }}>
-                {[...Array(7)].map((_, i) => (
-                  <div key={i} style={{
-                    width: 28,
-                    height: 20,
-                    borderRadius: 3,
-                    background: "rgba(0,212,255,0.15)",
-                    border: "1px solid rgba(0,212,255,0.3)",
-                  }} />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Error */}
-          {tab === "image" && error && !loading && (
-            <div style={{
-              background: "rgba(239,68,68,0.08)",
-              border: "1px solid rgba(239,68,68,0.25)",
-              borderRadius: 16,
-              padding: "24px 32px",
-              textAlign: "center",
-              zIndex: 1,
-              maxWidth: 400,
-            }}>
-              <div style={{ fontSize: 28, marginBottom: 12 }}>⚠️</div>
-              <div style={{ color: "#fca5a5", fontSize: 14, lineHeight: 1.6 }}>{error}</div>
-              <button
-                onClick={() => void generateImage()}
-                style={{ marginTop: 16, padding: "8px 20px", borderRadius: 999, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", color: "white", fontSize: 13, cursor: "pointer" }}
-              >
-                Try Again
-              </button>
-            </div>
-          )}
-
-          {/* Image result */}
-          {tab === "image" && imageResult && !loading && (
-            <div style={{ zIndex: 1, animation: "fadeIn 0.4s ease", maxWidth: "90%", maxHeight: "90%" }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={imageResult}
-                alt="Generated"
-                style={{
-                  maxWidth: "100%",
-                  maxHeight: "calc(100vh - 180px)",
-                  borderRadius: 16,
-                  boxShadow: "0 24px 80px rgba(0,0,0,0.7)",
-                  display: "block",
-                }}
-              />
-              <div style={{ display: "flex", gap: 10, marginTop: 16, justifyContent: "center" }}>
-                <button
-                  onClick={() => void downloadImage(imageResult)}
-                  style={{ padding: "10px 22px", borderRadius: 999, background: "linear-gradient(135deg, #7c3aed, #a855f7)", border: "none", color: "white", fontSize: 13, fontWeight: 600, cursor: "pointer" }}
-                >
-                  ↓ Download
-                </button>
-                <button
-                  onClick={() => void generateImage()}
-                  style={{ padding: "10px 22px", borderRadius: 999, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "#c4b8ff", fontSize: 13, cursor: "pointer" }}
-                >
-                  ↻ Regenerate
-                </button>
-                <button
-                  onClick={() => { setImageResult(null); setPrompt(""); }}
-                  style={{ padding: "10px 22px", borderRadius: 999, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", color: "#6b7280", fontSize: 13, cursor: "pointer" }}
-                >
-                  + New
-                </button>
-              </div>
-            </div>
-          )}
+          <span style={{ marginLeft: "auto", fontSize: 11, color: "#2a2a3a" }}>Enter ↵ to generate</span>
         </div>
       </div>
     </div>
