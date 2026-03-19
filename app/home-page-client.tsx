@@ -33,6 +33,21 @@ const SUGGESTIONS = [
   "A Nike-style ad with a robot",
 ];
 
+const MODELS = [
+  { id: "fal-ai/flux/schnell",    name: "Flux Schnell",  speed: "~3s",  tier: "free" },
+  { id: "fal-ai/flux/dev",        name: "Flux Dev",      speed: "~8s",  tier: "free" },
+  { id: "fal-ai/flux-pro/v1.1",   name: "Flux Pro",      speed: "~10s", tier: "pro"  },
+  { id: "fal-ai/flux-2-pro",      name: "Flux 2 Pro",    speed: "~15s", tier: "pro"  },
+  { id: "fal-ai/kolors",          name: "Kolors",        speed: "~10s", tier: "free" },
+  { id: "fal-ai/aura-flow",       name: "AuraFlow",      speed: "~12s", tier: "free" },
+  { id: "fal-ai/recraft-v3",      name: "Recraft v3",    speed: "~10s", tier: "pro"  },
+  { id: "fal-ai/ideogram/v2",     name: "Ideogram v2",   speed: "~12s", tier: "pro"  },
+  { id: "fal-ai/imagen4/preview", name: "Imagen 4",      speed: "~10s", tier: "pro"  },
+  { id: "fal-ai/gpt-image-1",     name: "GPT-Image-1",   speed: "~20s", tier: "pro"  },
+] as const;
+
+type ModelId = typeof MODELS[number]["id"];
+
 export default function HomePageClient() {
   const [tab, setTab] = useState<"image" | "video">("image");
   const [prompt, setPrompt] = useState("");
@@ -43,6 +58,8 @@ export default function HomePageClient() {
   const [uploadedFile, setUploadedFile] = useState("");
   const [imageResult, setImageResult] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [selectedModel, setSelectedModel] = useState<ModelId>("fal-ai/flux/schnell");
+  const [generationError, setGenerationError] = useState<string | null>(null);
   const [userName, setUserName] = useState("");
   const [demoIndex, setDemoIndex] = useState(0);
   const [typedText, setTypedText] = useState("");
@@ -153,25 +170,42 @@ export default function HomePageClient() {
     showToast("Cikis yapildi.");
   };
 
-  const generateImage = () => {
+  const generateImage = async () => {
     if (!prompt.trim()) {
-      showToast("Prompt girmen gerekiyor.");
+      showToast("Bir prompt gir.");
       return;
     }
-
     if (credits < 1) {
-      showToast("Kredi bitti. Asagidan paket secebilirsin.");
+      showToast("Kredi bitti. Aşağıdan paket seçebilirsin.");
       return;
     }
 
-    setCredits((current) => current - 1);
     setLoading(true);
+    setImageResult(null);
+    setGenerationError(null);
 
-    window.setTimeout(() => {
-      setImageResult(prompt);
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: prompt.trim(), model: selectedModel }),
+      });
+
+      const data = await res.json() as { url?: string; error?: string };
+
+      if (!res.ok || data.error) {
+        throw new Error(data.error ?? "Generation failed.");
+      }
+
+      setCredits((c) => c - 1);
+      setImageResult(data.url ?? null);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bir hata oluştu.";
+      setGenerationError(msg);
+      showToast("Hata: " + msg);
+    } finally {
       setLoading(false);
-      showToast("Demo gorsel hazirlandi. Istersen gercek API baglayabiliriz.");
-    }, 1100);
+    }
   };
 
   const generateVideo = () => {
@@ -961,81 +995,110 @@ export default function HomePageClient() {
 
             {tab === "image" ? (
               <>
+                {/* Model selector */}
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ color: "#8885a8", fontSize: 12, marginBottom: 8, letterSpacing: 0.5, textTransform: "uppercase" }}>Model</div>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    {MODELS.map((m) => (
+                      <button
+                        key={m.id}
+                        onClick={() => setSelectedModel(m.id)}
+                        style={{
+                          padding: "7px 14px",
+                          borderRadius: 999,
+                          fontSize: 12,
+                          fontWeight: 500,
+                          border: selectedModel === m.id ? "1px solid rgba(124,92,252,0.6)" : "1px solid rgba(255,255,255,0.09)",
+                          background: selectedModel === m.id ? "rgba(124,92,252,0.18)" : "rgba(255,255,255,0.03)",
+                          color: selectedModel === m.id ? "#c4b8ff" : "#8885a8",
+                          cursor: "pointer",
+                          transition: "all 0.18s ease",
+                          display: "flex", alignItems: "center", gap: 6,
+                        }}
+                      >
+                        <span>{m.name}</span>
+                        <span style={{ opacity: 0.55, fontSize: 10 }}>{m.speed}</span>
+                        {m.tier === "pro" && (
+                          <span style={{ fontSize: 9, padding: "1px 5px", borderRadius: 4, background: "rgba(232,79,188,0.2)", color: "#e84fbc", fontWeight: 700, letterSpacing: 0.5 }}>PRO</span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <textarea
                   value={prompt}
                   onChange={(event) => setPrompt(event.target.value)}
                   placeholder="Try: A Nike-style ad with a futuristic robot..."
-                  style={inputStyle({ minHeight: 120, resize: "vertical" })}
+                  style={inputStyle({ minHeight: 110, resize: "vertical" })}
                 />
 
                 {/* Suggestion chips */}
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
                   {SUGGESTIONS.map((s) => (
-                    <button
-                      key={s}
-                      className="suggestion-chip"
-                      onClick={() => setPrompt(s)}
-                    >
-                      {s}
-                    </button>
+                    <button key={s} className="suggestion-chip" onClick={() => setPrompt(s)}>{s}</button>
                   ))}
                 </div>
 
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap", marginTop: 20, alignItems: "center" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap", marginTop: 18, alignItems: "center" }}>
                   <div style={{ color: "#8885a8", fontSize: 14 }}>
-                    Balance:{" "}
-                    <strong style={{
-                      color: "#38d9f5",
-                      textShadow: "0 0 10px rgba(56,217,245,0.5)",
-                    }}>
-                      {credits}
-                    </strong>{" "}
-                    credits
+                    Balance: <strong style={{ color: "#38d9f5", textShadow: "0 0 10px rgba(56,217,245,0.5)" }}>{credits}</strong> credits
                   </div>
-                  <button onClick={generateImage} className="btn-primary" style={{ padding: "13px 28px" }}>
+                  <button
+                    onClick={() => { void generateImage(); }}
+                    disabled={loading}
+                    className="btn-primary"
+                    style={{ padding: "13px 28px", opacity: loading ? 0.7 : 1 }}
+                  >
                     {loading ? "Generating..." : "Generate Image →"}
                   </button>
                 </div>
 
-                {(loading || imageResult) && (
-                  <div
-                    style={{
-                      marginTop: 28,
-                      minHeight: 280,
-                      borderRadius: 22,
-                      border: "1px solid rgba(124,92,252,0.2)",
-                      background: "linear-gradient(135deg,rgba(22,22,42,0.9),rgba(17,17,29,0.9))",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      flexDirection: "column",
-                      gap: 14,
-                      padding: "24px",
-                      textAlign: "center",
-                    }}
-                  >
-                    {loading ? (
-                      <>
-                        <div style={{
-                          width: 48, height: 48,
-                          borderRadius: 999,
-                          border: "2px solid transparent",
-                          borderTopColor: "#7c5cfc",
-                          borderRightColor: "#e84fbc",
-                          animation: "spin-slow 0.8s linear infinite",
-                        }} />
-                        <div style={{ color: "#8885a8" }}>Generating your image...</div>
-                      </>
-                    ) : (
-                      <>
-                        <div style={{
-                          fontSize: 24, fontWeight: 700,
-                          background: "linear-gradient(135deg,#a78bff,#38d9f5)",
-                          WebkitBackgroundClip: "text",
-                          WebkitTextFillColor: "transparent",
-                        }}>Preview Ready</div>
-                        <div style={{ color: "#8885a8", maxWidth: 520 }}>{imageResult}</div>
-                      </>
+                {/* Result area */}
+                {(loading || imageResult || generationError) && (
+                  <div style={{ marginTop: 24, borderRadius: 20, overflow: "hidden", border: "1px solid rgba(124,92,252,0.15)", background: "rgba(10,10,20,0.8)" }}>
+                    {loading && (
+                      <div style={{ minHeight: 240, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14 }}>
+                        <div style={{ width: 44, height: 44, borderRadius: 999, border: "2px solid transparent", borderTopColor: "#7c5cfc", borderRightColor: "#e84fbc", animation: "spin-slow 0.8s linear infinite" }} />
+                        <div style={{ color: "#8885a8", fontSize: 13 }}>Generating with {MODELS.find(m => m.id === selectedModel)?.name}...</div>
+                      </div>
+                    )}
+                    {!loading && generationError && (
+                      <div style={{ padding: 24, textAlign: "center", color: "#fc5c5c", fontSize: 14 }}>
+                        ⚠ {generationError}
+                      </div>
+                    )}
+                    {!loading && imageResult && (
+                      <div style={{ position: "relative" }}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={imageResult}
+                          alt={prompt}
+                          style={{ width: "100%", display: "block", maxHeight: 600, objectFit: "contain" }}
+                        />
+                        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "32px 20px 16px", background: "linear-gradient(to top, rgba(0,0,0,0.85), transparent)", display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 8 }}>
+                          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", fontStyle: "italic", maxWidth: "70%" }}>
+                            &ldquo;{prompt}&rdquo;
+                          </div>
+                          <div style={{ display: "flex", gap: 8 }}>
+                            <a
+                              href={imageResult}
+                              download="midilli-generated.png"
+                              target="_blank"
+                              rel="noreferrer"
+                              style={{ padding: "8px 16px", borderRadius: 999, background: "rgba(124,92,252,0.25)", border: "1px solid rgba(124,92,252,0.4)", color: "#c4b8ff", fontSize: 12, fontWeight: 600, textDecoration: "none" }}
+                            >
+                              ↓ Download
+                            </a>
+                            <button
+                              onClick={() => { void generateImage(); }}
+                              style={{ padding: "8px 16px", borderRadius: 999, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "#c4b8ff", fontSize: 12, cursor: "pointer" }}
+                            >
+                              ↻ Retry
+                            </button>
+                          </div>
+                        </div>
+                      </div>
                     )}
                   </div>
                 )}
