@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import ChatWidget from "./components/ChatWidget";
 
 import "./globals.css";
 
@@ -60,6 +61,7 @@ export default function RootLayout({
     <html lang="tr">
       <body>
         {children}
+        <ChatWidget />
         <Script
           id="tawk-to"
           strategy="lazyOnload"
