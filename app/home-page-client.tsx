@@ -36,6 +36,10 @@ export default function HomePageClient() {
   const [imageResult, setImageResult] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [userName, setUserName] = useState("");
+  const [demoIndex, setDemoIndex] = useState(0);
+  const [typedText, setTypedText] = useState("");
+  const [showDemoOutput, setShowDemoOutput] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   useEffect(() => {
     const loadSession = async () => {
@@ -73,6 +77,36 @@ export default function HomePageClient() {
       subscription.unsubscribe();
     };
   }, []);
+
+  const demoExamples = [
+    { prompt: "A neon-lit cyberpunk city at midnight", src: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=700&q=80&auto=format&fit=crop" },
+    { prompt: "Deep space nebula, purple and violet", src: "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=700&q=80&auto=format&fit=crop" },
+    { prompt: "Abstract colorful light explosion", src: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=700&q=80&auto=format&fit=crop" },
+  ];
+
+  useEffect(() => {
+    let charIndex = 0;
+    let currentPrompt = demoExamples[demoIndex].prompt;
+    setTypedText("");
+    setShowDemoOutput(false);
+
+    const typeInterval = window.setInterval(() => {
+      charIndex++;
+      setTypedText(currentPrompt.slice(0, charIndex));
+      if (charIndex >= currentPrompt.length) {
+        window.clearInterval(typeInterval);
+        window.setTimeout(() => {
+          setShowDemoOutput(true);
+          window.setTimeout(() => {
+            setDemoIndex((i) => (i + 1) % demoExamples.length);
+          }, 3000);
+        }, 400);
+      }
+    }, 45);
+
+    return () => window.clearInterval(typeInterval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [demoIndex]);
 
   const showToast = (message: string) => {
     setToast(message);
@@ -433,105 +467,119 @@ export default function HomePageClient() {
       </header>
 
       {/* ── Hero ── */}
-      <section style={{ padding: "100px 24px 80px", textAlign: "center", position: "relative", zIndex: 1 }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <div
-            className="badge-pulse hero-animate"
-            style={{
-              display: "inline-flex",
-              gap: 10,
-              padding: "8px 18px",
-              borderRadius: 999,
-              fontSize: 13,
-              marginBottom: 32,
-              color: "#c4b8ff",
-              border: "1px solid rgba(124,92,252,0.35)",
-              background: "rgba(124,92,252,0.1)",
-            }}
-          >
-            <span style={{
-              width: 8, height: 8, borderRadius: 999,
-              background: "#38d9f5",
-              marginTop: 4,
-              boxShadow: "0 0 8px #38d9f5",
-              flexShrink: 0,
-            }} />
-            No prompts. No tutorials. Just results.
-          </div>
+      <section style={{ padding: "90px 24px 70px", position: "relative", zIndex: 1 }}>
+        <div style={{ maxWidth: 1160, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
 
-          <h1
-            className="hero-animate-delay"
-            style={{
-              margin: 0,
-              fontFamily: "'Syne', sans-serif",
-              fontSize: "clamp(52px, 9vw, 104px)",
-              lineHeight: 0.94,
-              letterSpacing: -3,
-            }}
-          >
-            Type it.
-            <br />
-            <span className="shimmer-text">See it. Done.</span>
-          </h1>
-
-          <p
-            className="hero-animate-delay2"
-            style={{ maxWidth: 560, margin: "28px auto 0", color: "#8885a8", lineHeight: 1.9, fontSize: 17 }}
-          >
-            MIDILLI turns any idea into a ready-to-use image or video in seconds.
-            No skills. No learning curve. No waiting.
-          </p>
-
-          <div
-            className="hero-animate-delay2"
-            style={{ display: "flex", justifyContent: "center", gap: 14, flexWrap: "wrap", marginTop: 40 }}
-          >
-            <a href="#generate" className="btn-primary" style={{ fontSize: 16, padding: "18px 36px" }}>
-              Generate My First Image — Free
-            </a>
-            <Link
-              href="/gallery"
-              className="btn-secondary"
-              style={{ fontSize: 16, padding: "18px 36px" }}
+          {/* Left: Copy */}
+          <div>
+            <div
+              className="badge-pulse hero-animate"
+              style={{ display: "inline-flex", gap: 10, padding: "8px 18px", borderRadius: 999, fontSize: 13, marginBottom: 28, color: "#c4b8ff", border: "1px solid rgba(124,92,252,0.35)", background: "rgba(124,92,252,0.1)" }}
             >
-              See Examples
-            </Link>
+              <span style={{ width: 8, height: 8, borderRadius: 999, background: "#38d9f5", marginTop: 4, boxShadow: "0 0 8px #38d9f5", flexShrink: 0 }} />
+              No prompts. No tutorials. Just results.
+            </div>
+
+            <h1
+              className="hero-animate-delay"
+              style={{ margin: 0, fontFamily: "'Syne', sans-serif", fontSize: "clamp(44px, 5.5vw, 80px)", lineHeight: 0.96, letterSpacing: -3 }}
+            >
+              Type it.
+              <br />
+              <span className="shimmer-text">See it. Done.</span>
+            </h1>
+
+            <p className="hero-animate-delay2" style={{ maxWidth: 480, margin: "24px 0 0", color: "#8885a8", lineHeight: 1.85, fontSize: 17 }}>
+              MIDILLI turns any idea into a ready-to-use image or video in seconds.
+              No skills. No learning curve. No waiting.
+            </p>
+
+            <div className="hero-animate-delay2" style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 36 }}>
+              <a href="#generate" className="btn-primary" style={{ fontSize: 15, padding: "16px 30px" }}>
+                Generate Now — Free, No Card
+              </a>
+              <Link href="/gallery" className="btn-secondary" style={{ fontSize: 15, padding: "16px 28px" }}>
+                See Real Results
+              </Link>
+            </div>
+
+            <div className="hero-animate-delay2" style={{ marginTop: 16, color: "#8885a8", fontSize: 13 }}>
+              20 free credits on signup. No credit card required.
+            </div>
+
+            <div style={{ display: "flex", gap: 36, marginTop: 44, flexWrap: "wrap" }}>
+              {[
+                { value: "10s", label: "Avg. generation" },
+                { value: "50K+", label: "Images created" },
+                { value: "4.9★", label: "Rating" },
+              ].map(({ value, label }) => (
+                <div key={label}>
+                  <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 24, fontWeight: 800, background: "linear-gradient(135deg,#a78bff,#38d9f5)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{value}</div>
+                  <div style={{ color: "#8885a8", fontSize: 12, marginTop: 2 }}>{label}</div>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* ── Trust line ── */}
-          <div className="hero-animate-delay2" style={{ marginTop: 20, color: "#8885a8", fontSize: 13 }}>
-            No credit card. 20 free credits on signup.
-          </div>
+          {/* Right: Live Demo Output */}
+          <div className="hero-animate-delay" style={{ position: "relative" }}>
+            {/* Glow behind card */}
+            <div style={{ position: "absolute", inset: -40, background: "radial-gradient(ellipse, rgba(124,92,252,0.2) 0%, transparent 70%)", pointerEvents: "none" }} />
 
-          {/* ── Stats row ── */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              gap: 48,
-              marginTop: 64,
-              flexWrap: "wrap",
-            }}
-          >
-            {[
-              { value: "10s", label: "Average generation time" },
-              { value: "50K+", label: "Images created" },
-              { value: "4.9★", label: "User rating" },
-            ].map(({ value, label }) => (
-              <div key={label} style={{ textAlign: "center" }}>
-                <div style={{
-                  fontFamily: "'Syne', sans-serif",
-                  fontSize: 28,
-                  fontWeight: 800,
-                  background: "linear-gradient(135deg,#a78bff,#38d9f5)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                }}>{value}</div>
-                <div style={{ color: "#8885a8", fontSize: 13, marginTop: 4 }}>{label}</div>
+            <div style={{ borderRadius: 24, overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(15,15,26,0.9)", backdropFilter: "blur(16px)", boxShadow: "0 32px 80px rgba(0,0,0,0.5)" }}>
+              {/* Mock toolbar */}
+              <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ display: "flex", gap: 6 }}>
+                  {["#fc5c5c","#fbbf24","#4cebb8"].map((c) => (
+                    <div key={c} style={{ width: 10, height: 10, borderRadius: 999, background: c, opacity: 0.7 }} />
+                  ))}
+                </div>
+                <div style={{ flex: 1, textAlign: "center", fontSize: 12, color: "#8885a8" }}>midilli.app</div>
               </div>
-            ))}
+
+              {/* Mock prompt input */}
+              <div style={{ padding: "14px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(22,22,42,0.6)" }}>
+                <div style={{ fontSize: 12, color: "#8885a8", marginBottom: 8 }}>Prompt</div>
+                <div style={{ fontSize: 14, color: "#e0dcff", minHeight: 22, display: "flex", alignItems: "center" }}>
+                  {typedText}
+                  <span style={{ display: "inline-block", width: 2, height: 16, background: "#7c5cfc", marginLeft: 2, animation: "glow-pulse 0.8s ease-in-out infinite" }} />
+                </div>
+              </div>
+
+              {/* Output image */}
+              <div style={{ position: "relative", height: 320, background: "#0a0a14", overflow: "hidden" }}>
+                {demoExamples.map((ex, i) => (
+                  <img
+                    key={ex.src}
+                    src={ex.src}
+                    alt={ex.prompt}
+                    style={{
+                      position: "absolute", inset: 0, width: "100%", height: "100%",
+                      objectFit: "cover", display: "block",
+                      opacity: i === demoIndex && showDemoOutput ? 1 : 0,
+                      transition: "opacity 0.6s ease",
+                    }}
+                  />
+                ))}
+                {!showDemoOutput && (
+                  <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12 }}>
+                    <div style={{ width: 40, height: 40, borderRadius: 999, border: "2px solid transparent", borderTopColor: "#7c5cfc", borderRightColor: "#e84fbc", animation: "spin-slow 0.8s linear infinite" }} />
+                    <div style={{ color: "#8885a8", fontSize: 13 }}>Generating...</div>
+                  </div>
+                )}
+                {showDemoOutput && (
+                  <div style={{ position: "absolute", bottom: 12, left: 12, padding: "5px 12px", borderRadius: 999, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)", fontSize: 11, color: "#4cebb8", border: "1px solid rgba(76,235,184,0.3)", display: "flex", alignItems: "center", gap: 6 }}>
+                    <div style={{ width: 6, height: 6, borderRadius: 999, background: "#4cebb8", boxShadow: "0 0 6px #4cebb8" }} />
+                    Generated in 8.4s
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
+
+        {/* Mobile: stack to single column */}
+        <style>{`@media (max-width: 768px) { .hero-grid { grid-template-columns: 1fr !important; } }`}</style>
       </section>
 
       {/* ── Generate ── */}
@@ -745,27 +793,45 @@ export default function HomePageClient() {
       </section>
 
       {/* ── Differentiation ── */}
-      <section style={{ maxWidth: 900, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1 }}>
+      <section style={{ maxWidth: 960, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1 }}>
         <SectionHead
           label="Why MIDILLI"
-          title="Why not just use anything else?"
-          sub="Because most tools are built for professionals. MIDILLI is built for everyone."
+          title="Every alternative has a tax. MIDILLI doesn't."
+          sub="Other tools make you pay with time, money, or a learning curve. We cut all three."
         />
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(380px,1fr))", gap: 14, marginTop: 48 }}>
+
+        {/* Comparison table */}
+        <div style={{ marginTop: 52, borderRadius: 24, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)" }}>
+          {/* Header */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", background: "rgba(15,15,26,0.95)", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+            <div style={{ padding: "16px 20px", color: "#8885a8", fontSize: 13, fontWeight: 600 }}></div>
+            {["Hire a designer", "Midjourney", "MIDILLI"].map((h, i) => (
+              <div key={h} style={{ padding: "16px 20px", textAlign: "center", fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: 14, color: i === 2 ? "#a78bff" : "#8885a8", borderLeft: "1px solid rgba(255,255,255,0.06)", background: i === 2 ? "rgba(124,92,252,0.06)" : "transparent" }}>{h}</div>
+            ))}
+          </div>
+          {/* Rows */}
           {[
-            { icon: "⚡", title: "10x faster than hiring a designer", desc: "Get a professional-quality visual in seconds, not days. No briefs, no revisions, no invoices." },
-            { icon: "🎯", title: "Works with plain language", desc: "No prompt engineering. No technical terms. Write like you're texting a friend." },
-            { icon: "🏆", title: "Pro-quality from your first try", desc: "The output looks like it was made by a senior designer — even if it's your first generation ever." },
-            { icon: "🔁", title: "Unlimited iterations, instantly", desc: "Didn't like it? Change one word and regenerate. No extra cost, no waiting." },
-          ].map(({ icon, title, desc }) => (
-            <div key={title} className="card-hover" style={{ display: "flex", gap: 16, padding: "22px 24px", borderRadius: 20, background: "rgba(15,15,26,0.85)", border: "1px solid rgba(255,255,255,0.07)", backdropFilter: "blur(12px)" }}>
-              <div style={{ fontSize: 24, flexShrink: 0, marginTop: 2 }}>{icon}</div>
-              <div>
-                <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: 16, marginBottom: 8 }}>{title}</div>
-                <div style={{ color: "#8885a8", lineHeight: 1.7, fontSize: 14 }}>{desc}</div>
-              </div>
+            { label: "Time to first result", vals: ["2–5 days", "~10 min setup", "10 seconds"] },
+            { label: "Cost to start", vals: ["$200–$500", "$30/month", "Free"] },
+            { label: "Skills needed", vals: ["Write a brief", "Learn prompts + Discord", "Plain English"] },
+            { label: "Revisions", vals: ["Extra cost", "New credit each time", "Instant, free"] },
+            { label: "Works in browser", vals: ["Email back-and-forth", "Requires Discord app", "Yes, instantly"] },
+          ].map(({ label, vals }, rowI) => (
+            <div key={label} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", borderBottom: rowI < 4 ? "1px solid rgba(255,255,255,0.05)" : "none", background: rowI % 2 === 0 ? "rgba(255,255,255,0.01)" : "transparent" }}>
+              <div style={{ padding: "16px 20px", fontSize: 14, color: "#c4b8ff", fontWeight: 500 }}>{label}</div>
+              {vals.map((v, i) => (
+                <div key={v} style={{ padding: "16px 20px", textAlign: "center", fontSize: 13, borderLeft: "1px solid rgba(255,255,255,0.05)", background: i === 2 ? "rgba(124,92,252,0.04)" : "transparent", color: i === 2 ? "#4cebb8" : "#8885a8", fontWeight: i === 2 ? 600 : 400 }}>
+                  {i === 2 ? "✓ " : "✗ "}{v}
+                </div>
+              ))}
             </div>
           ))}
+        </div>
+
+        <div style={{ textAlign: "center", marginTop: 28 }}>
+          <a href="#generate" className="btn-primary" style={{ fontSize: 15, padding: "15px 32px" }}>
+            Try MIDILLI Free — No Card
+          </a>
         </div>
       </section>
 
@@ -796,6 +862,38 @@ export default function HomePageClient() {
         </div>
       </section>
 
+      {/* ── Objections ── */}
+      <section style={{ maxWidth: 760, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1 }}>
+        <SectionHead
+          label="Real Talk"
+          title="The questions you're actually thinking"
+          sub="No fluff. Straight answers."
+        />
+        <div style={{ marginTop: 40, display: "flex", flexDirection: "column", gap: 8 }}>
+          {[
+            { q: "Is this actually free?", a: "Yes. 20 credits, no card, no catch. You can generate 20 images before we ever ask for a dollar. Most users create something they love within the first 5." },
+            { q: "Will the quality be good enough?", a: "The same models used by professional studios. You'll get outputs that look like they were made by a senior designer — first try, every time." },
+            { q: "Do I need to know how to write prompts?", a: "No. If you can send a text message, you can use MIDILLI. \"A cozy coffee shop in autumn\" works perfectly. No technical terms needed." },
+            { q: "What if I don't like the result?", a: "Hit generate again. It costs one credit, takes 10 seconds, and gives you a completely different result. Most people find something they love within 2–3 tries." },
+            { q: "Do I own what I create?", a: "Yes. Everything you generate is yours. Commercial rights are included on paid plans. Free plan output is yours for personal use." },
+            { q: "How is this different from Canva or Figma?", a: "Canva and Figma are editors — you still need to design. MIDILLI generates the visual from scratch. You start with a finished result, not a blank canvas." },
+          ].map(({ q, a }, i) => (
+            <div key={q} style={{ borderRadius: 16, border: `1px solid ${openFaq === i ? "rgba(124,92,252,0.35)" : "rgba(255,255,255,0.07)"}`, background: openFaq === i ? "rgba(124,92,252,0.06)" : "rgba(15,15,26,0.7)", overflow: "hidden", transition: "border-color 0.2s ease, background 0.2s ease" }}>
+              <button
+                onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 22px", background: "none", border: "none", color: "#f0eeff", cursor: "pointer", textAlign: "left", gap: 16 }}
+              >
+                <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 600, fontSize: 15 }}>{q}</span>
+                <span style={{ color: "#7c5cfc", fontSize: 18, flexShrink: 0, transition: "transform 0.2s ease", transform: openFaq === i ? "rotate(45deg)" : "rotate(0deg)" }}>+</span>
+              </button>
+              {openFaq === i && (
+                <div style={{ padding: "0 22px 18px", color: "#8885a8", fontSize: 14, lineHeight: 1.8 }}>{a}</div>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* ── Mid CTA ── */}
       <section style={{ maxWidth: 700, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1, textAlign: "center" }}>
         <div style={{ padding: "52px 48px", borderRadius: 28, background: "rgba(124,92,252,0.07)", border: "1px solid rgba(124,92,252,0.2)", backdropFilter: "blur(12px)" }}>
@@ -807,7 +905,7 @@ export default function HomePageClient() {
             Your next visual is 10 seconds away. No skills needed.
           </div>
           <a href="#generate" className="btn-primary" style={{ fontSize: 16, padding: "18px 40px" }}>
-            Start Creating — It's Free
+            Try It Free — No Card, No Wait
           </a>
         </div>
       </section>
@@ -848,7 +946,7 @@ export default function HomePageClient() {
             price="$0"
             credits="20 / mo"
             features={["Basic models", "Public gallery", "Starter workflow"]}
-            cta={<Link href="/signup" className="btn-secondary" style={{ display: "block", textAlign: "center" }}>Get Started</Link>}
+            cta={<Link href="/signup" className="btn-secondary" style={{ display: "block", textAlign: "center" }}>Start Free — No Card</Link>}
           />
           <PricingCard
             title="Pro"
@@ -983,14 +1081,14 @@ export default function HomePageClient() {
         </div>
         <div style={{ display: "flex", justifyContent: "center", gap: 14, flexWrap: "wrap" }}>
           <Link href="/signup" className="btn-primary" style={{ fontSize: 16, padding: "18px 40px" }}>
-            Generate Now — It's Free
+            Start Now — 20 Credits Free
           </Link>
           <Link href="/gallery" className="btn-secondary" style={{ fontSize: 16, padding: "18px 36px" }}>
-            See What's Possible
+            See Real Results First
           </Link>
         </div>
         <div style={{ marginTop: 20, color: "#8885a8", fontSize: 13 }}>
-          20 free credits. No card required. Cancel anytime.
+          No card. No commitment. Unsubscribe with one click.
         </div>
       </section>
 
