@@ -585,6 +585,13 @@ export default function HomePageClient() {
             order: 1;
           }
           .compare-grid { grid-template-columns: 1fr 1fr !important; font-size: 12px !important; }
+          .pricing-grid {
+            grid-template-columns: 1fr !important;
+            max-width: 420px !important;
+          }
+          .pricing-grid > div:first-child { border-radius: 24px 24px 0 0 !important; border-right: 1px solid rgba(255,255,255,0.07) !important; border-bottom: none !important; }
+          .pricing-grid > div:nth-child(2) { border-radius: 0 !important; transform: none !important; box-shadow: none !important; border: 1px solid rgba(124,92,252,0.5) !important; }
+          .pricing-grid > div:last-child { border-radius: 0 0 24px 24px !important; border-left: 1px solid rgba(255,255,255,0.07) !important; border-top: none !important; }
         }
         @media (max-width: 600px) {
           .hero-section-pad { padding: 48px 20px 56px !important; }
@@ -1408,69 +1415,164 @@ export default function HomePageClient() {
       </section>
 
       {/* ── Pricing ── */}
-      <section id="pricing" style={{ maxWidth: 1100, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1 }}>
-        <SectionHead
-          label="Pricing"
-          title="Free to start. Always."
-          sub="20 credits on us. No credit card. No commitment. Pay only when you are ready to scale."
-        />
+      <section id="pricing" style={{ maxWidth: 1160, margin: "0 auto", padding: "120px 24px 0", position: "relative", zIndex: 1 }}>
 
-        {/* Value anchors */}
-        <div style={{ display: "flex", justifyContent: "center", gap: 24, marginTop: 28, flexWrap: "wrap" }}>
-          {[
-            { text: "~$0.04 per image on Pro", icon: "💡" },
-            { text: "Cheaper than one stock photo", icon: "💸" },
-            { text: "Commercial rights included", icon: "✅" },
-          ].map(({ text, icon }) => (
-            <div key={text} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 999, background: "rgba(124,92,252,0.08)", border: "1px solid rgba(124,92,252,0.2)", fontSize: 13, color: "#c4b8ff" }}>
-              <span>{icon}</span> {text}
-            </div>
-          ))}
+        {/* Header */}
+        <div style={{ textAlign: "center", marginBottom: 64 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 16px", borderRadius: 999, background: "rgba(124,92,252,0.1)", border: "1px solid rgba(124,92,252,0.25)", marginBottom: 24 }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#a78bff", display: "inline-block" }} />
+            <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.08em", color: "#a78bff", textTransform: "uppercase" }}>Pricing</span>
+          </div>
+          <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: "clamp(32px, 5vw, 52px)", fontWeight: 800, letterSpacing: "-0.03em", color: "#f0eeff", lineHeight: 1.1, marginBottom: 18 }}>
+            Simple, transparent pricing.
+          </h2>
+          <p style={{ fontSize: 17, color: "#8885a8", maxWidth: 480, margin: "0 auto", lineHeight: 1.7 }}>
+            Start free. Upgrade when your work demands it.
+            No hidden fees, no surprises.
+          </p>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 18, marginTop: 32 }}>
-          <PricingCard
-            title="Free"
-            price="$0"
-            credits="20 / mo"
-            features={["Basic models", "Public gallery", "Personal use"]}
-            cta={<Link href="/signup" className="btn-secondary" style={{ display: "block", textAlign: "center" }}>Start Free — No Card</Link>}
-          />
-          <PricingCard
-            title="Pro"
-            price="$19"
-            credits="500 / mo"
-            featured
-            features={["Private gallery", "Priority queue", "Commercial rights included", "~$0.04 per image"]}
-            cta={
+        {/* Cards */}
+        <div className="pricing-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 0, maxWidth: 1020, margin: "0 auto", alignItems: "stretch" }}>
+
+          {/* ── BASIC ── */}
+          <div style={{ padding: "44px 36px", borderRadius: "24px 0 0 24px", background: "rgba(15,15,26,0.7)", border: "1px solid rgba(255,255,255,0.07)", borderRight: "none", backdropFilter: "blur(16px)", display: "flex", flexDirection: "column" }}>
+            <div style={{ marginBottom: 32 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#6b6b8a", marginBottom: 20 }}>Basic</div>
+              <div style={{ display: "flex", alignItems: "flex-end", gap: 4, marginBottom: 8 }}>
+                <span style={{ fontFamily: "'Syne', sans-serif", fontSize: 48, fontWeight: 800, color: "#f0eeff", lineHeight: 1, letterSpacing: "-0.03em" }}>$0</span>
+                <span style={{ fontSize: 14, color: "#6b6b8a", marginBottom: 8 }}>/month</span>
+              </div>
+              <p style={{ fontSize: 14, color: "#6b6b8a", lineHeight: 1.5 }}>For those just getting started.</p>
+            </div>
+            <div style={{ width: "100%", height: 1, background: "rgba(255,255,255,0.05)", marginBottom: 32 }} />
+            <ul style={{ listStyle: "none", padding: 0, margin: "0 0 auto", display: "flex", flexDirection: "column", gap: 14 }}>
+              {[
+                "20 image generations / month",
+                "6 AI models included",
+                "All aspect ratios",
+                "Watermark-free exports",
+                "Session history",
+                "Community support",
+              ].map((f) => (
+                <li key={f} style={{ display: "flex", alignItems: "flex-start", gap: 12, fontSize: 14, color: "#9d9abf", lineHeight: 1.4 }}>
+                  <span style={{ width: 18, height: 18, borderRadius: "50%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
+                    <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#6b6b8a", display: "block" }} />
+                  </span>
+                  {f}
+                </li>
+              ))}
+            </ul>
+            <div style={{ marginTop: 36 }}>
+              <Link href="/signup" style={{ display: "block", textAlign: "center", padding: "13px 24px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.04)", color: "#c4b8ff", fontSize: 14, fontWeight: 600, textDecoration: "none", transition: "all 0.2s", letterSpacing: "-0.01em" }}>
+                Start for Free
+              </Link>
+            </div>
+          </div>
+
+          {/* ── PRO ── */}
+          <div style={{ padding: "44px 36px", borderRadius: 24, background: "linear-gradient(160deg, rgba(124,92,252,0.18) 0%, rgba(168,85,247,0.12) 50%, rgba(232,79,188,0.08) 100%)", border: "1px solid rgba(124,92,252,0.5)", backdropFilter: "blur(16px)", display: "flex", flexDirection: "column", position: "relative", zIndex: 2, boxShadow: "0 0 0 1px rgba(168,85,247,0.15), 0 32px 80px -12px rgba(124,92,252,0.35), 0 8px 32px -8px rgba(0,0,0,0.5)", transform: "scale(1.04)" }}>
+
+            {/* Most popular badge */}
+            <div style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", padding: "5px 16px", borderRadius: 999, background: "linear-gradient(135deg, #7c5cfc, #e84fbc)", fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "white", whiteSpace: "nowrap", boxShadow: "0 4px 20px rgba(124,92,252,0.5)" }}>
+              Most Popular
+            </div>
+
+            <div style={{ marginBottom: 32 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#a78bff", marginBottom: 20 }}>Pro</div>
+              <div style={{ display: "flex", alignItems: "flex-end", gap: 4, marginBottom: 8 }}>
+                <span style={{ fontFamily: "'Syne', sans-serif", fontSize: 48, fontWeight: 800, lineHeight: 1, letterSpacing: "-0.03em", background: "linear-gradient(135deg, #c4b8ff, #e84fbc)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>$19</span>
+                <span style={{ fontSize: 14, color: "#8885a8", marginBottom: 8 }}>/month</span>
+              </div>
+              <p style={{ fontSize: 14, color: "#8885a8", lineHeight: 1.5 }}>The complete creative suite.</p>
+            </div>
+
+            <div style={{ width: "100%", height: 1, background: "rgba(124,92,252,0.2)", marginBottom: 32 }} />
+
+            <ul style={{ listStyle: "none", padding: 0, margin: "0 0 auto", display: "flex", flexDirection: "column", gap: 14 }}>
+              {[
+                "500 image generations / month",
+                "All 10 AI models unlocked",
+                "Image-to-video generation",
+                "Priority queue — no waiting",
+                "Commercial license included",
+                "Private cloud gallery",
+                "Email support",
+              ].map((f) => (
+                <li key={f} style={{ display: "flex", alignItems: "flex-start", gap: 12, fontSize: 14, color: "#d4d0f0", lineHeight: 1.4 }}>
+                  <span style={{ width: 18, height: 18, borderRadius: "50%", background: "rgba(124,92,252,0.25)", border: "1px solid rgba(168,85,247,0.4)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
+                    <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#a78bff", display: "block" }} />
+                  </span>
+                  {f}
+                </li>
+              ))}
+            </ul>
+
+            <div style={{ marginTop: 36 }}>
               <button
-                className="btn-primary"
-                style={{ width: "100%", padding: "13px 24px" }}
-                onClick={() => showToast("Pro checkout sonraki adimda baglanabilir.")}
+                style={{ width: "100%", padding: "14px 24px", borderRadius: 12, border: "none", background: "linear-gradient(135deg, #7c5cfc, #a855f7)", color: "white", fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: "-0.01em", boxShadow: "0 8px 32px rgba(124,92,252,0.45)", transition: "all 0.2s", fontFamily: "inherit" }}
+                onClick={() => showToast("Pro plan — coming soon.")}
+                onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 12px 40px rgba(124,92,252,0.65)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 8px 32px rgba(124,92,252,0.45)"; e.currentTarget.style.transform = "translateY(0)"; }}
               >
-                Go Pro — Start Creating
+                Get Pro
               </button>
-            }
-          />
-          <PricingCard
-            title="Ultra"
-            price="$49"
-            credits="2000 / mo"
-            features={["4K exports", "API access", "Instant queue", "Priority support"]}
-            cta={
+            </div>
+          </div>
+
+          {/* ── ULTRA ── */}
+          <div style={{ padding: "44px 36px", borderRadius: "0 24px 24px 0", background: "rgba(15,15,26,0.7)", border: "1px solid rgba(255,255,255,0.07)", borderLeft: "none", backdropFilter: "blur(16px)", display: "flex", flexDirection: "column" }}>
+            <div style={{ marginBottom: 32 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#6b6b8a", marginBottom: 20 }}>Ultra</div>
+              <div style={{ display: "flex", alignItems: "flex-end", gap: 4, marginBottom: 8 }}>
+                <span style={{ fontFamily: "'Syne', sans-serif", fontSize: 48, fontWeight: 800, color: "#f0eeff", lineHeight: 1, letterSpacing: "-0.03em" }}>$49</span>
+                <span style={{ fontSize: 14, color: "#6b6b8a", marginBottom: 8 }}>/month</span>
+              </div>
+              <p style={{ fontSize: 14, color: "#6b6b8a", lineHeight: 1.5 }}>For studios and power users.</p>
+            </div>
+            <div style={{ width: "100%", height: 1, background: "rgba(255,255,255,0.05)", marginBottom: 32 }} />
+            <ul style={{ listStyle: "none", padding: 0, margin: "0 0 auto", display: "flex", flexDirection: "column", gap: 14 }}>
+              {[
+                "2,000 image generations / month",
+                "All models + early access",
+                "4K video exports",
+                "Instant queue — always first",
+                "Full API access",
+                "Dedicated account support",
+                "Commercial license included",
+              ].map((f) => (
+                <li key={f} style={{ display: "flex", alignItems: "flex-start", gap: 12, fontSize: 14, color: "#9d9abf", lineHeight: 1.4 }}>
+                  <span style={{ width: 18, height: 18, borderRadius: "50%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
+                    <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#6b6b8a", display: "block" }} />
+                  </span>
+                  {f}
+                </li>
+              ))}
+            </ul>
+            <div style={{ marginTop: 36 }}>
               <button
-                className="btn-secondary"
-                style={{ width: "100%", padding: "13px 24px" }}
-                onClick={() => showToast("Ultra plan akisi hazir.")}
+                style={{ display: "block", width: "100%", textAlign: "center", padding: "13px 24px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.04)", color: "#c4b8ff", fontSize: 14, fontWeight: 600, cursor: "pointer", transition: "all 0.2s", letterSpacing: "-0.01em", fontFamily: "inherit" }}
+                onClick={() => showToast("Ultra plan — coming soon.")}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"; }}
               >
                 Go Ultra
               </button>
-            }
-          />
+            </div>
+          </div>
         </div>
 
-        <div style={{ textAlign: "center", marginTop: 20, color: "#8885a8", fontSize: 13 }}>
-          Run out of credits? Upgrade instantly. No waiting, no back-and-forth.
+        {/* Bottom note */}
+        <div style={{ textAlign: "center", marginTop: 40, display: "flex", alignItems: "center", justifyContent: "center", gap: 24, flexWrap: "wrap" }}>
+          {[
+            { icon: "✦", text: "No contracts. Cancel anytime." },
+            { icon: "✦", text: "All plans include watermark-free exports." },
+            { icon: "✦", text: "20 free generations to start — no card needed." },
+          ].map(({ icon, text }) => (
+            <span key={text} style={{ fontSize: 13, color: "#4a4a6a", display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ color: "#6b5a8a", fontSize: 9 }}>{icon}</span> {text}
+            </span>
+          ))}
         </div>
       </section>
 
@@ -1692,83 +1794,3 @@ function SectionHead({
   );
 }
 
-function PricingCard({
-  title,
-  price,
-  credits,
-  features,
-  cta,
-  featured = false,
-}: {
-  title: string;
-  price: string;
-  credits: string;
-  features: string[];
-  cta: React.ReactNode;
-  featured?: boolean;
-}) {
-  return (
-    <div
-      className={`card-hover ${featured ? "featured-ring" : ""}`}
-      style={{
-        padding: 30,
-        borderRadius: 24,
-        background: featured
-          ? "linear-gradient(145deg, rgba(124,92,252,0.14), rgba(232,79,188,0.07))"
-          : "rgba(15,15,26,0.85)",
-        border: featured
-          ? "1px solid rgba(124,92,252,0.45)"
-          : "1px solid rgba(255,255,255,0.08)",
-        backdropFilter: "blur(12px)",
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      {featured && (
-        <div style={{
-          position: "absolute",
-          top: 16, right: 16,
-          padding: "4px 12px",
-          borderRadius: 999,
-          background: "linear-gradient(135deg,#7c5cfc,#e84fbc)",
-          fontSize: 11,
-          fontWeight: 700,
-          letterSpacing: 1,
-          textTransform: "uppercase",
-        }}>
-          Popular
-        </div>
-      )}
-      <div style={{
-        color: "#8885a8",
-        fontFamily: "'Syne', sans-serif",
-        textTransform: "uppercase",
-        letterSpacing: 1.5,
-        fontSize: 12,
-        fontWeight: 700,
-      }}>
-        {title}
-      </div>
-      <div style={{
-        fontFamily: "'Syne', sans-serif",
-        fontSize: 44,
-        fontWeight: 800,
-        marginTop: 10,
-        background: featured ? "linear-gradient(135deg,#a78bff,#e84fbc)" : "none",
-        WebkitBackgroundClip: featured ? "text" : "unset",
-        WebkitTextFillColor: featured ? "transparent" : "inherit",
-      }}>
-        {price}
-      </div>
-      <div style={{ color: "#8885a8", fontSize: 13, marginTop: 4 }}>{credits} credits</div>
-      <ul style={{ listStyle: "none", padding: 0, margin: "20px 0", display: "flex", flexDirection: "column", gap: 10 }}>
-        {features.map((f) => (
-          <li key={f} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: "#c4b8ff" }}>
-            <span style={{ color: "#4cebb8", fontSize: 16 }}>✓</span> {f}
-          </li>
-        ))}
-      </ul>
-      {cta}
-    </div>
-  );
-}
