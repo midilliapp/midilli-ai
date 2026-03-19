@@ -521,9 +521,22 @@ export default function HomePageClient() {
           transform: translateY(0);
         }
 
-        @media (max-width: 768px) {
-          .hero-two-col { grid-template-columns: 1fr !important; }
+        @media (max-width: 900px) {
+          .hero-two-col {
+            grid-template-columns: 1fr !important;
+            gap: 36px !important;
+          }
+          .hero-two-col > div:first-child {
+            order: 2;
+          }
+          .hero-two-col > div:last-child {
+            order: 1;
+          }
           .compare-grid { grid-template-columns: 1fr 1fr !important; font-size: 12px !important; }
+        }
+        @media (max-width: 600px) {
+          .hero-section-pad { padding: 48px 20px 56px !important; }
+          .hero-canvas { height: 280px !important; }
         }
       `}</style>
 
@@ -595,17 +608,17 @@ export default function HomePageClient() {
       </header>
 
       {/* ── HERO ── */}
-      <section style={{ padding: "100px 40px 88px", position: "relative", zIndex: 1 }}>
+      <section className="hero-section-pad" style={{ padding: "80px 40px 72px", position: "relative", zIndex: 1 }}>
         <div
           className="hero-two-col"
-          style={{ maxWidth: 1400, margin: "0 auto", display: "grid", gridTemplateColumns: "36% 64%", gap: 64, alignItems: "center" }}
+          style={{ maxWidth: 1360, margin: "0 auto", display: "grid", gridTemplateColumns: "38% 62%", gap: 56, alignItems: "center" }}
         >
 
-          {/* ── LEFT: editorial, breathing, premium ── */}
+          {/* ── LEFT: editorial copy ── */}
           <div>
             <div
               className="badge-pulse hero-animate"
-              style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "7px 14px", borderRadius: 999, fontSize: 12, marginBottom: 32, color: "#c4b8ff", border: "1px solid rgba(124,92,252,0.28)", background: "rgba(124,92,252,0.07)" }}
+              style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "7px 14px", borderRadius: 999, fontSize: 12, marginBottom: 24, color: "#c4b8ff", border: "1px solid rgba(124,92,252,0.28)", background: "rgba(124,92,252,0.07)" }}
             >
               <span style={{ width: 6, height: 6, borderRadius: 999, background: "#38d9f5", boxShadow: "0 0 7px #38d9f5", flexShrink: 0 }} />
               No prompt skills needed
@@ -613,47 +626,48 @@ export default function HomePageClient() {
 
             <h1
               className="hero-animate-delay"
-              style={{ margin: 0, fontFamily: "'Syne', sans-serif", fontSize: "clamp(46px, 5.4vw, 76px)", lineHeight: 1.0, letterSpacing: -3, fontWeight: 800 }}
+              style={{ margin: 0, fontFamily: "'Syne', sans-serif", fontSize: "clamp(32px, 3.6vw, 58px)", lineHeight: 1.08, letterSpacing: -2, fontWeight: 800 }}
             >
               From idea
-              <br />
-              to image.
-              <br />
-              <span className="shimmer-text">10 seconds.</span>
+              <br />to image.
+              <br /><span className="shimmer-text">10 seconds.</span>
             </h1>
 
             <p
               className="hero-animate-delay2"
-              style={{ maxWidth: 400, margin: "28px 0 0", color: "#8885a8", lineHeight: 1.85, fontSize: 16 }}
+              style={{ maxWidth: 380, margin: "20px 0 0", color: "#8885a8", lineHeight: 1.8, fontSize: 15 }}
             >
-              Describe what you want. MIDILLI turns it into a ready-to-use visual instantly. No learning curve. No designer.
+              Describe what you want in plain language. MIDILLI turns it into a ready-to-use visual. No learning curve. No designer.
             </p>
 
-            <div className="hero-animate-delay2" style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 40 }}>
-              <a href="#generate" className="btn-primary" style={{ fontSize: 15, padding: "16px 30px" }}>
+            <div className="hero-animate-delay2" style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 32 }}>
+              <a href="#generate" className="btn-primary" style={{ fontSize: 14, padding: "14px 26px" }}>
                 Create Your First Image — Free
               </a>
-              <Link href="/gallery" className="btn-secondary" style={{ fontSize: 15, padding: "16px 26px" }}>
-                See Real Results →
+              <Link href="/gallery" className="btn-secondary" style={{ fontSize: 14, padding: "14px 22px" }}>
+                See Results →
               </Link>
             </div>
 
-            <div className="hero-animate-delay2" style={{ marginTop: 18, color: "#8885a8", fontSize: 13 }}>
+            <div className="hero-animate-delay2" style={{ marginTop: 14, color: "#8885a8", fontSize: 12 }}>
               20 free credits · No credit card · No tutorial
             </div>
-            <div className="hero-animate-delay2" style={{ marginTop: 8, color: "#8885a8", fontSize: 12 }}>
-              Used for <span style={{ color: "#a78bff" }}>ads</span> · <span style={{ color: "#a78bff" }}>thumbnails</span> · <span style={{ color: "#a78bff" }}>products</span> · <span style={{ color: "#a78bff" }}>pitch decks</span>
+            <div className="hero-animate-delay2" style={{ marginTop: 6, color: "#8885a8", fontSize: 12 }}>
+              Used for{" "}
+              {["ads", "thumbnails", "products", "pitch decks"].map((t, i, arr) => (
+                <span key={t}><span style={{ color: "#a78bff" }}>{t}</span>{i < arr.length - 1 ? " · " : ""}</span>
+              ))}
             </div>
 
-            <div style={{ display: "flex", gap: 36, marginTop: 48, flexWrap: "wrap", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: 28 }}>
+            <div style={{ display: "flex", gap: 28, marginTop: 36, flexWrap: "wrap", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: 24 }}>
               {[
                 { value: "~8s", label: "Avg. generation" },
                 { value: "50K+", label: "Images created" },
                 { value: "4.9★", label: "User rating" },
               ].map(({ value, label }) => (
                 <div key={label}>
-                  <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 24, fontWeight: 800, background: "linear-gradient(135deg,#a78bff,#38d9f5)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", lineHeight: 1 }}>{value}</div>
-                  <div style={{ color: "#8885a8", fontSize: 12, marginTop: 4 }}>{label}</div>
+                  <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 22, fontWeight: 800, background: "linear-gradient(135deg,#a78bff,#38d9f5)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", lineHeight: 1 }}>{value}</div>
+                  <div style={{ color: "#8885a8", fontSize: 11, marginTop: 4 }}>{label}</div>
                 </div>
               ))}
             </div>
@@ -677,7 +691,7 @@ export default function HomePageClient() {
               }}
             >
               {/* Full-bleed image area */}
-              <div style={{ position: "relative", height: 520, overflow: "hidden", background: "#050508" }}>
+              <div className="hero-canvas" style={{ position: "relative", height: 460, overflow: "hidden", background: "#050508" }}>
 
                 {/* All images — always rendered, crossfade between them */}
                 {demoExamples.map((ex, i) => (
