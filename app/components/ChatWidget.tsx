@@ -13,7 +13,7 @@ export default function ChatWidget() {
     {
       role: "assistant",
       content:
-        "Merhaba! 👋 MIDILLI AI destek asistanıyım. Size nasıl yardımcı olabilirim?",
+        "Hey! 👋 I'm MIDILLI's AI support assistant. How can I help you today?",
     },
   ]);
   const [input, setInput] = useState("");
@@ -64,7 +64,7 @@ export default function ChatWidget() {
           ...prev,
           {
             role: "assistant",
-            content: `Hata: ${data.error ?? "Bilinmeyen hata"}`,
+            content: `Error: ${data.error ?? "Unknown error"}`,
           },
         ]);
       }
@@ -73,7 +73,7 @@ export default function ChatWidget() {
         ...prev,
         {
           role: "assistant",
-          content: "Bağlantı hatası. Lütfen tekrar deneyin.",
+          content: "Connection error. Please try again.",
         },
       ]);
     } finally {
@@ -217,7 +217,7 @@ export default function ChatWidget() {
                   letterSpacing: "0.02em",
                 }}
               >
-                MIDILLI Destek
+                MIDILLI Support
               </div>
               <div
                 style={{
@@ -237,7 +237,7 @@ export default function ChatWidget() {
                   }}
                 />
                 <span style={{ color: "#86efac", fontSize: "11px" }}>
-                  Çevrimiçi · AI Destekli
+                  Online · AI Powered
                 </span>
               </div>
             </div>
@@ -343,7 +343,7 @@ export default function ChatWidget() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Mesajınızı yazın..."
+              placeholder="Type your message..."
               disabled={loading}
               style={{
                 flex: 1,
