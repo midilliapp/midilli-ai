@@ -48,6 +48,7 @@ export default function HomePageClient() {
   const [typedText, setTypedText] = useState("");
   const [showDemoOutput, setShowDemoOutput] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [sliderPaused, setSliderPaused] = useState(false);
 
   useEffect(() => {
     const loadSession = async () => {
@@ -234,6 +235,14 @@ export default function HomePageClient() {
         @keyframes ticker {
           0%   { transform: translateX(0); }
           100% { transform: translateX(-50%); }
+        }
+        @keyframes slideLeft {
+          0%   { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        @keyframes slideRight {
+          0%   { transform: translateX(-50%); }
+          100% { transform: translateX(0); }
         }
 
         .bg-blob {
@@ -428,6 +437,64 @@ export default function HomePageClient() {
           animation: ticker 28s linear infinite;
         }
 
+        /* ── Image Showcase Slider ── */
+        .showcase-row {
+          overflow: hidden;
+          mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+          -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+        }
+        .showcase-track {
+          display: flex;
+          width: max-content;
+        }
+        .showcase-card {
+          position: relative;
+          flex-shrink: 0;
+          border-radius: 18px;
+          overflow: hidden;
+          cursor: pointer;
+        }
+        .showcase-card img {
+          display: block;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.4s ease;
+        }
+        .showcase-card:hover img {
+          transform: scale(1.06);
+        }
+        .showcase-card .card-label {
+          position: absolute;
+          bottom: 10px;
+          left: 10px;
+          padding: 5px 12px;
+          border-radius: 8px;
+          background: rgba(0,0,0,0.65);
+          backdrop-filter: blur(8px);
+          font-size: 12px;
+          font-weight: 600;
+          color: rgba(255,255,255,0.9);
+          letter-spacing: 0.3px;
+          border: 1px solid rgba(255,255,255,0.1);
+          transition: opacity 0.3s ease;
+        }
+        .showcase-card .gen-badge {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          padding: 4px 10px;
+          border-radius: 999px;
+          background: rgba(0,0,0,0.6);
+          backdrop-filter: blur(8px);
+          font-size: 11px;
+          color: #4cebb8;
+          border: 1px solid rgba(76,235,184,0.3);
+          display: flex;
+          align-items: center;
+          gap: 5px;
+        }
+
         @media (max-width: 768px) {
           .hero-two-col { grid-template-columns: 1fr !important; }
           .compare-grid { grid-template-columns: 1fr 1fr !important; font-size: 12px !important; }
@@ -619,36 +686,134 @@ export default function HomePageClient() {
         </div>
       </section>
 
-      {/* ── Scrolling trust ticker ── */}
-      <div style={{ padding: "0 0 0", position: "relative", zIndex: 1, borderTop: "1px solid rgba(255,255,255,0.04)", borderBottom: "1px solid rgba(255,255,255,0.04)", background: "rgba(255,255,255,0.015)" }}>
-        <div className="ticker-wrap" style={{ padding: "14px 0" }}>
-          <div className="ticker-inner">
+      {/* ── Image Showcase Slider ── */}
+      <section
+        style={{ padding: "72px 0 64px", position: "relative", zIndex: 1, overflow: "hidden" }}
+        onMouseEnter={() => setSliderPaused(true)}
+        onMouseLeave={() => setSliderPaused(false)}
+      >
+        {/* Section header */}
+        <div style={{ textAlign: "center", marginBottom: 40, padding: "0 24px" }}>
+          <div style={{ color: "#7c5cfc", fontSize: 12, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 14 }}>
+            Visual proof
+          </div>
+          <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: "clamp(22px, 3vw, 32px)", fontWeight: 700, letterSpacing: -0.5, margin: 0, color: "#f0eeff" }}>
+            Real outputs. Generated in under 10 seconds.
+          </h2>
+          <p style={{ color: "#8885a8", fontSize: 15, marginTop: 10, marginBottom: 0 }}>
+            Every image below was created by typing a single sentence.
+          </p>
+        </div>
+
+        {/* Row 1 — slides left */}
+        <div className="showcase-row" style={{ marginBottom: 16 }}>
+          <div
+            className="showcase-track"
+            style={{
+              gap: 16,
+              animation: "slideLeft 55s linear infinite",
+              animationPlayState: sliderPaused ? "paused" : "running",
+            }}
+          >
             {[
-              "YouTube thumbnails",
-              "Shopify product visuals",
-              "Instagram ad creatives",
-              "Pitch deck covers",
-              "Blog post images",
-              "App store screenshots",
-              "Social media content",
-              "Brand visuals",
-              "YouTube thumbnails",
-              "Shopify product visuals",
-              "Instagram ad creatives",
-              "Pitch deck covers",
-              "Blog post images",
-              "App store screenshots",
-              "Social media content",
-              "Brand visuals",
-            ].map((item, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 32, color: "#8885a8", fontSize: 13, fontWeight: 500 }}>
-                <span>{item}</span>
-                <span style={{ color: "#3d3560" }}>◆</span>
+              { src: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=500&q=80&auto=format&fit=crop", label: "YouTube Thumbnail", w: 420 },
+              { src: "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=500&q=80&auto=format&fit=crop", label: "Shopify Product", w: 340 },
+              { src: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=500&q=80&auto=format&fit=crop", label: "Instagram Ad", w: 380 },
+              { src: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=500&q=80&auto=format&fit=crop", label: "Tech Visual", w: 360 },
+              { src: "https://images.unsplash.com/photo-1480796927426-f609979314bd?w=500&q=80&auto=format&fit=crop", label: "Pitch Deck Cover", w: 400 },
+              { src: "https://images.unsplash.com/photo-1549490349-8643362247b5?w=500&q=80&auto=format&fit=crop", label: "Brand Visual", w: 350 },
+              { src: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=500&q=80&auto=format&fit=crop", label: "Blog Cover", w: 390 },
+              { src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&q=80&auto=format&fit=crop", label: "Social Media Post", w: 360 },
+              { src: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=500&q=80&auto=format&fit=crop", label: "YouTube Thumbnail", w: 420 },
+              { src: "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=500&q=80&auto=format&fit=crop", label: "Shopify Product", w: 340 },
+              { src: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=500&q=80&auto=format&fit=crop", label: "Instagram Ad", w: 380 },
+              { src: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=500&q=80&auto=format&fit=crop", label: "Tech Visual", w: 360 },
+              { src: "https://images.unsplash.com/photo-1480796927426-f609979314bd?w=500&q=80&auto=format&fit=crop", label: "Pitch Deck Cover", w: 400 },
+              { src: "https://images.unsplash.com/photo-1549490349-8643362247b5?w=500&q=80&auto=format&fit=crop", label: "Brand Visual", w: 350 },
+              { src: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=500&q=80&auto=format&fit=crop", label: "Blog Cover", w: 390 },
+              { src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&q=80&auto=format&fit=crop", label: "Social Media Post", w: 360 },
+            ].map((img, i) => (
+              <div
+                key={i}
+                className="showcase-card"
+                style={{
+                  width: img.w,
+                  height: 280,
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.06)",
+                }}
+              >
+                <img
+                  src={img.src}
+                  alt={img.label}
+                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                />
+                <div className="card-label">{img.label}</div>
+                <div className="gen-badge">
+                  <span style={{ width: 5, height: 5, borderRadius: 999, background: "#4cebb8", boxShadow: "0 0 4px #4cebb8", display: "inline-block" }} />
+                  ~8s
+                </div>
               </div>
             ))}
           </div>
         </div>
-      </div>
+
+        {/* Row 2 — slides right (opposite direction) */}
+        <div className="showcase-row">
+          <div
+            className="showcase-track"
+            style={{
+              gap: 16,
+              animation: "slideRight 65s linear infinite",
+              animationPlayState: sliderPaused ? "paused" : "running",
+            }}
+          >
+            {[
+              { src: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=500&q=80&auto=format&fit=crop", label: "Social Media Content", w: 370 },
+              { src: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&q=80&auto=format&fit=crop", label: "Gaming Banner", w: 420 },
+              { src: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=500&q=80&auto=format&fit=crop", label: "Architecture Visual", w: 380 },
+              { src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=80&auto=format&fit=crop", label: "Product Shot", w: 350 },
+              { src: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=500&q=80&auto=format&fit=crop", label: "App Store Screenshot", w: 400 },
+              { src: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=500&q=80&auto=format&fit=crop", label: "Blog Cover", w: 360 },
+              { src: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=500&q=80&auto=format&fit=crop", label: "Fashion Editorial", w: 340 },
+              { src: "https://images.unsplash.com/photo-1573408301185-9519f94816b5?w=500&q=80&auto=format&fit=crop", label: "Pitch Deck Slide", w: 390 },
+              { src: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=500&q=80&auto=format&fit=crop", label: "Social Media Content", w: 370 },
+              { src: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&q=80&auto=format&fit=crop", label: "Gaming Banner", w: 420 },
+              { src: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=500&q=80&auto=format&fit=crop", label: "Architecture Visual", w: 380 },
+              { src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=80&auto=format&fit=crop", label: "Product Shot", w: 350 },
+              { src: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=500&q=80&auto=format&fit=crop", label: "App Store Screenshot", w: 400 },
+              { src: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=500&q=80&auto=format&fit=crop", label: "Blog Cover", w: 360 },
+              { src: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=500&q=80&auto=format&fit=crop", label: "Fashion Editorial", w: 340 },
+              { src: "https://images.unsplash.com/photo-1573408301185-9519f94816b5?w=500&q=80&auto=format&fit=crop", label: "Pitch Deck Slide", w: 390 },
+            ].map((img, i) => (
+              <div
+                key={i}
+                className="showcase-card"
+                style={{
+                  width: img.w,
+                  height: 260,
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.06)",
+                }}
+              >
+                <img
+                  src={img.src}
+                  alt={img.label}
+                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                />
+                <div className="card-label">{img.label}</div>
+                <div className="gen-badge">
+                  <span style={{ width: 5, height: 5, borderRadius: 999, background: "#4cebb8", boxShadow: "0 0 4px #4cebb8", display: "inline-block" }} />
+                  ~8s
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Bottom fade hint */}
+        <div style={{ textAlign: "center", marginTop: 32, color: "#8885a8", fontSize: 13 }}>
+          Hover to pause · Every image generated from a single sentence
+        </div>
+      </section>
 
       {/* ── Generate ── */}
       <section id="generate" style={{ padding: "80px 24px 0", position: "relative", zIndex: 1 }}>
