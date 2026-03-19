@@ -378,121 +378,184 @@ export default function CreateClient() {
         >
 
           {tab === "image" ? (
-            <div style={{ animation: "tabSwitch 0.3s ease" }}>
+            <div style={{ animation: "tabSwitch 0.3s ease", display: "flex", flexDirection: "column", gap: 22 }}>
 
-              {/* Prompt */}
-              <div style={{ marginBottom: 22 }}>
-                <label style={{ fontSize: 11, fontWeight: 700, color: "#8885a8", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10, display: "block" }}>
-                  Prompt
-                </label>
+              {/* ── PROMPT ── */}
+              <div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                    <div style={{ width: 22, height: 22, borderRadius: 6, background: "rgba(168,85,247,0.2)", border: "1px solid rgba(168,85,247,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11 }}>✏</div>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: "#c4b8ff", letterSpacing: "0.06em", textTransform: "uppercase" }}>Prompt</span>
+                  </div>
+                  <span style={{ fontSize: 11, color: prompt.length > 400 ? "#ef4444" : "#4a4a6a" }}>{prompt.length}/500</span>
+                </div>
                 <textarea
                   value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
+                  onChange={(e) => setPrompt(e.target.value.slice(0, 500))}
                   onKeyDown={(e) => { if (e.key === "Enter" && e.metaKey) void generateImage(); }}
-                  placeholder="Describe what you want to create..."
+                  placeholder="Describe what you want to create — be as detailed as you like..."
                   rows={4}
                   style={{
                     width: "100%",
-                    background: "rgba(255,255,255,0.04)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    borderRadius: 12,
-                    padding: 14,
+                    background: "rgba(124,92,252,0.05)",
+                    border: "1px solid rgba(124,92,252,0.2)",
+                    borderRadius: 14,
+                    padding: "14px 16px",
                     color: "white",
                     fontSize: 14,
                     resize: "none",
                     outline: "none",
-                    lineHeight: 1.6,
-                    transition: "border-color 0.2s",
+                    lineHeight: 1.7,
+                    transition: "border-color 0.2s, box-shadow 0.2s",
+                    fontFamily: "inherit",
                   }}
-                  onFocus={(e) => e.target.style.borderColor = "rgba(124,92,252,0.5)"}
-                  onBlur={(e) => e.target.style.borderColor = "rgba(255,255,255,0.1)"}
+                  onFocus={(e) => { e.target.style.borderColor = "rgba(168,85,247,0.6)"; e.target.style.boxShadow = "0 0 0 3px rgba(124,92,252,0.1)"; }}
+                  onBlur={(e) => { e.target.style.borderColor = "rgba(124,92,252,0.2)"; e.target.style.boxShadow = "none"; }}
                 />
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10 }}>
-                  {SUGGESTIONS.map((s) => (
-                    <button key={s} className="suggestion-pill"
-                      onClick={() => setPrompt(s)}
-                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(124,92,252,0.3)"; e.currentTarget.style.color = "#c4b8ff"; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "#6b7280"; }}
-                    >
-                      {s}
-                    </button>
-                  ))}
+                {/* Quick suggestions */}
+                <div style={{ marginTop: 10 }}>
+                  <div style={{ fontSize: 10, color: "#4a4a6a", fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 7 }}>Quick prompts</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                    {SUGGESTIONS.map((s) => (
+                      <button key={s}
+                        onClick={() => setPrompt(s)}
+                        style={{ padding: "5px 11px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)", color: "#6b7280", fontSize: 11, cursor: "pointer", transition: "all 0.15s", whiteSpace: "nowrap" }}
+                        onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(168,85,247,0.35)"; e.currentTarget.style.color = "#c4b8ff"; e.currentTarget.style.background = "rgba(124,92,252,0.08)"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "#6b7280"; e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              {/* Model */}
-              <div style={{ marginBottom: 22 }}>
-                <label style={{ fontSize: 11, fontWeight: 700, color: "#8885a8", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10, display: "block" }}>
-                  Model
-                </label>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {/* Divider */}
+              <div style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(124,92,252,0.2), transparent)" }} />
+
+              {/* ── MODEL ── */}
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 12 }}>
+                  <div style={{ width: 22, height: 22, borderRadius: 6, background: "rgba(168,85,247,0.2)", border: "1px solid rgba(168,85,247,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11 }}>⚡</div>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#c4b8ff", letterSpacing: "0.06em", textTransform: "uppercase" }}>AI Model</span>
+                  <span style={{ marginLeft: "auto", fontSize: 10, color: "#4a4a6a" }}>
+                    {MODELS.find(m => m.id === selectedModel)?.speed}
+                  </span>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
                   {MODELS.map((m) => (
                     <button
                       key={m.id}
-                      className={`model-chip ${selectedModel === m.id ? "active" : ""}`}
                       onClick={() => setSelectedModel(m.id)}
                       style={{
-                        background: selectedModel === m.id ? "rgba(124,92,252,0.25)" : "rgba(255,255,255,0.05)",
-                        borderColor: selectedModel === m.id ? "rgba(124,92,252,0.6)" : "rgba(255,255,255,0.1)",
-                        color: selectedModel === m.id ? "white" : "#6b7280",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        padding: "9px 12px",
+                        borderRadius: 10,
+                        border: `1px solid ${selectedModel === m.id ? "rgba(168,85,247,0.5)" : "rgba(255,255,255,0.06)"}`,
+                        background: selectedModel === m.id ? "rgba(124,92,252,0.15)" : "rgba(255,255,255,0.02)",
+                        cursor: "pointer",
+                        transition: "all 0.15s",
+                        textAlign: "left",
                       }}
+                      onMouseEnter={(e) => { if (selectedModel !== m.id) { e.currentTarget.style.background = "rgba(124,92,252,0.07)"; e.currentTarget.style.borderColor = "rgba(168,85,247,0.2)"; } }}
+                      onMouseLeave={(e) => { if (selectedModel !== m.id) { e.currentTarget.style.background = "rgba(255,255,255,0.02)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; } }}
                     >
-                      {m.name}
-                      <span style={{ fontSize: 10, opacity: 0.6 }}>{m.speed}</span>
+                      {/* Active dot */}
+                      <div style={{ width: 7, height: 7, borderRadius: "50%", flexShrink: 0, background: selectedModel === m.id ? "#a855f7" : "rgba(255,255,255,0.15)", boxShadow: selectedModel === m.id ? "0 0 8px rgba(168,85,247,0.8)" : "none", transition: "all 0.2s" }} />
+                      <span style={{ flex: 1, color: selectedModel === m.id ? "white" : "#8b8ba8", fontSize: 13, fontWeight: selectedModel === m.id ? 600 : 400 }}>{m.name}</span>
+                      <span style={{ fontSize: 11, color: selectedModel === m.id ? "#a78bfa" : "#3a3a5a" }}>{m.speed}</span>
                       {m.tier === "pro" && (
-                        <span style={{ fontSize: 9, background: "rgba(232,79,188,0.25)", color: "#e84fbf", border: "1px solid rgba(232,79,188,0.4)", borderRadius: 4, padding: "1px 5px" }}>PRO</span>
+                        <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 5, background: "rgba(232,79,188,0.15)", color: "#e84fbf", border: "1px solid rgba(232,79,188,0.3)" }}>PRO</span>
                       )}
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Aspect Ratio */}
-              <div style={{ marginBottom: 24 }}>
-                <label style={{ fontSize: 11, fontWeight: 700, color: "#8885a8", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10, display: "block" }}>
-                  Aspect Ratio
-                </label>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                  {ASPECT_RATIOS.map((r) => (
-                    <button
-                      key={r.value}
-                      className="ratio-btn"
-                      onClick={() => setAspectRatio(r.value)}
-                      style={{
-                        background: aspectRatio === r.value ? "rgba(124,92,252,0.2)" : "rgba(255,255,255,0.04)",
-                        borderColor: aspectRatio === r.value ? "rgba(124,92,252,0.6)" : "rgba(255,255,255,0.1)",
-                        color: aspectRatio === r.value ? "white" : "#6b7280",
-                      }}
-                    >
-                      <div style={{
-                        width: r.w, height: r.h,
-                        border: `2px solid ${aspectRatio === r.value ? "#a78bfa" : "rgba(255,255,255,0.2)"}`,
-                        borderRadius: 3,
-                        background: aspectRatio === r.value ? "rgba(124,92,252,0.3)" : "rgba(255,255,255,0.05)",
-                        transition: "all 0.15s",
-                        flexShrink: 0,
-                      }} />
-                      <span>{r.label}</span>
-                      <span style={{ fontSize: 9, opacity: 0.5, fontWeight: 400 }}>{r.desc}</span>
-                    </button>
-                  ))}
+              {/* Divider */}
+              <div style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(124,92,252,0.2), transparent)" }} />
+
+              {/* ── ASPECT RATIO ── */}
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 12 }}>
+                  <div style={{ width: 22, height: 22, borderRadius: 6, background: "rgba(168,85,247,0.2)", border: "1px solid rgba(168,85,247,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11 }}>⊞</div>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#c4b8ff", letterSpacing: "0.06em", textTransform: "uppercase" }}>Aspect Ratio</span>
+                  <span style={{ marginLeft: "auto", fontSize: 11, color: "#a78bfa", fontWeight: 600 }}>{aspectRatio}</span>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6 }}>
+                  {ASPECT_RATIOS.map((r) => {
+                    const active = aspectRatio === r.value;
+                    return (
+                      <button
+                        key={r.value}
+                        onClick={() => setAspectRatio(r.value)}
+                        style={{
+                          padding: "10px 6px 8px",
+                          borderRadius: 10,
+                          border: `1px solid ${active ? "rgba(168,85,247,0.6)" : "rgba(255,255,255,0.07)"}`,
+                          background: active ? "rgba(124,92,252,0.18)" : "rgba(255,255,255,0.02)",
+                          cursor: "pointer",
+                          transition: "all 0.15s",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: 5,
+                        }}
+                        onMouseEnter={(e) => { if (!active) { e.currentTarget.style.background = "rgba(124,92,252,0.07)"; e.currentTarget.style.borderColor = "rgba(168,85,247,0.25)"; } }}
+                        onMouseLeave={(e) => { if (!active) { e.currentTarget.style.background = "rgba(255,255,255,0.02)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)"; } }}
+                      >
+                        <div style={{
+                          width: r.w * 0.75,
+                          height: r.h * 0.75,
+                          border: `1.5px solid ${active ? "#a78bfa" : "rgba(255,255,255,0.2)"}`,
+                          borderRadius: 2,
+                          background: active ? "rgba(124,92,252,0.35)" : "rgba(255,255,255,0.04)",
+                          transition: "all 0.15s",
+                          flexShrink: 0,
+                        }} />
+                        <span style={{ fontSize: 11, fontWeight: 700, color: active ? "white" : "#6b7280" }}>{r.label}</span>
+                        <span style={{ fontSize: 9, color: active ? "#a78bfa" : "#3a3a5a", fontWeight: 400 }}>{r.desc}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* Generate */}
-              <button
-                className="generate-btn"
-                onClick={() => void generateImage()}
-                disabled={loading || !prompt.trim()}
-                style={{
-                  background: "linear-gradient(135deg, #7c3aed, #a855f7, #e84fbf)",
-                  boxShadow: loading || !prompt.trim() ? "none" : "0 4px 24px rgba(124,92,252,0.4)",
-                }}
-              >
-                {loading ? "Generating..." : "✦ Generate Image"}
-              </button>
-              <div style={{ color: "#4a4a6a", fontSize: 12, textAlign: "center", marginTop: 10 }}>
-                Balance: <strong style={{ color: "#38d9f5" }}>{credits}</strong> credits · ⌘+Enter to generate
+              {/* Divider */}
+              <div style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(124,92,252,0.2), transparent)" }} />
+
+              {/* ── GENERATE ── */}
+              <div>
+                <button
+                  className="generate-btn"
+                  onClick={() => void generateImage()}
+                  disabled={loading || !prompt.trim()}
+                  style={{
+                    background: loading || !prompt.trim() ? "rgba(124,92,252,0.15)" : "linear-gradient(135deg, #7c3aed, #a855f7, #e84fbf)",
+                    boxShadow: loading || !prompt.trim() ? "none" : "0 6px 28px rgba(124,92,252,0.45)",
+                    border: loading || !prompt.trim() ? "1px solid rgba(124,92,252,0.2)" : "none",
+                    color: loading || !prompt.trim() ? "#6b5a8a" : "white",
+                    fontSize: 15,
+                    letterSpacing: "0.03em",
+                  }}
+                >
+                  {loading ? (
+                    <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
+                      <span style={{ width: 14, height: 14, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "white", display: "inline-block", animation: "spin 0.7s linear infinite" }} />
+                      Generating...
+                    </span>
+                  ) : "✦ Generate Image"}
+                </button>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 10, padding: "0 2px" }}>
+                  <span style={{ fontSize: 11, color: "#3a3a5a" }}>
+                    ⌘+Enter to generate
+                  </span>
+                  <span style={{ fontSize: 11, color: "#3a3a5a" }}>
+                    Balance: <strong style={{ color: "#a78bfa" }}>{credits}</strong> credits
+                  </span>
+                </div>
               </div>
             </div>
 
