@@ -170,6 +170,23 @@ export default function HomePageClient() {
     showToast("Cikis yapildi.");
   };
 
+  const downloadImage = async (url: string) => {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = "midilli-generated.png";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    } catch {
+      window.open(url, "_blank");
+    }
+  };
+
   const generateImage = async () => {
     if (!prompt.trim()) {
       showToast("Bir prompt gir.");
@@ -1081,15 +1098,12 @@ export default function HomePageClient() {
                             &ldquo;{prompt}&rdquo;
                           </div>
                           <div style={{ display: "flex", gap: 8 }}>
-                            <a
-                              href={imageResult}
-                              download="midilli-generated.png"
-                              target="_blank"
-                              rel="noreferrer"
-                              style={{ padding: "8px 16px", borderRadius: 999, background: "rgba(124,92,252,0.25)", border: "1px solid rgba(124,92,252,0.4)", color: "#c4b8ff", fontSize: 12, fontWeight: 600, textDecoration: "none" }}
+                            <button
+                              onClick={() => { if (imageResult) void downloadImage(imageResult); }}
+                              style={{ padding: "8px 16px", borderRadius: 999, background: "rgba(124,92,252,0.25)", border: "1px solid rgba(124,92,252,0.4)", color: "#c4b8ff", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
                             >
                               ↓ Download
-                            </a>
+                            </button>
                             <button
                               onClick={() => { void generateImage(); }}
                               style={{ padding: "8px 16px", borderRadius: 999, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "#c4b8ff", fontSize: 12, cursor: "pointer" }}
