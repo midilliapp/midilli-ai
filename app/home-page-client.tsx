@@ -396,7 +396,7 @@ export default function HomePageClient() {
         </div>
         <nav style={{ display: "flex", gap: 28, alignItems: "center", flexWrap: "wrap" }}>
           <a href="#generate" className="nav-link">Generate</a>
-          <a href="#gallery" className="nav-link">Gallery</a>
+          <Link href="/gallery" className="nav-link">Gallery</Link>
           <a href="#pricing" className="nav-link">Pricing</a>
           {userName ? (
             <>
