@@ -68,13 +68,35 @@ export default function UpgradeModal({ onClose, onToast }: Props) {
           from { opacity: 0; transform: translateY(24px) scale(0.97); }
           to   { opacity: 1; transform: translateY(0)    scale(1);    }
         }
+        @keyframes shimmerFree {
+          0%,100% { box-shadow: 0 0 0px rgba(100,100,140,0); }
+          50%      { box-shadow: 0 0 18px 2px rgba(100,100,160,0.18), 0 0 40px 4px rgba(80,80,120,0.08); }
+        }
+        @keyframes shimmerBasic {
+          0%,100% { box-shadow: 0 0 0px rgba(168,85,247,0); }
+          50%      { box-shadow: 0 0 22px 3px rgba(168,85,247,0.28), 0 0 50px 8px rgba(124,92,252,0.10); }
+        }
+        @keyframes shimmerPro {
+          0%,100% { box-shadow: 0 20px 60px -8px rgba(108,72,252,0.35), inset 0 1px 0 rgba(255,255,255,0.08); }
+          50%      { box-shadow: 0 0 32px 6px rgba(168,85,247,0.5), 0 20px 60px -4px rgba(108,72,252,0.55), inset 0 1px 0 rgba(255,255,255,0.12); }
+        }
+        @keyframes shimmerUltra {
+          0%,100% { box-shadow: 0 0 0px rgba(251,191,36,0); }
+          50%      { box-shadow: 0 0 24px 4px rgba(251,191,36,0.22), 0 0 52px 8px rgba(180,130,20,0.09); }
+        }
+        .plan-card { transition: transform 0.22s ease, border-color 0.22s ease; }
+        .plan-card:hover { transform: translateY(-4px) scale(1.015); }
+        .plan-card-free:hover  { animation: shimmerFree  1.4s ease-in-out infinite; border-color: rgba(120,120,180,0.22) !important; }
+        .plan-card-basic:hover { animation: shimmerBasic 1.4s ease-in-out infinite; border-color: rgba(168,85,247,0.38) !important; }
+        .plan-card-pro:hover   { animation: shimmerPro   1.2s ease-in-out infinite; border-color: rgba(192,132,252,0.65) !important; }
+        .plan-card-ultra:hover { animation: shimmerUltra 1.4s ease-in-out infinite; border-color: rgba(251,191,36,0.32) !important; }
         .upgrade-modal { animation: upgradeIn 0.36s cubic-bezier(0.22,1,0.36,1) both; }
         .upgrade-tab { padding: 7px 20px; border-radius: 8px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: inherit; }
         .upgrade-tab.active { background: rgba(168,85,247,0.22); color: #e2d9ff; }
         .upgrade-tab.inactive { background: transparent; color: #4a4a62; }
         .upgrade-tab.inactive:hover { color: #9ca3af; }
         .pack-card { border-radius: 14px; padding: 20px 18px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); cursor: pointer; transition: all 0.18s; display: flex; flex-direction: column; gap: 8px; position: relative; }
-        .pack-card:hover { border-color: rgba(168,85,247,0.35); background: rgba(124,92,252,0.08); transform: translateY(-2px); }
+        .pack-card:hover { border-color: rgba(168,85,247,0.35); background: rgba(124,92,252,0.08); transform: translateY(-2px); box-shadow: 0 0 20px 3px rgba(124,92,252,0.18); }
         .pack-card.popular { border-color: rgba(168,85,247,0.45); background: rgba(124,92,252,0.1); }
       `}</style>
 
@@ -104,7 +126,7 @@ export default function UpgradeModal({ onClose, onToast }: Props) {
           <>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1.08fr 1fr", gap: 10 }}>
               {PLANS.map((plan) => (
-                <div key={plan.id} style={{
+                <div key={plan.id} className={`plan-card plan-card-${plan.id}`} style={{
                   padding: plan.id === "pro" ? "30px 22px 26px" : "24px 18px 22px",
                   borderRadius: 16,
                   background: plan.id === "pro"
