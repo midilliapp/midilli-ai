@@ -76,6 +76,7 @@ export default function HomePageClient() {
   const [typingDone, setTypingDone] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [sliderPaused, setSliderPaused] = useState(false);
+  const [showPlansModal, setShowPlansModal] = useState(false);
 
   // Community gallery
   const [galleryPosts, setGalleryPosts] = useState<GalleryPost[]>([]);
@@ -695,11 +696,7 @@ export default function HomePageClient() {
             order: 1;
           }
           .compare-grid { grid-template-columns: 1fr 1fr !important; font-size: 12px !important; }
-          .pricing-grid {
-            grid-template-columns: 1fr 1fr !important;
-            max-width: 640px !important;
-          }
-          .pricing-grid > div:nth-child(3) { grid-column: 1 / -1 !important; }
+
 
         }
         @media (max-width: 600px) {
@@ -852,9 +849,13 @@ export default function HomePageClient() {
               <button onClick={goToStudio} className="btn-primary" style={{ fontSize: 14, padding: "14px 26px", cursor: "pointer", fontFamily: "inherit", border: "none" }}>
                 ✦ Start Creating — Free
               </button>
-              <Link href="/gallery" className="btn-secondary" style={{ fontSize: 14, padding: "14px 22px" }}>
-                See Results →
-              </Link>
+              <button
+                onClick={() => setShowPlansModal(true)}
+                className="btn-secondary"
+                style={{ fontSize: 14, padding: "14px 22px", cursor: "pointer", fontFamily: "inherit" }}
+              >
+                See Plans ↗
+              </button>
             </div>
 
             <div className="hero-animate-delay2" style={{ marginTop: 14, color: "#8885a8", fontSize: 12 }}>
@@ -1686,222 +1687,146 @@ export default function HomePageClient() {
         </div>
       )}
 
-      {/* ── Pricing ── */}
-      <section id="pricing" style={{ maxWidth: 1200, margin: "0 auto", padding: "130px 24px 0", position: "relative", zIndex: 1 }}>
+      {/* ── Plans Modal ── */}
+      {showPlansModal && (
+        <div
+          onClick={(e) => { if (e.target === e.currentTarget) setShowPlansModal(false); }}
+          style={{ position: "fixed", inset: 0, zIndex: 9990, background: "rgba(0,0,0,0.82)", backdropFilter: "blur(14px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px 16px", overflowY: "auto" }}
+        >
+          <style>{`
+            @keyframes plansSlideUp {
+              from { opacity: 0; transform: translateY(32px) scale(0.97); }
+              to   { opacity: 1; transform: translateY(0)   scale(1);    }
+            }
+            @keyframes plansFadeIn { from { opacity:0; } to { opacity:1; } }
+            .plans-modal-inner { animation: plansSlideUp 0.38s cubic-bezier(0.22,1,0.36,1) both; }
+            .plans-backdrop    { animation: plansFadeIn  0.25s ease both; }
+          `}</style>
 
-        {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: 72 }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "5px 14px", borderRadius: 999, background: "rgba(124,92,252,0.09)", border: "1px solid rgba(124,92,252,0.22)", marginBottom: 22 }}>
-            <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#a78bff", display: "inline-block" }} />
-            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", color: "#a78bff", textTransform: "uppercase" }}>Pricing</span>
-          </div>
-          <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: "clamp(30px, 4.5vw, 50px)", fontWeight: 800, letterSpacing: "-0.03em", color: "#f0eeff", lineHeight: 1.1, marginBottom: 16 }}>
-            One plan for every stage.
-          </h2>
-          <p style={{ fontSize: 16, color: "#6b6b8a", maxWidth: 420, margin: "0 auto", lineHeight: 1.75 }}>
-            Start free, no card needed.<br />Upgrade when your work demands more.
-          </p>
-        </div>
+          <div className="plans-modal-inner" style={{ width: "100%", maxWidth: 1060, position: "relative" }}>
+            {/* Close */}
+            <button
+              onClick={() => setShowPlansModal(false)}
+              style={{ position: "absolute", top: -14, right: -14, zIndex: 10, width: 34, height: 34, borderRadius: "50%", background: "#1a1a2e", border: "1px solid rgba(255,255,255,0.12)", color: "#9ca3af", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit" }}
+            >×</button>
 
-        {/* 4-card grid */}
-        <div className="pricing-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1.08fr 1fr", gap: 14, maxWidth: 1100, margin: "0 auto", alignItems: "end" }}>
-
-          {/* ── FREE ── */}
-          <div style={{ padding: "36px 28px 32px", borderRadius: 20, background: "rgba(12,12,20,0.6)", border: "1px solid rgba(255,255,255,0.06)", backdropFilter: "blur(12px)", display: "flex", flexDirection: "column" }}>
-            <div style={{ marginBottom: 28 }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#3d3d55" }}>Free</span>
-              </div>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 3, marginBottom: 6 }}>
-                <span style={{ fontFamily: "'Syne', sans-serif", fontSize: 42, fontWeight: 800, color: "#4a4a62", lineHeight: 1, letterSpacing: "-0.03em" }}>$0</span>
-              </div>
-              <p style={{ fontSize: 13, color: "#3a3a50", lineHeight: 1.5, marginTop: 6 }}>Try the experience.</p>
+            {/* Header */}
+            <div style={{ textAlign: "center", marginBottom: 40 }}>
+              <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: "clamp(26px, 4vw, 42px)", fontWeight: 800, letterSpacing: "-0.03em", color: "#f0eeff", lineHeight: 1.1, marginBottom: 10 }}>
+                One plan for every stage.
+              </h2>
+              <p style={{ fontSize: 15, color: "#6b6b8a" }}>Start free, no card needed. Upgrade when your work demands more.</p>
             </div>
-            <div style={{ width: "100%", height: 1, background: "rgba(255,255,255,0.04)", marginBottom: 24 }} />
-            <ul style={{ listStyle: "none", padding: 0, margin: "0 0 auto", display: "flex", flexDirection: "column", gap: 12 }}>
-              {[
-                "10 generations to start",
-                "2 AI models only",
-                "Slow generation speed",
-                "Watermarked exports",
-                "Personal use only",
-              ].map((f) => (
-                <li key={f} style={{ display: "flex", alignItems: "flex-start", gap: 10, fontSize: 13, color: "#4a4a62", lineHeight: 1.4 }}>
-                  <span style={{ width: 16, height: 16, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
-                    <span style={{ width: 4, height: 4, borderRadius: "50%", background: "#2e2e42", display: "block" }} />
-                  </span>
-                  {f}
-                </li>
+
+            {/* 4 cards */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1.08fr 1fr", gap: 12, alignItems: "end" }}>
+
+              {/* FREE */}
+              <div style={{ padding: "28px 22px 26px", borderRadius: 18, background: "rgba(12,12,20,0.8)", border: "1px solid rgba(255,255,255,0.06)", backdropFilter: "blur(12px)", display: "flex", flexDirection: "column" }}>
+                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#3d3d55", marginBottom: 14, display: "block" }}>Free</span>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 2, marginBottom: 4 }}>
+                  <span style={{ fontFamily: "'Syne',sans-serif", fontSize: 38, fontWeight: 800, color: "#4a4a62", lineHeight: 1, letterSpacing: "-0.03em" }}>$0</span>
+                </div>
+                <p style={{ fontSize: 12, color: "#3a3a50", marginBottom: 18, marginTop: 4 }}>Try the experience.</p>
+                <div style={{ width: "100%", height: 1, background: "rgba(255,255,255,0.04)", marginBottom: 18 }} />
+                <ul style={{ listStyle: "none", padding: 0, margin: "0 0 auto", display: "flex", flexDirection: "column", gap: 10 }}>
+                  {["10 generations to start", "2 AI models only", "Slow generation speed", "Watermarked exports", "Personal use only"].map((f) => (
+                    <li key={f} style={{ display: "flex", gap: 8, fontSize: 12, color: "#4a4a62", lineHeight: 1.4 }}>
+                      <span style={{ color: "#2e2e42", flexShrink: 0 }}>·</span>{f}
+                    </li>
+                  ))}
+                </ul>
+                <Link href="/signup" onClick={() => setShowPlansModal(false)} style={{ display: "block", textAlign: "center", marginTop: 22, padding: "10px", borderRadius: 9, border: "1px solid rgba(255,255,255,0.07)", background: "transparent", color: "#4a4a62", fontSize: 12, fontWeight: 600, textDecoration: "none" }}>
+                  Start Free
+                </Link>
+              </div>
+
+              {/* BASIC */}
+              <div style={{ padding: "28px 22px 26px", borderRadius: 18, background: "rgba(15,15,26,0.85)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)", display: "flex", flexDirection: "column" }}>
+                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#6b6b8a", marginBottom: 14, display: "block" }}>Basic</span>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 2, marginBottom: 4 }}>
+                  <span style={{ fontFamily: "'Syne',sans-serif", fontSize: 38, fontWeight: 800, color: "#c4b8ff", lineHeight: 1, letterSpacing: "-0.03em" }}>$9</span>
+                  <span style={{ fontSize: 14, color: "#6b6b8a", fontWeight: 600 }}>.99</span>
+                  <span style={{ fontSize: 12, color: "#4a4a62", marginLeft: 2 }}>/mo</span>
+                </div>
+                <p style={{ fontSize: 12, color: "#6b6b8a", marginBottom: 18, marginTop: 4 }}>For consistent creators.</p>
+                <div style={{ width: "100%", height: 1, background: "rgba(255,255,255,0.06)", marginBottom: 18 }} />
+                <ul style={{ listStyle: "none", padding: 0, margin: "0 0 auto", display: "flex", flexDirection: "column", gap: 10 }}>
+                  {["150 generations / month", "5 AI models unlocked", "Standard speed", "Watermark-free exports", "Session history", "Personal use license"].map((f) => (
+                    <li key={f} style={{ display: "flex", gap: 8, fontSize: 12, color: "#9d9abf", lineHeight: 1.4 }}>
+                      <span style={{ color: "#5a5a7a", flexShrink: 0 }}>·</span>{f}
+                    </li>
+                  ))}
+                </ul>
+                <button onClick={() => { setShowPlansModal(false); showToast("Basic plan — coming soon."); }} style={{ marginTop: 22, padding: "10px", borderRadius: 9, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.05)", color: "#c4b8ff", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                  Get Basic
+                </button>
+              </div>
+
+              {/* PRO */}
+              <div style={{ padding: "36px 26px 32px", borderRadius: 20, background: "linear-gradient(155deg, rgba(118,80,255,0.2) 0%, rgba(148,70,245,0.14) 45%, rgba(220,70,175,0.09) 100%)", border: "1px solid rgba(148,85,247,0.5)", backdropFilter: "blur(20px)", display: "flex", flexDirection: "column", position: "relative", boxShadow: "0 28px 72px -8px rgba(108,72,252,0.4), inset 0 1px 0 rgba(255,255,255,0.08)" }}>
+                <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", padding: "3px 12px", borderRadius: 999, background: "linear-gradient(135deg, #7c5cfc, #c026d3)", fontSize: 9, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "white", whiteSpace: "nowrap", boxShadow: "0 4px 18px rgba(124,92,252,0.5)" }}>Best Value</div>
+                <div style={{ position: "absolute", top: 0, left: "15%", right: "15%", height: 1, background: "linear-gradient(90deg, transparent, rgba(192,132,252,0.8), transparent)" }} />
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#a78bff" }}>Pro</span>
+                  <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "rgba(124,92,252,0.18)", border: "1px solid rgba(168,85,247,0.3)", color: "#c4b8ff", fontWeight: 600 }}>Most Popular</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 2, marginBottom: 4 }}>
+                  <span style={{ fontFamily: "'Syne',sans-serif", fontSize: 44, fontWeight: 800, lineHeight: 1, letterSpacing: "-0.04em", background: "linear-gradient(135deg, #e0d7ff, #c084fc 60%, #f472b6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>$19</span>
+                  <span style={{ fontSize: 12, color: "#8885a8", marginLeft: 2 }}>/mo</span>
+                </div>
+                <p style={{ fontSize: 12, color: "#9d9abf", marginBottom: 18, marginTop: 4 }}>The complete creative setup.</p>
+                <div style={{ width: "100%", height: 1, background: "linear-gradient(90deg, transparent, rgba(148,85,247,0.3), transparent)", marginBottom: 18 }} />
+                <ul style={{ listStyle: "none", padding: 0, margin: "0 0 auto", display: "flex", flexDirection: "column", gap: 10 }}>
+                  {[["600 generations / month", true], ["All 10 AI models", true], ["Image-to-video included", true], ["Priority queue — no wait", true], ["Commercial license", true], ["Private gallery", false], ["Email support", false]].map(([f, h]) => (
+                    <li key={f as string} style={{ display: "flex", gap: 8, fontSize: 12.5, color: h ? "#e0d7ff" : "#b8b0e0", lineHeight: 1.4, fontWeight: h ? 500 : 400 }}>
+                      <span style={{ color: "#c084fc", flexShrink: 0 }}>✓</span>{f}
+                    </li>
+                  ))}
+                </ul>
+                <button onClick={() => { setShowPlansModal(false); showToast("Pro plan — coming soon."); }} style={{ marginTop: 24, padding: "13px", borderRadius: 11, border: "none", background: "linear-gradient(135deg, #7c3aed, #a855f7, #c026d3)", color: "white", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", boxShadow: "0 8px 28px rgba(124,92,252,0.5)" }}>
+                  Get Pro
+                </button>
+                <p style={{ textAlign: "center", marginTop: 8, fontSize: 11, color: "#5a527a" }}>No contract · Cancel anytime</p>
+              </div>
+
+              {/* ULTRA */}
+              <div style={{ padding: "28px 22px 26px", borderRadius: 18, background: "linear-gradient(160deg, rgba(20,16,36,0.9), rgba(14,12,26,0.95))", border: "1px solid rgba(255,255,255,0.09)", backdropFilter: "blur(12px)", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
+                <div style={{ position: "absolute", top: -30, right: -30, width: 100, height: 100, borderRadius: "50%", background: "rgba(251,191,36,0.05)", pointerEvents: "none" }} />
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#8b7a5a" }}>Ultra</span>
+                  <span style={{ fontSize: 9, padding: "2px 7px", borderRadius: 999, background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.18)", color: "#a89060", fontWeight: 600 }}>POWER</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 2, marginBottom: 4 }}>
+                  <span style={{ fontFamily: "'Syne',sans-serif", fontSize: 38, fontWeight: 800, color: "#d4c9a8", lineHeight: 1, letterSpacing: "-0.03em" }}>$49</span>
+                  <span style={{ fontSize: 12, color: "#6b5a3a", marginLeft: 2 }}>/mo</span>
+                </div>
+                <p style={{ fontSize: 12, color: "#6b5a3a", marginBottom: 18, marginTop: 4 }}>For power users and teams.</p>
+                <div style={{ width: "100%", height: 1, background: "rgba(251,191,36,0.08)", marginBottom: 18 }} />
+                <ul style={{ listStyle: "none", padding: 0, margin: "0 0 auto", display: "flex", flexDirection: "column", gap: 10 }}>
+                  {["2,000 generations / month", "Always-first queue", "4K video exports", "Full API access", "All models + early access", "Dedicated support"].map((f) => (
+                    <li key={f} style={{ display: "flex", gap: 8, fontSize: 12, color: "#8b7a5a", lineHeight: 1.4 }}>
+                      <span style={{ color: "#a89060", flexShrink: 0 }}>✓</span>{f}
+                    </li>
+                  ))}
+                </ul>
+                <button onClick={() => { setShowPlansModal(false); showToast("Ultra plan — coming soon."); }} style={{ marginTop: 22, padding: "10px", borderRadius: 9, border: "1px solid rgba(251,191,36,0.2)", background: "rgba(251,191,36,0.05)", color: "#a89060", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                  Go Ultra
+                </button>
+              </div>
+            </div>
+
+            {/* Trust row */}
+            <div style={{ display: "flex", justifyContent: "center", gap: 28, marginTop: 28, flexWrap: "wrap" }}>
+              {["No contracts — cancel anytime", "All paid plans include commercial license", "Upgrade or downgrade instantly"].map((t) => (
+                <span key={t} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11.5, color: "#3a3a52" }}>
+                  <span style={{ width: 3, height: 3, borderRadius: "50%", background: "#4a3a6a", display: "inline-block" }} />{t}
+                </span>
               ))}
-            </ul>
-            <div style={{ marginTop: 28 }}>
-              <Link href="/signup" style={{ display: "block", textAlign: "center", padding: "11px 20px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.07)", background: "transparent", color: "#4a4a62", fontSize: 13, fontWeight: 600, textDecoration: "none", letterSpacing: "-0.01em" }}>
-                Start Free
-              </Link>
-            </div>
-          </div>
-
-          {/* ── BASIC ── */}
-          <div style={{ padding: "36px 28px 32px", borderRadius: 20, background: "rgba(15,15,26,0.75)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)", display: "flex", flexDirection: "column" }}>
-            <div style={{ marginBottom: 28 }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#6b6b8a" }}>Basic</span>
-              </div>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 3, marginBottom: 6 }}>
-                <span style={{ fontFamily: "'Syne', sans-serif", fontSize: 42, fontWeight: 800, color: "#c4b8ff", lineHeight: 1, letterSpacing: "-0.03em" }}>$9</span>
-                <span style={{ fontSize: 15, color: "#6b6b8a", fontWeight: 600 }}>.99</span>
-                <span style={{ fontSize: 13, color: "#4a4a62", marginLeft: 2 }}>/mo</span>
-              </div>
-              <p style={{ fontSize: 13, color: "#6b6b8a", lineHeight: 1.5, marginTop: 6 }}>For consistent creators.</p>
-            </div>
-            <div style={{ width: "100%", height: 1, background: "rgba(255,255,255,0.06)", marginBottom: 24 }} />
-            <ul style={{ listStyle: "none", padding: 0, margin: "0 0 auto", display: "flex", flexDirection: "column", gap: 12 }}>
-              {[
-                "150 generations / month",
-                "5 AI models unlocked",
-                "Standard speed",
-                "Clean, watermark-free exports",
-                "Session history",
-                "Personal use license",
-              ].map((f) => (
-                <li key={f} style={{ display: "flex", alignItems: "flex-start", gap: 10, fontSize: 13, color: "#9d9abf", lineHeight: 1.4 }}>
-                  <span style={{ width: 16, height: 16, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.04)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
-                    <span style={{ width: 4, height: 4, borderRadius: "50%", background: "#5a5a7a", display: "block" }} />
-                  </span>
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <div style={{ marginTop: 28 }}>
-              <button
-                style={{ width: "100%", padding: "11px 20px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.05)", color: "#c4b8ff", fontSize: 13, fontWeight: 600, cursor: "pointer", letterSpacing: "-0.01em", transition: "all 0.18s", fontFamily: "inherit" }}
-                onClick={() => showToast("Basic plan — coming soon.")}
-                onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.09)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.18)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"; }}
-              >
-                Get Basic
-              </button>
-            </div>
-          </div>
-
-          {/* ── PRO ── (dominant) */}
-          <div style={{ padding: "44px 32px 38px", borderRadius: 22, background: "linear-gradient(155deg, rgba(118,80,255,0.2) 0%, rgba(148,70,245,0.14) 45%, rgba(220,70,175,0.09) 100%)", border: "1px solid rgba(148,85,247,0.48)", backdropFilter: "blur(20px)", display: "flex", flexDirection: "column", position: "relative", zIndex: 2, boxShadow: "0 0 0 1px rgba(168,85,247,0.12), 0 28px 72px -8px rgba(108,72,252,0.38), inset 0 1px 0 rgba(255,255,255,0.08)" }}>
-
-            {/* Best Value badge */}
-            <div style={{ position: "absolute", top: -13, left: "50%", transform: "translateX(-50%)", padding: "4px 14px", borderRadius: 999, background: "linear-gradient(135deg, #7c5cfc 0%, #c026d3 100%)", fontSize: 10, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "white", whiteSpace: "nowrap", boxShadow: "0 4px 18px rgba(124,92,252,0.55)" }}>
-              Best Value
-            </div>
-
-            {/* Top glow line */}
-            <div style={{ position: "absolute", top: 0, left: "15%", right: "15%", height: 1, background: "linear-gradient(90deg, transparent, rgba(192,132,252,0.8), transparent)", borderRadius: 1 }} />
-
-            <div style={{ marginBottom: 30 }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#a78bff" }}>Pro</span>
-                <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 999, background: "rgba(124,92,252,0.18)", border: "1px solid rgba(168,85,247,0.3)", color: "#c4b8ff", fontWeight: 600 }}>Most Popular</span>
-              </div>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 3, marginBottom: 6 }}>
-                <span style={{ fontFamily: "'Syne', sans-serif", fontSize: 48, fontWeight: 800, lineHeight: 1, letterSpacing: "-0.04em", background: "linear-gradient(135deg, #e0d7ff 0%, #c084fc 60%, #f472b6 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>$19</span>
-                <span style={{ fontSize: 13, color: "#8885a8", marginLeft: 2 }}>/mo</span>
-              </div>
-              <p style={{ fontSize: 13, color: "#9d9abf", lineHeight: 1.5, marginTop: 7 }}>The complete creative setup.</p>
-            </div>
-
-            <div style={{ width: "100%", height: 1, background: "linear-gradient(90deg, transparent, rgba(148,85,247,0.3), transparent)", marginBottom: 26 }} />
-
-            <ul style={{ listStyle: "none", padding: 0, margin: "0 0 auto", display: "flex", flexDirection: "column", gap: 13 }}>
-              {[
-                ["600 generations / month",  true],
-                ["All 10 AI models",          true],
-                ["Image-to-video included",   true],
-                ["Priority queue — no wait",  true],
-                ["Commercial license",        true],
-                ["Private gallery",           false],
-                ["Email support",             false],
-              ].map(([f, highlight]) => (
-                <li key={f as string} style={{ display: "flex", alignItems: "flex-start", gap: 11, fontSize: 13.5, color: highlight ? "#e0d7ff" : "#b8b0e0", lineHeight: 1.4, fontWeight: highlight ? 500 : 400 }}>
-                  <span style={{ width: 17, height: 17, borderRadius: "50%", background: "rgba(148,85,247,0.22)", border: "1px solid rgba(192,132,252,0.45)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 2 }}>
-                    <span style={{ color: "#c084fc", fontSize: 10, lineHeight: 1 }}>✓</span>
-                  </span>
-                  {f}
-                </li>
-              ))}
-            </ul>
-
-            <div style={{ marginTop: 32 }}>
-              <button
-                style={{ width: "100%", padding: "14px 24px", borderRadius: 12, border: "none", background: "linear-gradient(135deg, #7c3aed 0%, #a855f7 55%, #c026d3 100%)", color: "white", fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: "-0.01em", boxShadow: "0 8px 28px rgba(124,92,252,0.5), inset 0 1px 0 rgba(255,255,255,0.15)", transition: "all 0.2s", fontFamily: "inherit" }}
-                onClick={() => showToast("Pro plan — coming soon.")}
-                onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 14px 40px rgba(124,92,252,0.68), inset 0 1px 0 rgba(255,255,255,0.15)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 8px 28px rgba(124,92,252,0.5), inset 0 1px 0 rgba(255,255,255,0.15)"; e.currentTarget.style.transform = "translateY(0)"; }}
-              >
-                Get Pro
-              </button>
-              <p style={{ textAlign: "center", marginTop: 12, fontSize: 11.5, color: "#5a527a" }}>No contract · Cancel anytime</p>
-            </div>
-          </div>
-
-          {/* ── ULTRA ── */}
-          <div style={{ padding: "36px 28px 32px", borderRadius: 20, background: "linear-gradient(160deg, rgba(20,16,36,0.9) 0%, rgba(14,12,26,0.95) 100%)", border: "1px solid rgba(255,255,255,0.09)", backdropFilter: "blur(12px)", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
-            {/* Subtle corner glow */}
-            <div style={{ position: "absolute", top: -40, right: -40, width: 120, height: 120, borderRadius: "50%", background: "rgba(251,191,36,0.05)", pointerEvents: "none" }} />
-
-            <div style={{ marginBottom: 28 }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#8b7a5a" }}>Ultra</span>
-                <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 999, background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.18)", color: "#a89060", fontWeight: 600, letterSpacing: "0.05em" }}>POWER</span>
-              </div>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 3, marginBottom: 6 }}>
-                <span style={{ fontFamily: "'Syne', sans-serif", fontSize: 42, fontWeight: 800, color: "#d4c9a8", lineHeight: 1, letterSpacing: "-0.03em" }}>$49</span>
-                <span style={{ fontSize: 13, color: "#6b5a3a", marginLeft: 2 }}>/mo</span>
-              </div>
-              <p style={{ fontSize: 13, color: "#6b5a3a", lineHeight: 1.5, marginTop: 6 }}>For power users and teams.</p>
-            </div>
-            <div style={{ width: "100%", height: 1, background: "rgba(251,191,36,0.08)", marginBottom: 24 }} />
-            <ul style={{ listStyle: "none", padding: 0, margin: "0 0 auto", display: "flex", flexDirection: "column", gap: 12 }}>
-              {[
-                "2,000 generations / month",
-                "Always-first queue",
-                "4K video exports",
-                "Full API access",
-                "All models + early access",
-                "Dedicated support",
-              ].map((f) => (
-                <li key={f} style={{ display: "flex", alignItems: "flex-start", gap: 10, fontSize: 13, color: "#8b7a5a", lineHeight: 1.4 }}>
-                  <span style={{ width: 16, height: 16, borderRadius: "50%", border: "1px solid rgba(251,191,36,0.15)", background: "rgba(251,191,36,0.04)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
-                    <span style={{ color: "#a89060", fontSize: 9, lineHeight: 1 }}>✓</span>
-                  </span>
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <div style={{ marginTop: 28 }}>
-              <button
-                style={{ width: "100%", padding: "11px 20px", borderRadius: 10, border: "1px solid rgba(251,191,36,0.18)", background: "rgba(251,191,36,0.04)", color: "#a89060", fontSize: 13, fontWeight: 600, cursor: "pointer", letterSpacing: "-0.01em", transition: "all 0.18s", fontFamily: "inherit" }}
-                onClick={() => showToast("Ultra plan — coming soon.")}
-                onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(251,191,36,0.09)"; e.currentTarget.style.borderColor = "rgba(251,191,36,0.3)"; e.currentTarget.style.color = "#c4a96a"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(251,191,36,0.04)"; e.currentTarget.style.borderColor = "rgba(251,191,36,0.18)"; e.currentTarget.style.color = "#a89060"; }}
-              >
-                Go Ultra
-              </button>
             </div>
           </div>
         </div>
-
-        {/* Bottom trust row */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 32, marginTop: 44, flexWrap: "wrap" }}>
-          {[
-            "No contracts — cancel anytime",
-            "All paid plans include commercial license",
-            "Upgrade or downgrade instantly",
-          ].map((t) => (
-            <span key={t} style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12.5, color: "#3a3a52" }}>
-              <span style={{ width: 4, height: 4, borderRadius: "50%", background: "#4a3a6a", flexShrink: 0, display: "inline-block" }} />
-              {t}
-            </span>
-          ))}
-        </div>
-      </section>
+      )}
 
       {/* ── Credits ── */}
       <section id="credits" style={{ maxWidth: 980, margin: "0 auto", padding: "110px 24px 90px", position: "relative", zIndex: 1 }}>
