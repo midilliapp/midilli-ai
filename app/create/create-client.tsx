@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import AuthGateModal from "@/app/components/AuthGateModal";
+import UpgradeModal from "@/app/components/UpgradeModal";
 
 const MODELS = [
   { id: "fal-ai/flux/schnell",    name: "Flux Schnell",  speed: "~3s",  tier: "free" },
@@ -72,6 +73,7 @@ export default function CreateClient() {
   const [credits, setCredits] = useState<number | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [showAuthGate, setShowAuthGate] = useState(false);
+  const [showUpgrade, setShowUpgrade] = useState(false);
 
   // Video states
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -511,9 +513,15 @@ export default function CreateClient() {
 
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           {userId ? (
-            <span style={{ fontSize: 12, color: tab === "video" ? "#38bdf8" : "#a78bfa", fontWeight: 600 }}>
-              {credits === null ? "…" : credits} credits
-            </span>
+            <button
+              onClick={() => setShowUpgrade(true)}
+              title="Upgrade or buy credits"
+              style={{ fontSize: 12, padding: "5px 12px", borderRadius: 999, border: `1px solid ${tab === "video" ? "rgba(0,212,255,0.25)" : "rgba(168,85,247,0.3)"}`, background: tab === "video" ? "rgba(0,212,255,0.08)" : "rgba(124,92,252,0.1)", color: tab === "video" ? "#38bdf8" : "#a78bfa", cursor: "pointer", fontFamily: "inherit", fontWeight: 600, transition: "all 0.15s", display: "flex", alignItems: "center", gap: 5 }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = tab === "video" ? "rgba(0,212,255,0.15)" : "rgba(124,92,252,0.2)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = tab === "video" ? "rgba(0,212,255,0.08)" : "rgba(124,92,252,0.1)"; }}
+            >
+              ⚡ {credits === null ? "…" : credits} credits
+            </button>
           ) : (
             <button
               onClick={() => setShowAuthGate(true)}
@@ -967,6 +975,11 @@ export default function CreateClient() {
           <span style={{ marginLeft: "auto", fontSize: 11, color: "#2a2a3a" }}>Enter ↵ to generate</span>
         </div>
       </div>
+
+      {/* ── Upgrade Modal ── */}
+      {showUpgrade && (
+        <UpgradeModal onClose={() => setShowUpgrade(false)} onToast={showToast} />
+      )}
 
       {/* ── Auth Gate Modal ── */}
       {showAuthGate && (
