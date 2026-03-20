@@ -6,13 +6,18 @@ import { useEffect, useState } from "react";
 
 import { supabase } from "@/lib/supabase";
 import ChatWidget from "./components/ChatWidget";
+import GalleryModal from "./components/GalleryModal";
 
-const galleryItems = [
-  ["Moonlight concept", "@cosmic_art", "linear-gradient(135deg,#1a0a2e,#3d1173,#7c5cfc)"],
-  ["Neon skyline", "@neon_dreams", "linear-gradient(135deg,#0a1a2e,#0d4a7a,#38d9f5)"],
-  ["Bio forest", "@nature_ai", "linear-gradient(135deg,#0d2010,#1a6b2e,#4cebb8)"],
-  ["Dragon forge", "@fantasy_world", "linear-gradient(135deg,#2e0a0a,#7a1a1a,#fc5c5c)"],
-] as const;
+type GalleryPost = {
+  id: string;
+  image_url: string;
+  prompt: string | null;
+  username: string;
+  model: string | null;
+  created_at: string;
+  likes_count: number;
+};
+
 
 type CreditPack = {
   credits: number;
@@ -72,6 +77,14 @@ export default function HomePageClient() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [sliderPaused, setSliderPaused] = useState(false);
 
+  // Community gallery
+  const [galleryPosts, setGalleryPosts] = useState<GalleryPost[]>([]);
+  const [galleryLoading, setGalleryLoading] = useState(true);
+  const [galleryModalPost, setGalleryModalPost] = useState<GalleryPost | null>(null);
+  const [communityUsername, setCommunityUsername] = useState<string | null>(null);
+  const [communityUsernameModal, setCommunityUsernameModal] = useState<{ cb: (n: string) => void } | null>(null);
+  const [communityUsernameInput, setCommunityUsernameInput] = useState("");
+
   useEffect(() => {
     const loadSession = async () => {
       const {
@@ -108,6 +121,73 @@ export default function HomePageClient() {
       subscription.unsubscribe();
     };
   }, []);
+
+  // Load community gallery posts
+  useEffect(() => {
+    fetch("/api/gallery")
+      .then((r) => r.json())
+      .then((d) => { if (d.posts) setGalleryPosts(d.posts as GalleryPost[]); })
+      .finally(() => setGalleryLoading(false));
+  }, []);
+
+  // Load stored community username
+  useEffect(() => {
+    const stored = localStorage.getItem("midilli_username");
+    if (stored) setCommunityUsername(stored);
+  }, []);
+
+  const askCommunityUsername = (cb: (n: string) => void) => {
+    const stored = localStorage.getItem("midilli_username");
+    if (stored) { cb(stored); return; }
+    setCommunityUsernameInput("");
+    setCommunityUsernameModal({ cb });
+  };
+
+  const confirmCommunityUsername = () => {
+    const name = communityUsernameInput.trim();
+    if (!name) return;
+    localStorage.setItem("midilli_username", name);
+    setCommunityUsername(name);
+    const cb = communityUsernameModal?.cb;
+    setCommunityUsernameModal(null);
+    if (cb) cb(name);
+  };
+
+  const handleGalleryLike = (post: GalleryPost) => {
+    askCommunityUsername((username) => {
+      // Optimistic
+      setGalleryPosts((prev) =>
+        prev.map((p) =>
+          p.id === post.id
+            ? { ...p, likes_count: p.likes_count + 1 }
+            : p
+        )
+      );
+      fetch(`/api/gallery/${post.id}/like`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username }),
+      })
+        .then((r) => r.json())
+        .then((d) => {
+          if (d.likes_count !== undefined) {
+            setGalleryPosts((prev) =>
+              prev.map((p) =>
+                p.id === post.id ? { ...p, likes_count: d.likes_count as number } : p
+              )
+            );
+          }
+        })
+        .catch(() => {
+          // revert
+          setGalleryPosts((prev) =>
+            prev.map((p) =>
+              p.id === post.id ? { ...p, likes_count: p.likes_count - 1 } : p
+            )
+          );
+        });
+    });
+  };
 
   const demoExamples = [
     {
@@ -1456,32 +1536,155 @@ export default function HomePageClient() {
         </div>
       </section>
 
-      {/* ── Gallery ── */}
-      <section id="gallery" style={{ maxWidth: 1100, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1 }}>
-        <SectionHead label="Community" title="Made with MIDILLI" sub="Real outputs from real creators. Every image was generated in under 10 seconds." />
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 16, marginTop: 42 }}>
-          {galleryItems.map(([label, user, background]) => (
-            <div
-              key={label}
-              className="card-hover"
-              style={{ borderRadius: 20, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)" }}
-            >
-              <div style={{
-                minHeight: 260, display: "flex", alignItems: "center", justifyContent: "center",
-                flexDirection: "column", gap: 10, background, position: "relative",
-              }}>
-                <div style={{ fontSize: 12, letterSpacing: 3, textTransform: "uppercase", color: "rgba(255,255,255,0.55)" }}>
-                  Showcase
+      {/* ── Community Gallery ── */}
+      <section id="gallery" style={{ maxWidth: 1140, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1 }}>
+        <SectionHead label="Community" title="Made with MIDILLI" sub="Real images shared by creators. Like, comment, and get inspired." />
+
+        {/* Loading */}
+        {galleryLoading && (
+          <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 60 }}>
+            {[0, 1, 2].map((i) => (
+              <div key={i} style={{ width: 8, height: 8, borderRadius: "50%", background: "#a78bff", opacity: 0.4, animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite` }} />
+            ))}
+          </div>
+        )}
+
+        {/* Empty state */}
+        {!galleryLoading && galleryPosts.length === 0 && (
+          <div style={{ textAlign: "center", padding: "60px 24px", color: "#3a3a52" }}>
+            <div style={{ fontSize: 48, marginBottom: 16, opacity: 0.3 }}>✦</div>
+            <p style={{ fontSize: 15, color: "#3a3a52" }}>No community images yet.</p>
+            <p style={{ fontSize: 13, color: "#2a2a3a", marginTop: 6 }}>Generate an image in the studio and hit <strong style={{ color: "#7c5cfc" }}>Share</strong>!</p>
+          </div>
+        )}
+
+        {/* Grid */}
+        {!galleryLoading && galleryPosts.length > 0 && (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 16, marginTop: 42 }}>
+            {galleryPosts.map((post) => (
+              <div
+                key={post.id}
+                className="card-hover"
+                style={{ borderRadius: 18, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", background: "#0d0d18", cursor: "pointer", position: "relative" }}
+              >
+                {/* Image */}
+                <div
+                  onClick={() => setGalleryModalPost(post)}
+                  style={{ position: "relative", paddingBottom: "100%", overflow: "hidden", background: "#080812" }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={post.image_url}
+                    alt={post.prompt ?? "Community image"}
+                    style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.3s ease" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.04)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; }}
+                  />
+                  {/* Hover overlay */}
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(transparent 50%, rgba(0,0,0,0.7) 100%)", opacity: 0, transition: "opacity 0.2s" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.opacity = "0"; }}
+                  />
+                  {/* Comment badge */}
+                  <div style={{ position: "absolute", top: 10, right: 10, padding: "3px 9px", borderRadius: 999, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)", fontSize: 11, color: "rgba(255,255,255,0.6)", display: "flex", alignItems: "center", gap: 4 }}>
+                    💬 Comment
+                  </div>
                 </div>
-                <div style={{ fontSize: 22, fontWeight: 700 }}>{label}</div>
+
+                {/* Footer */}
+                <div style={{ padding: "12px 14px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+                    <div style={{
+                      width: 26, height: 26, borderRadius: "50%", flexShrink: 0,
+                      background: `hsl(${post.username.charCodeAt(0) * 13 % 360}, 50%, 38%)`,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      fontSize: 11, fontWeight: 700, color: "white",
+                    }}>
+                      {post.username[0].toUpperCase()}
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: "#c4b8ff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{post.username}</div>
+                      {post.prompt && (
+                        <div style={{ fontSize: 11, color: "#4a4a62", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 120 }}>{post.prompt}</div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Like button */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleGalleryLike(post); }}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 5,
+                      padding: "5px 10px", borderRadius: 999,
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      background: "rgba(255,255,255,0.04)",
+                      color: "#6b7280", fontSize: 12, cursor: "pointer",
+                      transition: "all 0.15s", fontFamily: "inherit", flexShrink: 0,
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(239,68,68,0.35)"; e.currentTarget.style.color = "#f87171"; e.currentTarget.style.background = "rgba(239,68,68,0.08)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "#6b7280"; e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
+                  >
+                    🤍 <span style={{ fontWeight: 600 }}>{post.likes_count}</span>
+                  </button>
+                </div>
               </div>
-              <div style={{ padding: "14px 16px", background: "rgba(15,15,26,0.95)" }}>
-                <div style={{ color: "#8885a8", fontSize: 13 }}>{user}</div>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
+
+        {/* CTA */}
+        {!galleryLoading && (
+          <div style={{ textAlign: "center", marginTop: 40 }}>
+            <Link href="/create" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "11px 24px", borderRadius: 999, border: "1px solid rgba(124,92,252,0.3)", background: "rgba(124,92,252,0.08)", color: "#a78bff", fontSize: 13, fontWeight: 600, textDecoration: "none", transition: "all 0.2s" }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(124,92,252,0.16)"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(124,92,252,0.08)"; }}
+            >
+              ✦ Create & Share Your Own
+            </Link>
+          </div>
+        )}
       </section>
+
+      {/* Gallery Modal */}
+      {galleryModalPost && (
+        <GalleryModal
+          post={galleryModalPost}
+          currentUsername={communityUsername}
+          onClose={() => setGalleryModalPost(null)}
+          onAskUsername={askCommunityUsername}
+        />
+      )}
+
+      {/* Community username modal */}
+      {communityUsernameModal && (
+        <div
+          onClick={(e) => { if (e.target === e.currentTarget) setCommunityUsernameModal(null); }}
+          style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.75)", backdropFilter: "blur(10px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
+        >
+          <div style={{ background: "#13131f", border: "1px solid rgba(168,85,247,0.3)", borderRadius: 20, padding: "32px 28px", width: "100%", maxWidth: 360, boxShadow: "0 24px 80px rgba(0,0,0,0.7)" }}>
+            <div style={{ textAlign: "center", marginBottom: 24 }}>
+              <div style={{ fontSize: 28, marginBottom: 10 }}>✦</div>
+              <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 18, fontWeight: 700, color: "#e2d9ff", marginBottom: 6 }}>Choose a display name</div>
+              <p style={{ fontSize: 13, color: "#6b6b8a", lineHeight: 1.6 }}>This will appear on your likes and comments.</p>
+            </div>
+            <input
+              autoFocus
+              value={communityUsernameInput}
+              onChange={(e) => setCommunityUsernameInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") confirmCommunityUsername(); if (e.key === "Escape") setCommunityUsernameModal(null); }}
+              placeholder="e.g. creative_fox"
+              maxLength={30}
+              style={{ width: "100%", padding: "11px 14px", borderRadius: 10, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(168,85,247,0.3)", color: "white", fontSize: 14, outline: "none", fontFamily: "inherit", marginBottom: 14 }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(168,85,247,0.6)"; }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(168,85,247,0.3)"; }}
+            />
+            <div style={{ display: "flex", gap: 8 }}>
+              <button onClick={() => setCommunityUsernameModal(null)} style={{ flex: 1, padding: "11px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "#6b7280", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>Cancel</button>
+              <button onClick={confirmCommunityUsername} disabled={!communityUsernameInput.trim()} style={{ flex: 2, padding: "11px", borderRadius: 10, border: "none", background: "linear-gradient(135deg, #7c3aed, #a855f7)", color: "white", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", opacity: communityUsernameInput.trim() ? 1 : 0.4, transition: "opacity 0.15s" }}>Continue</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Pricing ── */}
       <section id="pricing" style={{ maxWidth: 1200, margin: "0 auto", padding: "130px 24px 0", position: "relative", zIndex: 1 }}>

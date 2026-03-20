@@ -80,6 +80,11 @@ export default function CreateClient() {
   const [videoLoading, setVideoLoading] = useState(false);
   const [videoError, setVideoError] = useState<string | null>(null);
 
+  // Share states
+  const [shareLoading, setShareLoading] = useState(false);
+  const [usernameModal, setUsernameModal] = useState<{ cb: (name: string) => void } | null>(null);
+  const [usernameInput, setUsernameInput] = useState("");
+
   // Popup states
   const [openPopup, setOpenPopup] = useState<"model" | "ratio" | "duration" | "resolution" | "videoModel" | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -273,6 +278,39 @@ export default function CreateClient() {
       document.body.removeChild(a);
       URL.revokeObjectURL(blobUrl);
     } catch { window.open(url, "_blank"); }
+  };
+
+  const getOrAskUsername = (cb: (name: string) => void) => {
+    const stored = typeof window !== "undefined" ? localStorage.getItem("midilli_username") : null;
+    if (stored) { cb(stored); return; }
+    setUsernameInput("");
+    setUsernameModal({ cb });
+  };
+
+  const confirmUsername = () => {
+    const name = usernameInput.trim();
+    if (!name) return;
+    localStorage.setItem("midilli_username", name);
+    const cb = usernameModal?.cb;
+    setUsernameModal(null);
+    if (cb) cb(name);
+  };
+
+  const shareImage = async (url: string) => {
+    getOrAskUsername(async (username) => {
+      setShareLoading(true);
+      try {
+        const res = await fetch("/api/gallery", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image_url: url, prompt: prompt.trim(), username, model: selectedModel }),
+        });
+        const data = await res.json();
+        if (data.post) showToast("✦ Shared to community gallery!");
+        else showToast(data.error ?? "Share failed.");
+      } catch { showToast("Network error."); }
+      finally { setShareLoading(false); }
+    });
   };
 
   const downloadImage = async (url: string) => {
@@ -623,8 +661,13 @@ export default function CreateClient() {
               <div style={{ zIndex: 1, animation: "fadeIn 0.4s ease", display: "flex", flexDirection: "column", alignItems: "center", gap: 16, maxHeight: "calc(100vh - 180px)", padding: "20px 20px 0" }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={imageResult} alt="Generated" style={{ maxWidth: "100%", maxHeight: "calc(100vh - 260px)", borderRadius: 16, boxShadow: "0 24px 80px rgba(0,0,0,0.7)", display: "block", objectFit: "contain" }} />
-                <div style={{ display: "flex", gap: 8 }}>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
                   <button onClick={() => void downloadImage(imageResult)} style={{ padding: "9px 20px", borderRadius: 999, background: "linear-gradient(135deg, #7c3aed, #a855f7)", border: "none", color: "white", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>↓ Download</button>
+                  <button
+                    onClick={() => void shareImage(imageResult)}
+                    disabled={shareLoading}
+                    style={{ padding: "9px 20px", borderRadius: 999, background: "rgba(124,92,252,0.15)", border: "1px solid rgba(168,85,247,0.4)", color: "#c4b8ff", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", opacity: shareLoading ? 0.5 : 1, transition: "opacity 0.15s" }}
+                  >{shareLoading ? "Sharing…" : "✦ Share"}</button>
                   <button onClick={() => void generateImage()} style={{ padding: "9px 20px", borderRadius: 999, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", color: "#c4b8ff", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>↻ Regenerate</button>
                   <button onClick={() => { setImageResult(null); setPrompt(""); setError(null); }} style={{ padding: "9px 20px", borderRadius: 999, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "#6b7280", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>+ New</button>
                 </div>
@@ -884,6 +927,44 @@ export default function CreateClient() {
           <span style={{ marginLeft: "auto", fontSize: 11, color: "#2a2a3a" }}>Enter ↵ to generate</span>
         </div>
       </div>
+
+      {/* ── Username modal (for Share / Like / Comment) ── */}
+      {usernameModal && (
+        <div
+          onClick={(e) => { if (e.target === e.currentTarget) setUsernameModal(null); }}
+          style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
+        >
+          <div style={{ background: "#13131f", border: "1px solid rgba(168,85,247,0.3)", borderRadius: 20, padding: "32px 28px", width: "100%", maxWidth: 360, boxShadow: "0 24px 80px rgba(0,0,0,0.7)" }}>
+            <div style={{ textAlign: "center", marginBottom: 24 }}>
+              <div style={{ fontSize: 28, marginBottom: 10 }}>✦</div>
+              <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 18, fontWeight: 700, color: "#e2d9ff", marginBottom: 6 }}>Choose a display name</div>
+              <p style={{ fontSize: 13, color: "#6b6b8a", lineHeight: 1.6 }}>This will appear on your shared images and comments.</p>
+            </div>
+            <input
+              autoFocus
+              value={usernameInput}
+              onChange={(e) => setUsernameInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") confirmUsername(); if (e.key === "Escape") setUsernameModal(null); }}
+              placeholder="e.g. creative_fox"
+              maxLength={30}
+              style={{ width: "100%", padding: "11px 14px", borderRadius: 10, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(168,85,247,0.3)", color: "white", fontSize: 14, outline: "none", fontFamily: "inherit", marginBottom: 14 }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(168,85,247,0.6)"; }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(168,85,247,0.3)"; }}
+            />
+            <div style={{ display: "flex", gap: 8 }}>
+              <button
+                onClick={() => setUsernameModal(null)}
+                style={{ flex: 1, padding: "11px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "#6b7280", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}
+              >Cancel</button>
+              <button
+                onClick={confirmUsername}
+                disabled={!usernameInput.trim()}
+                style={{ flex: 2, padding: "11px", borderRadius: 10, border: "none", background: "linear-gradient(135deg, #7c3aed, #a855f7)", color: "white", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", opacity: usernameInput.trim() ? 1 : 0.4, transition: "opacity 0.15s" }}
+              >Continue</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
