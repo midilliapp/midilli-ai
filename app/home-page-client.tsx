@@ -1701,6 +1701,35 @@ export default function HomePageClient() {
             @keyframes plansFadeIn { from { opacity:0; } to { opacity:1; } }
             .plans-modal-inner { animation: plansSlideUp 0.38s cubic-bezier(0.22,1,0.36,1) both; }
             .plans-backdrop    { animation: plansFadeIn  0.25s ease both; }
+
+            .hp-plan-card {
+              transition: transform 0.35s cubic-bezier(0.22,1,0.36,1),
+                          border-color 0.4s ease, box-shadow 0.4s ease;
+              overflow: hidden;
+            }
+            .hp-plan-card::before {
+              content: '';
+              position: absolute; inset: 0;
+              border-radius: inherit;
+              opacity: 0;
+              pointer-events: none;
+              transition: opacity 0.55s ease, transform 0.75s cubic-bezier(0.22,1,0.36,1);
+              transform: translateY(55%);
+            }
+            .hp-plan-card:hover { transform: translateY(-3px) scale(1.012); }
+            .hp-plan-card:hover::before { opacity: 1; transform: translateY(0%); }
+
+            .hp-plan-free::before  { background: radial-gradient(ellipse 70% 45% at 50% 100%, rgba(110,110,170,0.14) 0%, transparent 70%); }
+            .hp-plan-free:hover    { border-color: rgba(130,130,190,0.2) !important; box-shadow: 0 4px 20px -4px rgba(100,100,160,0.12); }
+
+            .hp-plan-basic::before { background: radial-gradient(ellipse 70% 50% at 50% 100%, rgba(168,85,247,0.18) 0%, transparent 72%); }
+            .hp-plan-basic:hover   { border-color: rgba(168,85,247,0.32) !important; box-shadow: 0 4px 24px -4px rgba(124,92,252,0.18); }
+
+            .hp-plan-pro::before   { background: radial-gradient(ellipse 75% 55% at 50% 100%, rgba(192,100,255,0.32) 0%, rgba(168,85,247,0.10) 55%, transparent 75%); }
+            .hp-plan-pro:hover     { border-color: rgba(192,132,252,0.6) !important; box-shadow: 0 20px 60px -8px rgba(108,72,252,0.35), 0 0 28px -2px rgba(168,85,247,0.35), inset 0 1px 0 rgba(255,255,255,0.10); }
+
+            .hp-plan-ultra::before { background: radial-gradient(ellipse 68% 45% at 50% 100%, rgba(251,191,36,0.16) 0%, transparent 70%); }
+            .hp-plan-ultra:hover   { border-color: rgba(251,191,36,0.28) !important; box-shadow: 0 4px 24px -4px rgba(180,130,20,0.15); }
           `}</style>
 
           <div className="plans-modal-inner" style={{ width: "100%", maxWidth: 1060, position: "relative" }}>
@@ -1722,7 +1751,7 @@ export default function HomePageClient() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1.08fr 1fr", gap: 12, alignItems: "end" }}>
 
               {/* FREE */}
-              <div style={{ padding: "28px 22px 26px", borderRadius: 18, background: "rgba(12,12,20,0.8)", border: "1px solid rgba(255,255,255,0.06)", backdropFilter: "blur(12px)", display: "flex", flexDirection: "column" }}>
+              <div className="hp-plan-card hp-plan-free" style={{ padding: "28px 22px 26px", borderRadius: 18, background: "rgba(12,12,20,0.8)", border: "1px solid rgba(255,255,255,0.06)", backdropFilter: "blur(12px)", display: "flex", flexDirection: "column", position: "relative" }}>
                 <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#3d3d55", marginBottom: 14, display: "block" }}>Free</span>
                 <div style={{ display: "flex", alignItems: "baseline", gap: 2, marginBottom: 4 }}>
                   <span style={{ fontFamily: "'Syne',sans-serif", fontSize: 38, fontWeight: 800, color: "#4a4a62", lineHeight: 1, letterSpacing: "-0.03em" }}>$0</span>
@@ -1742,7 +1771,7 @@ export default function HomePageClient() {
               </div>
 
               {/* BASIC */}
-              <div style={{ padding: "28px 22px 26px", borderRadius: 18, background: "rgba(15,15,26,0.85)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)", display: "flex", flexDirection: "column" }}>
+              <div className="hp-plan-card hp-plan-basic" style={{ padding: "28px 22px 26px", borderRadius: 18, background: "rgba(15,15,26,0.85)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)", display: "flex", flexDirection: "column", position: "relative" }}>
                 <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#6b6b8a", marginBottom: 14, display: "block" }}>Basic</span>
                 <div style={{ display: "flex", alignItems: "baseline", gap: 2, marginBottom: 4 }}>
                   <span style={{ fontFamily: "'Syne',sans-serif", fontSize: 38, fontWeight: 800, color: "#c4b8ff", lineHeight: 1, letterSpacing: "-0.03em" }}>$9</span>
@@ -1764,7 +1793,7 @@ export default function HomePageClient() {
               </div>
 
               {/* PRO */}
-              <div style={{ padding: "36px 26px 32px", borderRadius: 20, background: "linear-gradient(155deg, rgba(118,80,255,0.2) 0%, rgba(148,70,245,0.14) 45%, rgba(220,70,175,0.09) 100%)", border: "1px solid rgba(148,85,247,0.5)", backdropFilter: "blur(20px)", display: "flex", flexDirection: "column", position: "relative", boxShadow: "0 28px 72px -8px rgba(108,72,252,0.4), inset 0 1px 0 rgba(255,255,255,0.08)" }}>
+              <div className="hp-plan-card hp-plan-pro" style={{ padding: "36px 26px 32px", borderRadius: 20, background: "linear-gradient(155deg, rgba(118,80,255,0.2) 0%, rgba(148,70,245,0.14) 45%, rgba(220,70,175,0.09) 100%)", border: "1px solid rgba(148,85,247,0.5)", backdropFilter: "blur(20px)", display: "flex", flexDirection: "column", position: "relative", boxShadow: "0 28px 72px -8px rgba(108,72,252,0.4), inset 0 1px 0 rgba(255,255,255,0.08)" }}>
                 <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", padding: "3px 12px", borderRadius: 999, background: "linear-gradient(135deg, #7c5cfc, #c026d3)", fontSize: 9, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "white", whiteSpace: "nowrap", boxShadow: "0 4px 18px rgba(124,92,252,0.5)" }}>Best Value</div>
                 <div style={{ position: "absolute", top: 0, left: "15%", right: "15%", height: 1, background: "linear-gradient(90deg, transparent, rgba(192,132,252,0.8), transparent)" }} />
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
@@ -1791,7 +1820,7 @@ export default function HomePageClient() {
               </div>
 
               {/* ULTRA */}
-              <div style={{ padding: "28px 22px 26px", borderRadius: 18, background: "linear-gradient(160deg, rgba(20,16,36,0.9), rgba(14,12,26,0.95))", border: "1px solid rgba(255,255,255,0.09)", backdropFilter: "blur(12px)", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
+              <div className="hp-plan-card hp-plan-ultra" style={{ padding: "28px 22px 26px", borderRadius: 18, background: "linear-gradient(160deg, rgba(20,16,36,0.9), rgba(14,12,26,0.95))", border: "1px solid rgba(255,255,255,0.09)", backdropFilter: "blur(12px)", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
                 <div style={{ position: "absolute", top: -30, right: -30, width: 100, height: 100, borderRadius: "50%", background: "rgba(251,191,36,0.05)", pointerEvents: "none" }} />
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
                   <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#8b7a5a" }}>Ultra</span>
