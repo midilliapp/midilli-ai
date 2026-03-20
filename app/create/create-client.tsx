@@ -2,6 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
+import AuthGateModal from "@/app/components/AuthGateModal";
 
 const MODELS = [
   { id: "fal-ai/flux/schnell",    name: "Flux Schnell",  speed: "~3s",  tier: "free" },
@@ -67,7 +69,9 @@ export default function CreateClient() {
   const [loading, setLoading] = useState(false);
   const [imageResult, setImageResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [credits] = useState(20);
+  const [credits, setCredits] = useState<number | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [showAuthGate, setShowAuthGate] = useState(false);
 
   // Video states
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -149,6 +153,31 @@ export default function CreateClient() {
     return () => clearTimeout(t);
   }, []);
 
+  // Load session + credits
+  useEffect(() => {
+    const loadSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) { setUserId(null); setCredits(null); return; }
+      setUserId(session.user.id);
+      // Fetch credits
+      const { data } = await supabase
+        .from("user_credits")
+        .select("credits")
+        .eq("user_id", session.user.id)
+        .single();
+      setCredits(data?.credits ?? 0);
+    };
+    void loadSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      if (!session?.user) { setUserId(null); setCredits(null); return; }
+      setUserId(session.user.id);
+      supabase.from("user_credits").select("credits").eq("user_id", session.user.id).single()
+        .then(({ data }) => setCredits(data?.credits ?? 0));
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
   // Load sessions from localStorage
   useEffect(() => {
     try {
@@ -196,6 +225,7 @@ export default function CreateClient() {
 
   const generateImage = async () => {
     if (!prompt.trim()) return;
+    if (!userId) { setShowAuthGate(true); return; }
     setLoading(true);
     setImageResult(null);
     setError(null);
@@ -234,6 +264,7 @@ export default function CreateClient() {
   };
 
   const generateVideo = async () => {
+    if (!userId) { setShowAuthGate(true); return; }
     if (!uploadedFile) { showToast("Please upload an image first."); return; }
     setVideoLoading(true);
     setVideoResult(null);
@@ -479,7 +510,16 @@ export default function CreateClient() {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 12, color: tab === "video" ? "#38bdf8" : "#a78bfa", fontWeight: 600 }}>{credits} credits</span>
+          {userId ? (
+            <span style={{ fontSize: 12, color: tab === "video" ? "#38bdf8" : "#a78bfa", fontWeight: 600 }}>
+              {credits === null ? "…" : credits} credits
+            </span>
+          ) : (
+            <button
+              onClick={() => setShowAuthGate(true)}
+              style={{ fontSize: 12, padding: "5px 12px", borderRadius: 999, border: "1px solid rgba(168,85,247,0.4)", background: "rgba(124,92,252,0.12)", color: "#c4b8ff", cursor: "pointer", fontFamily: "inherit", fontWeight: 600 }}
+            >Sign in</button>
+          )}
 
           {/* Notification bell */}
           <button
@@ -927,6 +967,21 @@ export default function CreateClient() {
           <span style={{ marginLeft: "auto", fontSize: 11, color: "#2a2a3a" }}>Enter ↵ to generate</span>
         </div>
       </div>
+
+      {/* ── Auth Gate Modal ── */}
+      {showAuthGate && (
+        <AuthGateModal
+          onSuccess={() => {
+            setShowAuthGate(false);
+            // re-trigger generate after successful login
+            setTimeout(() => {
+              if (tab === "image" && prompt.trim()) void generateImage();
+              if (tab === "video" && uploadedFile) void generateVideo();
+            }, 300);
+          }}
+          onClose={() => setShowAuthGate(false)}
+        />
+      )}
 
       {/* ── Username modal (for Share / Like / Comment) ── */}
       {usernameModal && (
