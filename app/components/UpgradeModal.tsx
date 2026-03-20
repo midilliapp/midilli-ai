@@ -68,28 +68,67 @@ export default function UpgradeModal({ onClose, onToast }: Props) {
           from { opacity: 0; transform: translateY(24px) scale(0.97); }
           to   { opacity: 1; transform: translateY(0)    scale(1);    }
         }
-        @keyframes shimmerFree {
-          0%,100% { box-shadow: 0 0 0px rgba(100,100,140,0); }
-          50%      { box-shadow: 0 0 18px 2px rgba(100,100,160,0.18), 0 0 40px 4px rgba(80,80,120,0.08); }
+        /* Rising light — pseudo-element per tier */
+        .plan-card {
+          transition: transform 0.35s cubic-bezier(0.22,1,0.36,1),
+                      border-color 0.4s ease,
+                      box-shadow 0.4s ease;
+          overflow: hidden;
         }
-        @keyframes shimmerBasic {
-          0%,100% { box-shadow: 0 0 0px rgba(168,85,247,0); }
-          50%      { box-shadow: 0 0 22px 3px rgba(168,85,247,0.28), 0 0 50px 8px rgba(124,92,252,0.10); }
+        .plan-card::before {
+          content: '';
+          position: absolute; inset: 0;
+          border-radius: inherit;
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 0.55s ease, transform 0.75s cubic-bezier(0.22,1,0.36,1);
+          transform: translateY(55%);
         }
-        @keyframes shimmerPro {
-          0%,100% { box-shadow: 0 20px 60px -8px rgba(108,72,252,0.35), inset 0 1px 0 rgba(255,255,255,0.08); }
-          50%      { box-shadow: 0 0 32px 6px rgba(168,85,247,0.5), 0 20px 60px -4px rgba(108,72,252,0.55), inset 0 1px 0 rgba(255,255,255,0.12); }
+        .plan-card:hover {
+          transform: translateY(-3px) scale(1.012);
         }
-        @keyframes shimmerUltra {
-          0%,100% { box-shadow: 0 0 0px rgba(251,191,36,0); }
-          50%      { box-shadow: 0 0 24px 4px rgba(251,191,36,0.22), 0 0 52px 8px rgba(180,130,20,0.09); }
+        .plan-card:hover::before {
+          opacity: 1;
+          transform: translateY(0%);
         }
-        .plan-card { transition: transform 0.22s ease, border-color 0.22s ease; }
-        .plan-card:hover { transform: translateY(-4px) scale(1.015); }
-        .plan-card-free:hover  { animation: shimmerFree  1.4s ease-in-out infinite; border-color: rgba(120,120,180,0.22) !important; }
-        .plan-card-basic:hover { animation: shimmerBasic 1.4s ease-in-out infinite; border-color: rgba(168,85,247,0.38) !important; }
-        .plan-card-pro:hover   { animation: shimmerPro   1.2s ease-in-out infinite; border-color: rgba(192,132,252,0.65) !important; }
-        .plan-card-ultra:hover { animation: shimmerUltra 1.4s ease-in-out infinite; border-color: rgba(251,191,36,0.32) !important; }
+
+        /* Free — barely-there cool grey */
+        .plan-card-free::before {
+          background: radial-gradient(ellipse 70% 45% at 50% 100%, rgba(110,110,170,0.14) 0%, transparent 70%);
+        }
+        .plan-card-free:hover {
+          border-color: rgba(130,130,190,0.2) !important;
+          box-shadow: 0 4px 20px -4px rgba(100,100,160,0.12);
+        }
+
+        /* Basic — soft lavender */
+        .plan-card-basic::before {
+          background: radial-gradient(ellipse 70% 50% at 50% 100%, rgba(168,85,247,0.18) 0%, transparent 72%);
+        }
+        .plan-card-basic:hover {
+          border-color: rgba(168,85,247,0.32) !important;
+          box-shadow: 0 4px 24px -4px rgba(124,92,252,0.18);
+        }
+
+        /* Pro — vivid purple, strongest */
+        .plan-card-pro::before {
+          background: radial-gradient(ellipse 75% 55% at 50% 100%, rgba(192,100,255,0.32) 0%, rgba(168,85,247,0.10) 55%, transparent 75%);
+        }
+        .plan-card-pro:hover {
+          border-color: rgba(192,132,252,0.6) !important;
+          box-shadow: 0 20px 60px -8px rgba(108,72,252,0.35),
+                      0 0 28px -2px rgba(168,85,247,0.35),
+                      inset 0 1px 0 rgba(255,255,255,0.10);
+        }
+
+        /* Ultra — warm amber */
+        .plan-card-ultra::before {
+          background: radial-gradient(ellipse 68% 45% at 50% 100%, rgba(251,191,36,0.16) 0%, transparent 70%);
+        }
+        .plan-card-ultra:hover {
+          border-color: rgba(251,191,36,0.28) !important;
+          box-shadow: 0 4px 24px -4px rgba(180,130,20,0.15);
+        }
         .upgrade-modal { animation: upgradeIn 0.36s cubic-bezier(0.22,1,0.36,1) both; }
         .upgrade-tab { padding: 7px 20px; border-radius: 8px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: inherit; }
         .upgrade-tab.active { background: rgba(168,85,247,0.22); color: #e2d9ff; }
