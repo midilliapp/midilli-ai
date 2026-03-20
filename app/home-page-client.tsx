@@ -1011,108 +1011,132 @@ export default function HomePageClient() {
         </div>
 
         {/* Row 1 — slides left */}
-        <div className="showcase-row" style={{ marginBottom: 16 }}>
-          <div
-            className="showcase-track"
-            style={{
-              gap: 16,
-              animation: "slideLeft 55s linear infinite",
-              animationPlayState: sliderPaused ? "paused" : "running",
-            }}
-          >
-            {[
-              { src: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&q=85&auto=format&fit=crop", label: "YouTube Thumbnail (ready to upload)", time: "7s", w: 440 },
-              { src: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600&q=85&auto=format&fit=crop", label: "AI Product Ad (for store)", time: "9s", w: 360 },
-              { src: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=600&q=85&auto=format&fit=crop", label: "Instagram Ad (ready to run)", time: "6s", w: 400 },
-              { src: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=600&q=85&auto=format&fit=crop", label: "Sci-Fi Scene (cinematic)", time: "11s", w: 460 },
-              { src: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=85&auto=format&fit=crop", label: "Gaming Banner (for stream)", time: "8s", w: 380 },
-              { src: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&q=85&auto=format&fit=crop", label: "Blog Cover (ready to publish)", time: "7s", w: 420 },
-              { src: "https://images.unsplash.com/photo-1549490349-8643362247b5?w=600&q=85&auto=format&fit=crop", label: "Abstract Brand Visual", time: "9s", w: 350 },
-              { src: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=85&auto=format&fit=crop", label: "Tech Visual (for deck)", time: "6s", w: 380 },
-              { src: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&q=85&auto=format&fit=crop", label: "YouTube Thumbnail (ready to upload)", time: "7s", w: 440 },
-              { src: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600&q=85&auto=format&fit=crop", label: "AI Product Ad (for store)", time: "9s", w: 360 },
-              { src: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=600&q=85&auto=format&fit=crop", label: "Instagram Ad (ready to run)", time: "6s", w: 400 },
-              { src: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=600&q=85&auto=format&fit=crop", label: "Sci-Fi Scene (cinematic)", time: "11s", w: 460 },
-              { src: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=85&auto=format&fit=crop", label: "Gaming Banner (for stream)", time: "8s", w: 380 },
-              { src: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&q=85&auto=format&fit=crop", label: "Blog Cover (ready to publish)", time: "7s", w: 420 },
-              { src: "https://images.unsplash.com/photo-1549490349-8643362247b5?w=600&q=85&auto=format&fit=crop", label: "Abstract Brand Visual", time: "9s", w: 350 },
-              { src: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=85&auto=format&fit=crop", label: "Tech Visual (for deck)", time: "6s", w: 380 },
-            ].map((img, i) => (
+        {(() => {
+          const fallbackW1 = [440, 360, 400, 460, 380, 420, 350, 380];
+          const fallback1 = [
+            { src: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&q=85&auto=format&fit=crop", label: "YouTube Thumbnail", w: 440, isFallback: true },
+            { src: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600&q=85&auto=format&fit=crop", label: "AI Product Ad", w: 360, isFallback: true },
+            { src: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=600&q=85&auto=format&fit=crop", label: "Instagram Ad", w: 400, isFallback: true },
+            { src: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=600&q=85&auto=format&fit=crop", label: "Sci-Fi Scene", w: 460, isFallback: true },
+            { src: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=85&auto=format&fit=crop", label: "Gaming Banner", w: 380, isFallback: true },
+            { src: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&q=85&auto=format&fit=crop", label: "Blog Cover", w: 420, isFallback: true },
+            { src: "https://images.unsplash.com/photo-1549490349-8643362247b5?w=600&q=85&auto=format&fit=crop", label: "Abstract Brand Visual", w: 350, isFallback: true },
+            { src: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=85&auto=format&fit=crop", label: "Tech Visual", w: 380, isFallback: true },
+          ];
+          const half = Math.ceil(galleryPosts.length / 2);
+          const communitySlice = galleryPosts.slice(0, half);
+          const communityItems1 = communitySlice.map((p, i) => ({
+            src: p.image_url,
+            label: p.username ? `@${p.username}` : "Community",
+            w: fallbackW1[i % fallbackW1.length],
+            isFallback: false,
+          }));
+          const base1 = communityItems1.length >= 4
+            ? communityItems1
+            : [...communityItems1, ...fallback1].slice(0, 8);
+          const items1 = [...base1, ...base1];
+          return (
+            <div className="showcase-row" style={{ marginBottom: 16 }}>
               <div
-                key={i}
-                className="showcase-card"
+                className="showcase-track"
                 style={{
-                  width: img.w,
-                  height: 290,
-                  boxShadow: "0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06)",
+                  gap: 16,
+                  animation: "slideLeft 55s linear infinite",
+                  animationPlayState: sliderPaused ? "paused" : "running",
                 }}
               >
-                <img
-                  src={img.src}
-                  alt={img.label}
-                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                />
-                <div className="card-label">{img.label}</div>
-                <div className="gen-badge">
-                  <span style={{ width: 5, height: 5, borderRadius: 999, background: "#4cebb8", boxShadow: "0 0 4px #4cebb8", display: "inline-block" }} />
-                  ~{img.time}
-                </div>
+                {items1.map((img, i) => (
+                  <div
+                    key={i}
+                    className="showcase-card"
+                    style={{
+                      width: img.w,
+                      height: 290,
+                      boxShadow: "0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06)",
+                    }}
+                  >
+                    <img
+                      src={img.src}
+                      alt={img.label}
+                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                    />
+                    <div className="card-label">{img.label}</div>
+                    {!img.isFallback && (
+                      <div className="gen-badge">
+                        <span style={{ width: 5, height: 5, borderRadius: 999, background: "#a78bff", boxShadow: "0 0 4px #a78bff", display: "inline-block" }} />
+                        Community
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+          );
+        })()}
 
         {/* Row 2 — slides right (opposite direction) */}
-        <div className="showcase-row">
-          <div
-            className="showcase-track"
-            style={{
-              gap: 16,
-              animation: "slideRight 65s linear infinite",
-              animationPlayState: sliderPaused ? "paused" : "running",
-            }}
-          >
-            {[
-              { src: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600&q=85&auto=format&fit=crop", label: "Fashion Editorial (campaign-ready)", time: "8s", w: 370 },
-              { src: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=600&q=85&auto=format&fit=crop", label: "Cosmic Visual (for merch)", time: "12s", w: 430 },
-              { src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=85&auto=format&fit=crop", label: "Landscape (for print)", time: "9s", w: 400 },
-              { src: "https://images.unsplash.com/photo-1480796927426-f609979314bd?w=600&q=85&auto=format&fit=crop", label: "City Aerial (pitch deck)", time: "7s", w: 380 },
-              { src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=85&auto=format&fit=crop", label: "Product Image (for store)", time: "6s", w: 350 },
-              { src: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=600&q=85&auto=format&fit=crop", label: "Architecture (brand identity)", time: "10s", w: 420 },
-              { src: "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=600&q=85&auto=format&fit=crop", label: "Abstract Neon (NFT / merch)", time: "8s", w: 360 },
-              { src: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=600&q=85&auto=format&fit=crop", label: "Social Content (7-day pack)", time: "5s", w: 390 },
-              { src: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600&q=85&auto=format&fit=crop", label: "Fashion Editorial (campaign-ready)", time: "8s", w: 370 },
-              { src: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=600&q=85&auto=format&fit=crop", label: "Cosmic Visual (for merch)", time: "12s", w: 430 },
-              { src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=85&auto=format&fit=crop", label: "Landscape (for print)", time: "9s", w: 400 },
-              { src: "https://images.unsplash.com/photo-1480796927426-f609979314bd?w=600&q=85&auto=format&fit=crop", label: "City Aerial (pitch deck)", time: "7s", w: 380 },
-              { src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=85&auto=format&fit=crop", label: "Product Image (for store)", time: "6s", w: 350 },
-              { src: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=600&q=85&auto=format&fit=crop", label: "Architecture (brand identity)", time: "10s", w: 420 },
-              { src: "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=600&q=85&auto=format&fit=crop", label: "Abstract Neon (NFT / merch)", time: "8s", w: 360 },
-              { src: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=600&q=85&auto=format&fit=crop", label: "Social Content (7-day pack)", time: "5s", w: 390 },
-            ].map((img, i) => (
+        {(() => {
+          const fallbackW2 = [370, 430, 400, 380, 350, 420, 360, 390];
+          const fallback2 = [
+            { src: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600&q=85&auto=format&fit=crop", label: "Fashion Editorial", w: 370, isFallback: true },
+            { src: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=600&q=85&auto=format&fit=crop", label: "Cosmic Visual", w: 430, isFallback: true },
+            { src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=85&auto=format&fit=crop", label: "Landscape", w: 400, isFallback: true },
+            { src: "https://images.unsplash.com/photo-1480796927426-f609979314bd?w=600&q=85&auto=format&fit=crop", label: "City Aerial", w: 380, isFallback: true },
+            { src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=85&auto=format&fit=crop", label: "Product Image", w: 350, isFallback: true },
+            { src: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=600&q=85&auto=format&fit=crop", label: "Architecture", w: 420, isFallback: true },
+            { src: "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=600&q=85&auto=format&fit=crop", label: "Abstract Neon", w: 360, isFallback: true },
+            { src: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=600&q=85&auto=format&fit=crop", label: "Social Content", w: 390, isFallback: true },
+          ];
+          const half = Math.ceil(galleryPosts.length / 2);
+          const communitySlice = galleryPosts.slice(half);
+          const communityItems2 = communitySlice.map((p, i) => ({
+            src: p.image_url,
+            label: p.username ? `@${p.username}` : "Community",
+            w: fallbackW2[i % fallbackW2.length],
+            isFallback: false,
+          }));
+          const base2 = communityItems2.length >= 4
+            ? communityItems2
+            : [...communityItems2, ...fallback2].slice(0, 8);
+          const items2 = [...base2, ...base2];
+          return (
+            <div className="showcase-row">
               <div
-                key={i}
-                className="showcase-card"
+                className="showcase-track"
                 style={{
-                  width: img.w,
-                  height: 270,
-                  boxShadow: "0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06)",
+                  gap: 16,
+                  animation: "slideRight 65s linear infinite",
+                  animationPlayState: sliderPaused ? "paused" : "running",
                 }}
               >
-                <img
-                  src={img.src}
-                  alt={img.label}
-                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                />
-                <div className="card-label">{img.label}</div>
-                <div className="gen-badge">
-                  <span style={{ width: 5, height: 5, borderRadius: 999, background: "#4cebb8", boxShadow: "0 0 4px #4cebb8", display: "inline-block" }} />
-                  ~{img.time}
-                </div>
+                {items2.map((img, i) => (
+                  <div
+                    key={i}
+                    className="showcase-card"
+                    style={{
+                      width: img.w,
+                      height: 270,
+                      boxShadow: "0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06)",
+                    }}
+                  >
+                    <img
+                      src={img.src}
+                      alt={img.label}
+                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                    />
+                    <div className="card-label">{img.label}</div>
+                    {!img.isFallback && (
+                      <div className="gen-badge">
+                        <span style={{ width: 5, height: 5, borderRadius: 999, background: "#a78bff", boxShadow: "0 0 4px #a78bff", display: "inline-block" }} />
+                        Community
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+          );
+        })()}
 
         {/* Bottom fade hint */}
         <div style={{ textAlign: "center", marginTop: 32, color: "#8885a8", fontSize: 13 }}>
