@@ -317,7 +317,7 @@ export default function HomePageClient() {
       style={{
         minHeight: "100vh",
         color: "#f0eeff",
-        background: "#080810",
+        background: "transparent",
         fontFamily: "'DM Sans', Arial, sans-serif",
         overflowX: "hidden",
         position: "relative",
@@ -347,34 +347,6 @@ export default function HomePageClient() {
           40%            { transform: scale(1); opacity: 1; }
         }
 
-        @keyframes blob1 {
-          0%   { transform: translate(0px, 0px) scale(1); }
-          33%  { transform: translate(60px, -80px) scale(1.15); }
-          66%  { transform: translate(-40px, 40px) scale(0.9); }
-          100% { transform: translate(0px, 0px) scale(1); }
-        }
-        @keyframes blob2 {
-          0%   { transform: translate(0px, 0px) scale(1); }
-          33%  { transform: translate(-70px, 60px) scale(1.1); }
-          66%  { transform: translate(50px, -50px) scale(0.95); }
-          100% { transform: translate(0px, 0px) scale(1); }
-        }
-        @keyframes blob3 {
-          0%   { transform: translate(0px, 0px) scale(1); }
-          33%  { transform: translate(40px, 70px) scale(1.2); }
-          66%  { transform: translate(-60px, -30px) scale(0.85); }
-          100% { transform: translate(0px, 0px) scale(1); }
-        }
-        @keyframes blob4 {
-          0%   { transform: translate(0px, 0px) scale(1); }
-          50%  { transform: translate(-50px, -60px) scale(1.1); }
-          100% { transform: translate(0px, 0px) scale(1); }
-        }
-        @keyframes gridFloat {
-          0%   { opacity: 0.03; }
-          50%  { opacity: 0.06; }
-          100% { opacity: 0.03; }
-        }
         @keyframes pulse-badge {
           0%, 100% { box-shadow: 0 0 0 0 rgba(124,92,252,0.4); }
           50%       { box-shadow: 0 0 0 8px rgba(124,92,252,0); }
@@ -406,50 +378,6 @@ export default function HomePageClient() {
         @keyframes slideRight {
           0%   { transform: translateX(-50%); }
           100% { transform: translateX(0); }
-        }
-
-        .bg-blob {
-          position: absolute;
-          border-radius: 50%;
-          filter: blur(80px);
-          pointer-events: none;
-          z-index: 0;
-        }
-        .bg-blob-1 {
-          width: 600px; height: 600px;
-          top: -100px; left: -150px;
-          background: radial-gradient(circle, rgba(124,92,252,0.22) 0%, transparent 70%);
-          animation: blob1 18s ease-in-out infinite;
-        }
-        .bg-blob-2 {
-          width: 500px; height: 500px;
-          top: 100px; right: -100px;
-          background: radial-gradient(circle, rgba(56,217,245,0.18) 0%, transparent 70%);
-          animation: blob2 22s ease-in-out infinite;
-        }
-        .bg-blob-3 {
-          width: 400px; height: 400px;
-          top: 50vh; left: 30%;
-          background: radial-gradient(circle, rgba(232,79,188,0.15) 0%, transparent 70%);
-          animation: blob3 16s ease-in-out infinite;
-        }
-        .bg-blob-4 {
-          width: 700px; height: 700px;
-          bottom: 0; right: -200px;
-          background: radial-gradient(circle, rgba(124,92,252,0.12) 0%, transparent 70%);
-          animation: blob4 25s ease-in-out infinite;
-        }
-
-        .bg-grid {
-          position: fixed;
-          inset: 0;
-          pointer-events: none;
-          z-index: 0;
-          background-image:
-            linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
-          background-size: 60px 60px;
-          animation: gridFloat 8s ease-in-out infinite;
         }
 
         .btn-primary {
@@ -552,7 +480,7 @@ export default function HomePageClient() {
         }
 
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #080810; }
+        ::-webkit-scrollbar-track { background: #110d18; }
         ::-webkit-scrollbar-thumb { background: rgba(124,92,252,0.4); border-radius: 3px; }
 
         textarea:focus, input:focus {
@@ -700,14 +628,16 @@ export default function HomePageClient() {
         </div>
       )}
 
-      {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Animated background ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
-      <div style={{ position: "fixed", inset: 0, zIndex: 0, overflow: "hidden", pointerEvents: "none" }}>
-        <div className="bg-blob bg-blob-1" />
-        <div className="bg-blob bg-blob-2" />
-        <div className="bg-blob bg-blob-3" />
-        <div className="bg-blob bg-blob-4" />
-      </div>
-      <div className="bg-grid" />
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 0,
+          pointerEvents: "none",
+          background:
+            "radial-gradient(circle at 14% 8%, rgba(255,120,214,0.22), transparent 22%), radial-gradient(circle at 82% 16%, rgba(103,232,249,0.08), transparent 22%), radial-gradient(circle at 48% 46%, rgba(168,85,247,0.08), transparent 28%)",
+        }}
+      />
 
       {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Header ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
       <header

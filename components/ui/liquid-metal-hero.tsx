@@ -60,14 +60,14 @@ export default function LiquidMetalHero({
   };
 
   return (
-    <section className="relative overflow-hidden px-5 pb-18 pt-14 md:px-8 lg:px-10 lg:pb-24 lg:pt-20">
-      <div className="absolute inset-0 z-0 opacity-45">
+    <section className="relative overflow-hidden bg-transparent px-5 pb-18 pt-14 md:px-8 lg:px-10 lg:pb-24 lg:pt-20">
+      <div className="absolute inset-0 z-0 opacity-30">
         <LiquidMetal
           {...liquidMetalPresets[2]}
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
         />
       </div>
-      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_18%_12%,rgba(255,120,214,0.46),transparent_30%),radial-gradient(circle_at_78%_18%,rgba(255,153,214,0.24),transparent_26%),linear-gradient(180deg,rgba(44,16,46,0.14),rgba(14,8,18,0.9))]" />
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_18%_12%,rgba(255,120,214,0.34),transparent_28%),radial-gradient(circle_at_82%_18%,rgba(103,232,249,0.14),transparent_24%),radial-gradient(circle_at_50%_56%,rgba(192,132,252,0.12),transparent_30%),linear-gradient(180deg,rgba(44,16,46,0.06),rgba(14,8,18,0.16))]" />
 
       <motion.div
         className="relative z-10 mx-auto max-w-[1100px]"
