@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+import GlobalLiquidBackground from "@/components/global-liquid-background";
+
 import "./globals.css";
 
 const siteUrl = "https://midilli.app";
@@ -58,7 +60,8 @@ export default function RootLayout({
   return (
     <html lang="tr">
       <body>
-        {children}
+        <GlobalLiquidBackground />
+        <div className="relative z-10">{children}</div>
       </body>
     </html>
   );

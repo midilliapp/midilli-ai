@@ -108,10 +108,6 @@ export default function HomePageClient() {
   const [toast, setToast] = useState("");
   const [selectedPack, setSelectedPack] = useState(packs[0]);
   const [userName, setUserName] = useState("");
-  const [demoIndex, setDemoIndex] = useState(0);
-  const [typedText, setTypedText] = useState("");
-  const [showDemoOutput, setShowDemoOutput] = useState(true);
-  const [typingDone, setTypingDone] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [showPlansModal, setShowPlansModal] = useState(false);
   const [showAuthGate, setShowAuthGate] = useState(false);
@@ -165,54 +161,6 @@ export default function HomePageClient() {
       .then((d) => { if (d.posts) setGalleryPosts(d.posts as GalleryPost[]); })
       .finally(() => setGalleryLoading(false));
   }, []);
-
-  const demoExamples = [
-    {
-      prompt: "Cyberpunk city at night, neon rain, cinematic",
-      src: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=900&q=85&auto=format&fit=crop",
-      use: "YouTube Thumbnail - 120K views",
-      tag: "Sci-Fi / Cinematic",
-    },
-    {
-      prompt: "Futuristic product ad, chrome robot, dark studio",
-      src: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=900&q=85&auto=format&fit=crop",
-      use: "Product Ad - Used in paid campaign",
-      tag: "AI Product Ad",
-    },
-    {
-      prompt: "Luxury fashion editorial, minimal white background",
-      src: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=900&q=85&auto=format&fit=crop",
-      use: "Instagram Campaign - 4.1% CTR",
-      tag: "Fashion Editorial",
-    },
-  ];
-
-  useEffect(() => {
-    let charIndex = 0;
-    const currentPrompt = demoExamples[demoIndex].prompt;
-    setTypedText("");
-    setTypingDone(false);
-
-    // Small delay before typing starts - image already visible
-    const startDelay = window.setTimeout(() => {
-      const typeInterval = window.setInterval(() => {
-        charIndex++;
-        setTypedText(currentPrompt.slice(0, charIndex));
-        if (charIndex >= currentPrompt.length) {
-          window.clearInterval(typeInterval);
-          setTypingDone(true);
-          window.setTimeout(() => {
-            setTypingDone(false);
-            setDemoIndex((i) => (i + 1) % demoExamples.length);
-          }, 2800);
-        }
-      }, 48);
-      return () => window.clearInterval(typeInterval);
-    }, 600);
-
-    return () => window.clearTimeout(startDelay);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [demoIndex]);
 
   const showToast = (message: string) => {
     setToast(message);
@@ -628,17 +576,6 @@ export default function HomePageClient() {
         </div>
       )}
 
-      <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: 0,
-          pointerEvents: "none",
-          background:
-            "radial-gradient(circle at 14% 8%, rgba(255,120,214,0.22), transparent 22%), radial-gradient(circle at 82% 16%, rgba(103,232,249,0.08), transparent 22%), radial-gradient(circle at 48% 46%, rgba(168,85,247,0.08), transparent 28%)",
-        }}
-      />
-
       {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Header ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
       <header
         style={{
@@ -697,36 +634,18 @@ export default function HomePageClient() {
         </nav>
       </header>
       <LiquidMetalHero
-        badge="No prompt skills needed"
         title={
           <>
-            From idea
-            <br />to image.
+            From idea to image
             <br />
-            <span className="shimmer-text">10 seconds.</span>
+            <span className="shimmer-text">in one fluid motion.</span>
           </>
         }
-        subtitle="Describe what you want in plain language. MIDILLI turns it into a ready-to-use visual for ads, thumbnails, products, and pitch decks. No learning curve. No designer."
-        primaryCtaLabel="Start Creating - Free"
-        secondaryCtaLabel="See Plans ->"
-        onPrimaryCtaClick={goToStudioAction}
-        onSecondaryCtaClick={() => setShowPlansModal(true)}
-        meta="20 free credits - No credit card - No tutorial"
-        features={[
-          "Ads and thumbnails in one sentence",
-          "Instant visual direction without prompt engineering",
-          "Ready for gallery, campaigns, and product launches",
-        ]}
-        stats={[
-          { value: "~8s", label: "Avg. generation" },
-          { value: "50K+", label: "Images created" },
-          { value: "4.9/5", label: "User rating" },
-        ]}
       />
 
-      <section id="gallery" style={{ position: "relative", zIndex: 1, padding: "18px 0 72px" }}>
+      <section id="gallery" style={{ position: "relative", zIndex: 1, padding: "8px 0 72px" }}>
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "0 24px", textAlign: "center" }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "8px 16px", borderRadius: 999, background: "rgba(124,92,252,0.08)", border: "1px solid rgba(124,92,252,0.24)", color: "#cdbfff", fontSize: 12, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase" }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "8px 16px", borderRadius: 999, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)", color: "#cdbfff", fontSize: 12, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", backdropFilter: "blur(14px)" }}>
             <span style={{ width: 7, height: 7, borderRadius: 999, background: "#38d9f5", boxShadow: "0 0 10px #38d9f5" }} />
             Community
           </div>
@@ -745,7 +664,7 @@ export default function HomePageClient() {
           <ZoomParallax images={communityParallaxImages} />
         </div>
 
-        <div style={{ maxWidth: 1140, margin: "-30vh auto 0", padding: "0 24px", position: "relative", zIndex: 2 }}>
+        <div style={{ maxWidth: 1140, margin: "-10vh auto 0", padding: "0 24px", position: "relative", zIndex: 2 }}>
           {galleryLoading && (
             <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 28 }}>
               {[0, 1, 2].map((i) => (
