@@ -1,10 +1,13 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import LiquidMetalHero from "@/components/ui/liquid-metal-hero";
+import { ZoomParallax } from "@/components/ui/zoom-parallax";
 import { supabase } from "@/lib/supabase";
+import AuthGateModal from "./components/AuthGateModal";
 import ChatWidget from "./components/ChatWidget";
 import GalleryModal from "./components/GalleryModal";
 
@@ -32,6 +35,72 @@ const packs: CreditPack[] = [
   { credits: 2000, price: 50, label: "Power Pack" },
 ];
 
+const communityFallbackPosts: GalleryPost[] = [
+  {
+    id: "fallback-1",
+    image_url: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1200&q=85&auto=format&fit=crop",
+    prompt: "Neon-lit cyberpunk city at midnight with rain reflections",
+    username: "midilli_lab",
+    model: "flux-pro",
+    created_at: new Date().toISOString(),
+    likes_count: 128,
+  },
+  {
+    id: "fallback-2",
+    image_url: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=1200&q=85&auto=format&fit=crop",
+    prompt: "Chrome fashion robot product campaign in a dark editorial studio",
+    username: "studio_vanta",
+    model: "recraft-v3",
+    created_at: new Date().toISOString(),
+    likes_count: 94,
+  },
+  {
+    id: "fallback-3",
+    image_url: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=1200&q=85&auto=format&fit=crop",
+    prompt: "Cinematic nebula burst with deep space texture and glowing light",
+    username: "cosmicframe",
+    model: "gpt-image-1",
+    created_at: new Date().toISOString(),
+    likes_count: 141,
+  },
+  {
+    id: "fallback-4",
+    image_url: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1200&q=85&auto=format&fit=crop",
+    prompt: "Abstract color blast for a performance marketing ad",
+    username: "adforge",
+    model: "ideogram-v2",
+    created_at: new Date().toISOString(),
+    likes_count: 76,
+  },
+  {
+    id: "fallback-5",
+    image_url: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=1200&q=85&auto=format&fit=crop",
+    prompt: "Minimal luxury fashion editorial with clean lighting",
+    username: "moodboarder",
+    model: "flux-dev",
+    created_at: new Date().toISOString(),
+    likes_count: 88,
+  },
+  {
+    id: "fallback-6",
+    image_url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=85&auto=format&fit=crop",
+    prompt: "Epic alpine scene for a cinematic travel campaign",
+    username: "summitvision",
+    model: "kolors",
+    created_at: new Date().toISOString(),
+    likes_count: 61,
+  },
+  {
+    id: "fallback-7",
+    image_url: "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=1200&q=85&auto=format&fit=crop",
+    prompt: "Liquid neon abstract frame for a product launch visual",
+    username: "spectrum",
+    model: "aura-flow",
+    created_at: new Date().toISOString(),
+    likes_count: 53,
+  },
+];
+
 export default function HomePageClient() {
   const router = useRouter();
   const [transitioning, setTransitioning] = useState(false);
@@ -44,16 +113,13 @@ export default function HomePageClient() {
   const [showDemoOutput, setShowDemoOutput] = useState(true);
   const [typingDone, setTypingDone] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [sliderPaused, setSliderPaused] = useState(false);
   const [showPlansModal, setShowPlansModal] = useState(false);
+  const [showAuthGate, setShowAuthGate] = useState(false);
 
   // Community gallery
   const [galleryPosts, setGalleryPosts] = useState<GalleryPost[]>([]);
   const [galleryLoading, setGalleryLoading] = useState(true);
   const [galleryModalPost, setGalleryModalPost] = useState<GalleryPost | null>(null);
-  const [communityUsername, setCommunityUsername] = useState<string | null>(null);
-  const [communityUsernameModal, setCommunityUsernameModal] = useState<{ cb: (n: string) => void } | null>(null);
-  const [communityUsernameInput, setCommunityUsernameInput] = useState("");
 
   useEffect(() => {
     const loadSession = async () => {
@@ -99,65 +165,6 @@ export default function HomePageClient() {
       .then((d) => { if (d.posts) setGalleryPosts(d.posts as GalleryPost[]); })
       .finally(() => setGalleryLoading(false));
   }, []);
-
-  // Load stored community username
-  useEffect(() => {
-    const stored = localStorage.getItem("midilli_username");
-    if (stored) setCommunityUsername(stored);
-  }, []);
-
-  const askCommunityUsername = (cb: (n: string) => void) => {
-    const stored = localStorage.getItem("midilli_username");
-    if (stored) { cb(stored); return; }
-    setCommunityUsernameInput("");
-    setCommunityUsernameModal({ cb });
-  };
-
-  const confirmCommunityUsername = () => {
-    const name = communityUsernameInput.trim();
-    if (!name) return;
-    localStorage.setItem("midilli_username", name);
-    setCommunityUsername(name);
-    const cb = communityUsernameModal?.cb;
-    setCommunityUsernameModal(null);
-    if (cb) cb(name);
-  };
-
-  const handleGalleryLike = (post: GalleryPost) => {
-    askCommunityUsername((username) => {
-      // Optimistic
-      setGalleryPosts((prev) =>
-        prev.map((p) =>
-          p.id === post.id
-            ? { ...p, likes_count: p.likes_count + 1 }
-            : p
-        )
-      );
-      fetch(`/api/gallery/${post.id}/like`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username }),
-      })
-        .then((r) => r.json())
-        .then((d) => {
-          if (d.likes_count !== undefined) {
-            setGalleryPosts((prev) =>
-              prev.map((p) =>
-                p.id === post.id ? { ...p, likes_count: d.likes_count as number } : p
-              )
-            );
-          }
-        })
-        .catch(() => {
-          // revert
-          setGalleryPosts((prev) =>
-            prev.map((p) =>
-              p.id === post.id ? { ...p, likes_count: p.likes_count - 1 } : p
-            )
-          );
-        });
-    });
-  };
 
   const demoExamples = [
     {
@@ -212,8 +219,74 @@ export default function HomePageClient() {
     window.setTimeout(() => setToast(""), 2500);
   };
 
-  const goToStudio = (e: React.MouseEvent) => {
-    e.preventDefault();
+  const openAuthGate = () => {
+    setShowAuthGate(true);
+  };
+
+  const getAuthHeaders = async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session?.access_token) {
+      openAuthGate();
+      return null;
+    }
+
+    return {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session.access_token}`,
+    };
+  };
+
+  const handleGalleryLike = async (post: GalleryPost) => {
+    if (!userName) {
+      openAuthGate();
+      return;
+    }
+
+    setGalleryPosts((prev) =>
+      prev.map((p) =>
+        p.id === post.id ? { ...p, likes_count: p.likes_count + 1 } : p
+      )
+    );
+
+    const headers = await getAuthHeaders();
+    if (!headers) {
+      setGalleryPosts((prev) =>
+        prev.map((p) =>
+          p.id === post.id ? { ...p, likes_count: Math.max(0, p.likes_count - 1) } : p
+        )
+      );
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/gallery/${post.id}/like`, {
+        method: "POST",
+        headers,
+      });
+      const data = (await response.json()) as { likes_count?: number; error?: string };
+      if (!response.ok) throw new Error(data.error ?? "Like failed");
+
+      if (data.likes_count !== undefined) {
+        setGalleryPosts((prev) =>
+          prev.map((p) =>
+            p.id === post.id ? { ...p, likes_count: data.likes_count as number } : p
+          )
+        );
+      }
+    } catch {
+      setGalleryPosts((prev) =>
+        prev.map((p) =>
+          p.id === post.id ? { ...p, likes_count: Math.max(0, p.likes_count - 1) } : p
+        )
+      );
+      showToast("Please sign in to like community posts.");
+    }
+  };
+
+  const goToStudioAction = () => {
     setTransitioning(true);
     setTimeout(() => router.push("/create"), 920);
   };
@@ -229,6 +302,15 @@ export default function HomePageClient() {
     setUserName("");
     showToast("Cikis yapildi.");
   };
+
+  const communityParallaxImages = (galleryPosts.length > 0 ? galleryPosts : communityFallbackPosts)
+    .slice(0, 7)
+    .map((post) => ({
+      src: post.image_url,
+      alt: post.prompt ?? `${post.username} community creation`,
+    }));
+
+  const featuredCommunityPosts = (galleryPosts.length > 0 ? galleryPosts : communityFallbackPosts).slice(0, 6);
 
   return (
     <main
@@ -492,7 +574,7 @@ export default function HomePageClient() {
           animation: ticker 28s linear infinite;
         }
 
-        /* Ã¢â€â‚¬Ã¢â€â‚¬ Image Showcase Slider Ã¢â€â‚¬Ã¢â€â‚¬ */
+        /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Image Showcase Slider ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
         .showcase-row {
           overflow: hidden;
           mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
@@ -578,7 +660,7 @@ export default function HomePageClient() {
         }
       `}</style>
 
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Page Transition Overlay Ã¢â€â‚¬Ã¢â€â‚¬ */}
+      {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Page Transition Overlay ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
       {transitioning && (
         <div style={{
           position: "fixed", inset: 0, zIndex: 9999,
@@ -618,7 +700,7 @@ export default function HomePageClient() {
         </div>
       )}
 
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Animated background Ã¢â€â‚¬Ã¢â€â‚¬ */}
+      {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Animated background ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
       <div style={{ position: "fixed", inset: 0, zIndex: 0, overflow: "hidden", pointerEvents: "none" }}>
         <div className="bg-blob bg-blob-1" />
         <div className="bg-blob bg-blob-2" />
@@ -627,7 +709,7 @@ export default function HomePageClient() {
       </div>
       <div className="bg-grid" />
 
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Header Ã¢â€â‚¬Ã¢â€â‚¬ */}
+      {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Header ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
       <header
         style={{
           position: "sticky",
@@ -684,158 +766,128 @@ export default function HomePageClient() {
           )}
         </nav>
       </header>
-
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ HERO Ã¢â€â‚¬Ã¢â€â‚¬ */}
-      <section className="hero-section-pad" style={{ padding: "80px 40px 72px", position: "relative", zIndex: 1 }}>
-        <div
-          className="hero-two-col"
-          style={{ maxWidth: 1360, margin: "0 auto", display: "grid", gridTemplateColumns: "38% 62%", gap: 56, alignItems: "center" }}
-        >
-
-          {/* Ã¢â€â‚¬Ã¢â€â‚¬ LEFT: editorial copy Ã¢â€â‚¬Ã¢â€â‚¬ */}
-          <div>
-            <div
-              className="badge-pulse hero-animate"
-              style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "7px 14px", borderRadius: 999, fontSize: 12, marginBottom: 24, color: "#c4b8ff", border: "1px solid rgba(124,92,252,0.28)", background: "rgba(124,92,252,0.07)" }}
-            >
-              <span style={{ width: 6, height: 6, borderRadius: 999, background: "#38d9f5", boxShadow: "0 0 7px #38d9f5", flexShrink: 0 }} />
-              No prompt skills needed
-            </div>
-
-            <h1
-              className="hero-animate-delay"
-              style={{ margin: 0, fontFamily: "'Syne', sans-serif", fontSize: "clamp(32px, 3.6vw, 58px)", lineHeight: 1.08, letterSpacing: -2, fontWeight: 800 }}
-            >
-              From idea
-              <br />to image.
-              <br />
-              <span className="shimmer-text">10 seconds.</span>
-            </h1>
-
-            <p
-              className="hero-animate-delay2"
-              style={{ maxWidth: 380, margin: "20px 0 0", color: "#8885a8", lineHeight: 1.8, fontSize: 15 }}
-            >
-              Describe what you want in plain language. MIDILLI turns it into a ready-to-use visual. No learning curve. No designer.
-            </p>
-
-            <div className="hero-animate-delay2" style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 32 }}>
-              <button onClick={goToStudio} className="btn-primary" style={{ fontSize: 14, padding: "14px 26px", cursor: "pointer", fontFamily: "inherit", border: "none" }}>
-                Start Creating - Free
-              </button>
-              <button
-                onClick={() => setShowPlansModal(true)}
-                className="btn-secondary"
-                style={{ fontSize: 14, padding: "14px 22px", cursor: "pointer", fontFamily: "inherit" }}
-              >
-                See Plans {"->"}
-              </button>
-            </div>
-
-            <div className="hero-animate-delay2" style={{ marginTop: 14, color: "#8885a8", fontSize: 12 }}>
-              20 free credits - No credit card - No tutorial
-            </div>
-            <div className="hero-animate-delay2" style={{ marginTop: 6, color: "#8885a8", fontSize: 12 }}>
-              Used for{" "}
-              {["ads", "thumbnails", "products", "pitch decks"].map((t, i, arr) => (
-                <span key={t}><span style={{ color: "#a78bff" }}>{t}</span>{i < arr.length - 1 ? " - " : ""}</span>
-              ))}
-            </div>
-
-            <div style={{ display: "flex", gap: 28, marginTop: 36, flexWrap: "wrap", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: 24 }}>
-              {[
-                { value: "~8s", label: "Avg. generation" },
-                { value: "50K+", label: "Images created" },
-                { value: "4.9/5", label: "User rating" },
-              ].map(({ value, label }) => (
-                <div key={label}>
-                  <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 22, fontWeight: 800, background: "linear-gradient(135deg,#a78bff,#38d9f5)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", lineHeight: 1 }}>{value}</div>
-                  <div style={{ color: "#8885a8", fontSize: 11, marginTop: 4 }}>{label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Ã¢â€â‚¬Ã¢â€â‚¬ RIGHT: Visual engine Ã¢â‚¬â€ always alive Ã¢â€â‚¬Ã¢â€â‚¬ */}
-          <div className="hero-animate-delay" style={{ position: "relative" }}>
-
-            {/* Ambient glow layers */}
-            <div style={{ position: "absolute", top: "5%", left: "5%", width: "90%", height: "90%", background: "radial-gradient(ellipse at 55% 45%, rgba(124,92,252,0.3) 0%, rgba(232,79,188,0.1) 40%, transparent 68%)", filter: "blur(48px)", pointerEvents: "none", zIndex: 0 }} />
-            <div style={{ position: "absolute", top: "15%", right: "-5%", width: "55%", height: "65%", background: "radial-gradient(ellipse, rgba(56,217,245,0.1) 0%, transparent 65%)", filter: "blur(40px)", pointerEvents: "none", zIndex: 0 }} />
-
-            {/* Canvas Ã¢â‚¬â€ no app chrome, pure visual */}
+      <LiquidMetalHero
+        badge="No prompt skills needed"
+        title={
+          <>
+            From idea
+            <br />to image.
+            <br />
+            <span className="shimmer-text">10 seconds.</span>
+          </>
+        }
+        subtitle="Describe what you want in plain language. MIDILLI turns it into a ready-to-use visual for ads, thumbnails, products, and pitch decks. No learning curve. No designer."
+        primaryCtaLabel="Start Creating - Free"
+        secondaryCtaLabel="See Plans ->"
+        onPrimaryCtaClick={goToStudioAction}
+        onSecondaryCtaClick={() => setShowPlansModal(true)}
+        meta="20 free credits - No credit card - No tutorial"
+        features={[
+          "Ads and thumbnails in one sentence",
+          "Instant visual direction without prompt engineering",
+          "Ready for gallery, campaigns, and product launches",
+        ]}
+        stats={[
+          { value: "~8s", label: "Avg. generation" },
+          { value: "50K+", label: "Images created" },
+          { value: "4.9/5", label: "User rating" },
+        ]}
+        visual={
+          <div style={{ position: "relative" }}>
             <div
               style={{
-                position: "relative", zIndex: 1,
-                borderRadius: 24,
+                position: "relative",
+                zIndex: 1,
+                borderRadius: 28,
                 overflow: "hidden",
-                border: "1px solid rgba(255,255,255,0.09)",
+                border: "1px solid rgba(255,255,255,0.1)",
                 boxShadow: "0 40px 120px rgba(0,0,0,0.8), 0 0 0 1px rgba(124,92,252,0.1)",
+                background: "rgba(8,8,16,0.78)",
+                backdropFilter: "blur(18px)",
               }}
             >
-              {/* Full-bleed image area */}
               <div className="hero-canvas" style={{ position: "relative", height: 460, overflow: "hidden", background: "#050508" }}>
-
-                {/* All images Ã¢â‚¬â€ always rendered, crossfade between them */}
                 {demoExamples.map((ex, i) => (
                   <img
                     key={ex.src}
                     src={ex.src}
                     alt={ex.prompt}
                     style={{
-                      position: "absolute", inset: 0,
-                      width: "100%", height: "100%",
-                      objectFit: "cover", display: "block",
+                      position: "absolute",
+                      inset: 0,
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      display: "block",
                       opacity: i === demoIndex ? 1 : 0,
                       transition: "opacity 1.1s ease",
                     }}
                   />
                 ))}
-
-                {/* Category tag Ã¢â‚¬â€ top left, subtle */}
-                <div style={{
-                  position: "absolute", top: 18, left: 18,
-                  padding: "5px 12px", borderRadius: 999,
-                  background: "rgba(0,0,0,0.5)", backdropFilter: "blur(10px)",
-                  fontSize: 11, fontWeight: 700, color: "#c4b8ff",
-                  border: "1px solid rgba(124,92,252,0.2)",
-                  letterSpacing: 0.8, textTransform: "uppercase",
-                  transition: "opacity 0.5s ease",
-                }}>
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 18,
+                    left: 18,
+                    padding: "5px 12px",
+                    borderRadius: 999,
+                    background: "rgba(0,0,0,0.5)",
+                    backdropFilter: "blur(10px)",
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: "#c4b8ff",
+                    border: "1px solid rgba(124,92,252,0.2)",
+                    letterSpacing: 0.8,
+                    textTransform: "uppercase",
+                  }}
+                >
                   {demoExamples[demoIndex].tag}
                 </div>
-
-                {/* Bottom overlay Ã¢â‚¬â€ always visible, shows prompt while typing, use case when done */}
-                <div style={{
-                  position: "absolute", bottom: 0, left: 0, right: 0,
-                  padding: "72px 26px 24px",
-                  background: "linear-gradient(to top, rgba(3,3,10,0.96) 0%, rgba(3,3,10,0.55) 50%, transparent 100%)",
-                }}>
-                  {/* Prompt line Ã¢â‚¬â€ typing animation */}
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    padding: "72px 26px 24px",
+                    background: "linear-gradient(to top, rgba(3,3,10,0.96) 0%, rgba(3,3,10,0.55) 50%, transparent 100%)",
+                  }}
+                >
                   <div style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", fontStyle: "italic", marginBottom: 12, lineHeight: 1.5, minHeight: 20 }}>
-                    {typedText
-                      ? <>&ldquo;{typedText}<span style={{ display: "inline-block", width: 1.5, height: 13, background: "#7c5cfc", marginLeft: 2, verticalAlign: "middle", animation: typingDone ? "none" : "glow-pulse 0.7s ease-in-out infinite" }} />&rdquo;</>
-                      : <>&ldquo;{demoExamples[demoIndex].prompt}&rdquo;</>
-                    }
+                    {typedText ? (
+                      <>
+                        &ldquo;{typedText}
+                        <span
+                          style={{
+                            display: "inline-block",
+                            width: 1.5,
+                            height: 13,
+                            background: "#7c5cfc",
+                            marginLeft: 2,
+                            verticalAlign: "middle",
+                            animation: typingDone ? "none" : "glow-pulse 0.7s ease-in-out infinite",
+                          }}
+                        />
+                        &rdquo;
+                      </>
+                    ) : (
+                      <>&ldquo;{demoExamples[demoIndex].prompt}&rdquo;</>
+                    )}
                   </div>
-
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
-                    {/* Use case */}
                     <div style={{ display: "flex", alignItems: "center", gap: 7, color: "#4cebb8", fontSize: 13, fontWeight: 600 }}>
                       <span style={{ width: 6, height: 6, borderRadius: 999, background: "#4cebb8", boxShadow: "0 0 7px #4cebb8", flexShrink: 0 }} />
                       {demoExamples[demoIndex].use}
                     </div>
-
-                    {/* Progress dots inline */}
                     <div style={{ display: "flex", gap: 5, alignItems: "center" }}>
                       {demoExamples.map((_, i) => (
                         <div
                           key={i}
                           style={{
                             width: i === demoIndex ? 18 : 5,
-                            height: 5, borderRadius: 999,
+                            height: 5,
+                            borderRadius: 999,
                             background: i === demoIndex ? "linear-gradient(90deg,#7c5cfc,#e84fbc)" : "rgba(255,255,255,0.2)",
-                            backgroundImage: i === demoIndex ? "linear-gradient(90deg,#7c5cfc,#e84fbc)" : "none",
                             transition: "width 0.4s ease",
                           }}
                         />
@@ -843,183 +895,113 @@ export default function HomePageClient() {
                     </div>
                   </div>
                 </div>
-
               </div>
             </div>
           </div>
+        }
+      />
 
-        </div>
-      </section>
-
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Hero Ã¢â€ â€™ Slider Bridge Ã¢â€â‚¬Ã¢â€â‚¬ */}
-      <div style={{ position: "relative", zIndex: 1, textAlign: "center", padding: "0 24px 0" }}>
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 12, padding: "10px 24px", borderRadius: 999, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", color: "#8885a8", fontSize: 13 }}>
-          <span style={{ display: "inline-flex", gap: 4 }}>
-            {[0,1,2].map(i => <span key={i} style={{ width: 6, height: 6, borderRadius: 999, background: i === 0 ? "#7c5cfc" : i === 1 ? "#e84fbc" : "#38d9f5", opacity: 0.7 }} />)}
-          </span>
-          Here is what people are creating right now
-          <span style={{ opacity: 0.4 }}>-</span>
-        </div>
-      </div>
-
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Image Showcase Slider Ã¢â€â‚¬Ã¢â€â‚¬ */}
-      <section
-        style={{ padding: "36px 0 64px", position: "relative", zIndex: 1, overflow: "hidden" }}
-        onMouseEnter={() => setSliderPaused(true)}
-        onMouseLeave={() => setSliderPaused(false)}
-      >
-        {/* Section header */}
-        <div style={{ textAlign: "center", marginBottom: 44, padding: "0 24px" }}>
-          <div style={{ color: "#7c5cfc", fontSize: 12, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 14 }}>
-            Unlimited range
+      <section id="gallery" style={{ position: "relative", zIndex: 1, padding: "18px 0 72px" }}>
+        <div style={{ maxWidth: 1120, margin: "0 auto", padding: "0 24px", textAlign: "center" }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "8px 16px", borderRadius: 999, background: "rgba(124,92,252,0.08)", border: "1px solid rgba(124,92,252,0.24)", color: "#cdbfff", fontSize: 12, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase" }}>
+            <span style={{ width: 7, height: 7, borderRadius: 999, background: "#38d9f5", boxShadow: "0 0 10px #38d9f5" }} />
+            Community
           </div>
-          <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: "clamp(26px, 3.5vw, 42px)", fontWeight: 800, letterSpacing: -1, margin: 0, color: "#f0eeff", lineHeight: 1.1 }}>
-            Not concepts.{" "}
-            <span style={{ background: "linear-gradient(135deg,#a78bff,#e84fbc)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-              Real outputs.
-            </span>
+          <h2 style={{ margin: "18px 0 0", fontFamily: "'Syne', sans-serif", fontSize: "clamp(32px, 5vw, 58px)", fontWeight: 800, letterSpacing: -2 }}>
+            Made with MIDILLI
           </h2>
-          <p style={{ color: "#8885a8", fontSize: 15, marginTop: 14, marginBottom: 0, maxWidth: 480, margin: "14px auto 0" }}>
-            Every image below was created from a single sentence. Sci-fi, fashion, product ads, gaming - no limits.
+          <p style={{ maxWidth: 620, margin: "16px auto 0", color: "#8885a8", fontSize: 15, lineHeight: 1.85 }}>
+            Discover what other creators are building, open any image, and join the conversation. Like and comment are available for signed-in users so the gallery stays real and high quality.
           </p>
+          <div style={{ marginTop: 16, color: userName ? "#4cebb8" : "#a78bff", fontSize: 12, letterSpacing: 0.6 }}>
+            {userName ? "You are signed in. Like and comment on any community image." : "Sign in to like and comment on community creations."}
+          </div>
         </div>
 
-        {/* Row 1 Ã¢â‚¬â€ slides left */}
-        {(() => {
-          const fallbackW1 = [440, 360, 400, 460, 380, 420, 350, 380];
-          const fallback1 = [
-            { src: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&q=85&auto=format&fit=crop", label: "YouTube Thumbnail", w: 440, isFallback: true },
-            { src: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600&q=85&auto=format&fit=crop", label: "AI Product Ad", w: 360, isFallback: true },
-            { src: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=600&q=85&auto=format&fit=crop", label: "Instagram Ad", w: 400, isFallback: true },
-            { src: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=600&q=85&auto=format&fit=crop", label: "Sci-Fi Scene", w: 460, isFallback: true },
-            { src: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=85&auto=format&fit=crop", label: "Gaming Banner", w: 380, isFallback: true },
-            { src: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&q=85&auto=format&fit=crop", label: "Blog Cover", w: 420, isFallback: true },
-            { src: "https://images.unsplash.com/photo-1549490349-8643362247b5?w=600&q=85&auto=format&fit=crop", label: "Abstract Brand Visual", w: 350, isFallback: true },
-            { src: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=85&auto=format&fit=crop", label: "Tech Visual", w: 380, isFallback: true },
-          ];
-          const half = Math.ceil(galleryPosts.length / 2);
-          const communitySlice = galleryPosts.slice(0, half);
-          const communityItems1 = communitySlice.map((p, i) => ({
-            src: p.image_url,
-            label: p.username ? `@${p.username}` : "Community",
-            w: fallbackW1[i % fallbackW1.length],
-            isFallback: false,
-          }));
-          const base1 = communityItems1.length >= 4
-            ? communityItems1
-            : [...communityItems1, ...fallback1].slice(0, 8);
-          const items1 = [...base1, ...base1];
-          return (
-            <div className="showcase-row" style={{ marginBottom: 16 }}>
-              <div
-                className="showcase-track"
-                style={{
-                  gap: 16,
-                  animation: "slideLeft 55s linear infinite",
-                  animationPlayState: sliderPaused ? "paused" : "running",
-                }}
-              >
-                {items1.map((img, i) => (
-                  <div
-                    key={i}
-                    className="showcase-card"
-                    style={{
-                      width: img.w,
-                      height: 290,
-                      boxShadow: "0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06)",
-                    }}
-                  >
-                    <img
-                      src={img.src}
-                      alt={img.label}
-                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                    />
-                    <div className="card-label">{img.label}</div>
-                    {!img.isFallback && (
-                      <div className="gen-badge">
-                        <span style={{ width: 5, height: 5, borderRadius: 999, background: "#a78bff", boxShadow: "0 0 4px #a78bff", display: "inline-block" }} />
-                        Community
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
-        })()}
+        <div style={{ marginTop: 32 }}>
+          <ZoomParallax images={communityParallaxImages} />
+        </div>
 
-        {/* Row 2 Ã¢â‚¬â€ slides right (opposite direction) */}
-        {(() => {
-          const fallbackW2 = [370, 430, 400, 380, 350, 420, 360, 390];
-          const fallback2 = [
-            { src: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600&q=85&auto=format&fit=crop", label: "Fashion Editorial", w: 370, isFallback: true },
-            { src: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=600&q=85&auto=format&fit=crop", label: "Cosmic Visual", w: 430, isFallback: true },
-            { src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=85&auto=format&fit=crop", label: "Landscape", w: 400, isFallback: true },
-            { src: "https://images.unsplash.com/photo-1480796927426-f609979314bd?w=600&q=85&auto=format&fit=crop", label: "City Aerial", w: 380, isFallback: true },
-            { src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=85&auto=format&fit=crop", label: "Product Image", w: 350, isFallback: true },
-            { src: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=600&q=85&auto=format&fit=crop", label: "Architecture", w: 420, isFallback: true },
-            { src: "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=600&q=85&auto=format&fit=crop", label: "Abstract Neon", w: 360, isFallback: true },
-            { src: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=600&q=85&auto=format&fit=crop", label: "Social Content", w: 390, isFallback: true },
-          ];
-          const half = Math.ceil(galleryPosts.length / 2);
-          const communitySlice = galleryPosts.slice(half);
-          const communityItems2 = communitySlice.map((p, i) => ({
-            src: p.image_url,
-            label: p.username ? `@${p.username}` : "Community",
-            w: fallbackW2[i % fallbackW2.length],
-            isFallback: false,
-          }));
-          const base2 = communityItems2.length >= 4
-            ? communityItems2
-            : [...communityItems2, ...fallback2].slice(0, 8);
-          const items2 = [...base2, ...base2];
-          return (
-            <div className="showcase-row">
-              <div
-                className="showcase-track"
-                style={{
-                  gap: 16,
-                  animation: "slideRight 65s linear infinite",
-                  animationPlayState: sliderPaused ? "paused" : "running",
-                }}
-              >
-                {items2.map((img, i) => (
-                  <div
-                    key={i}
-                    className="showcase-card"
-                    style={{
-                      width: img.w,
-                      height: 270,
-                      boxShadow: "0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06)",
-                    }}
-                  >
-                    <img
-                      src={img.src}
-                      alt={img.label}
-                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                    />
-                    <div className="card-label">{img.label}</div>
-                    {!img.isFallback && (
-                      <div className="gen-badge">
-                        <span style={{ width: 5, height: 5, borderRadius: 999, background: "#a78bff", boxShadow: "0 0 4px #a78bff", display: "inline-block" }} />
-                        Community
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+        <div style={{ maxWidth: 1140, margin: "-30vh auto 0", padding: "0 24px", position: "relative", zIndex: 2 }}>
+          {galleryLoading && (
+            <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 28 }}>
+              {[0, 1, 2].map((i) => (
+                <div key={i} style={{ width: 8, height: 8, borderRadius: "50%", background: "#a78bff", opacity: 0.4, animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite` }} />
+              ))}
             </div>
-          );
-        })()}
+          )}
 
-        {/* Bottom fade hint */}
-        <div style={{ textAlign: "center", marginTop: 32, color: "#8885a8", fontSize: 13 }}>
-          Hover to pause - Every image generated from a single sentence
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 18 }}>
+            {featuredCommunityPosts.map((post) => (
+              <div
+                key={post.id}
+                className="card-hover"
+                style={{ borderRadius: 22, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(13,13,24,0.92)", boxShadow: "0 20px 70px rgba(0,0,0,0.35)" }}
+              >
+                <div onClick={() => setGalleryModalPost(post)} style={{ position: "relative", paddingBottom: "100%", cursor: "pointer", background: "#0a0a14" }}>
+                  <img
+                    src={post.image_url}
+                    alt={post.prompt ?? "Community image"}
+                    style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                  />
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(transparent 45%, rgba(0,0,0,0.78) 100%)" }} />
+                  <div style={{ position: "absolute", top: 12, right: 12, padding: "5px 10px", borderRadius: 999, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(8px)", fontSize: 11, color: "rgba(255,255,255,0.72)" }}>
+                    Open discussion
+                  </div>
+                  {post.prompt && (
+                    <div style={{ position: "absolute", left: 14, right: 14, bottom: 14, color: "rgba(255,255,255,0.92)", fontSize: 12, lineHeight: 1.55 }}>
+                      “{post.prompt.length > 88 ? `${post.prompt.slice(0, 88)}...` : post.prompt}”
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ padding: "14px 16px 16px" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+                      <div style={{ width: 30, height: 30, borderRadius: "50%", background: `hsl(${post.username.charCodeAt(0) * 13 % 360}, 50%, 38%)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "white", flexShrink: 0 }}>
+                        {post.username[0].toUpperCase()}
+                      </div>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: "#d8cbff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{post.username}</div>
+                        <div style={{ fontSize: 11, color: "#5e5b78" }}>{post.model ?? "midilli model"}</div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); void handleGalleryLike(post); }}
+                      style={{ padding: "7px 12px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.04)", color: "#b8b2d0", fontSize: 12, cursor: "pointer", fontFamily: "inherit", flexShrink: 0 }}
+                    >
+                      Like {post.likes_count}
+                    </button>
+                  </div>
+                  <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
+                    <button
+                      onClick={() => setGalleryModalPost(post)}
+                      style={{ flex: 1, padding: "10px 14px", borderRadius: 999, border: "1px solid rgba(124,92,252,0.25)", background: "rgba(124,92,252,0.08)", color: "#cdbfff", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}
+                    >
+                      Comment
+                    </button>
+                    <Link
+                      href="/gallery"
+                      style={{ flex: 1, padding: "10px 14px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.04)", color: "#f0eeff", fontSize: 12, fontWeight: 700, textAlign: "center", textDecoration: "none" }}
+                    >
+                      View more
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ textAlign: "center", marginTop: 32 }}>
+            <Link href="/gallery" className="btn-secondary" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+              Explore the full community gallery {"->"}
+            </Link>
+          </div>
         </div>
       </section>
 
 
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Visual Proof Ã¢â€â‚¬Ã¢â€â‚¬ */}
+      {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Visual Proof ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
       <section style={{ maxWidth: 1100, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1 }}>
         <SectionHead
           label="Real Results"
@@ -1076,7 +1058,7 @@ export default function HomePageClient() {
         </div>
       </section>
 
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Why This Feels Different Ã¢â€â‚¬Ã¢â€â‚¬ */}
+      {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Why This Feels Different ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
       <section style={{ maxWidth: 960, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1 }}>
         <SectionHead
           label="Why MIDILLI"
@@ -1119,7 +1101,7 @@ export default function HomePageClient() {
         </div>
       </section>
 
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Comparison Ã¢â€â‚¬Ã¢â€â‚¬ */}
+      {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Comparison ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
       <section style={{ maxWidth: 960, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1 }}>
         <SectionHead
           label="vs The Alternatives"
@@ -1160,7 +1142,7 @@ export default function HomePageClient() {
         </div>
       </section>
 
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Use Cases Ã¢â€â‚¬Ã¢â€â‚¬ */}
+      {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Use Cases ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
       <section style={{ maxWidth: 900, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1 }}>
         <SectionHead
           label="Use Cases"
@@ -1187,7 +1169,7 @@ export default function HomePageClient() {
         </div>
       </section>
 
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Mid CTA Ã¢â€â‚¬Ã¢â€â‚¬ */}
+      {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Mid CTA ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
       <section style={{ maxWidth: 700, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1, textAlign: "center" }}>
         <div style={{ padding: "52px 48px", borderRadius: 28, background: "rgba(124,92,252,0.07)", border: "1px solid rgba(124,92,252,0.2)", backdropFilter: "blur(12px)" }}>
           <div style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(24px,3.5vw,38px)", fontWeight: 800, letterSpacing: -1, marginBottom: 16 }}>
@@ -1197,13 +1179,13 @@ export default function HomePageClient() {
           <div style={{ color: "#8885a8", marginBottom: 32, fontSize: 15, lineHeight: 1.7 }}>
             No credit card. Instant result. Then decide.
           </div>
-          <button onClick={goToStudio} className="btn-primary" style={{ fontSize: 16, padding: "18px 40px", cursor: "pointer", fontFamily: "inherit", border: "none" }}>
+          <button onClick={goToStudioAction} className="btn-primary" style={{ fontSize: 16, padding: "18px 40px", cursor: "pointer", fontFamily: "inherit", border: "none" }}>
             Start Creating - Free
           </button>
         </div>
       </section>
 
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Objections / FAQ Ã¢â€â‚¬Ã¢â€â‚¬ */}
+      {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Objections / FAQ ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
       <section style={{ maxWidth: 760, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1 }}>
         <SectionHead
           label="Objections"
@@ -1235,157 +1217,28 @@ export default function HomePageClient() {
         </div>
       </section>
 
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Community Gallery Ã¢â€â‚¬Ã¢â€â‚¬ */}
-      <section id="gallery" style={{ maxWidth: 1140, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1 }}>
-        <SectionHead label="Community" title="Made with MIDILLI" sub="Real images shared by creators. Like, comment, and get inspired." />
-
-        {/* Loading */}
-        {galleryLoading && (
-          <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 60 }}>
-            {[0, 1, 2].map((i) => (
-              <div key={i} style={{ width: 8, height: 8, borderRadius: "50%", background: "#a78bff", opacity: 0.4, animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite` }} />
-            ))}
-          </div>
-        )}
-
-        {/* Empty state */}
-        {!galleryLoading && galleryPosts.length === 0 && (
-          <div style={{ textAlign: "center", padding: "60px 24px", color: "#3a3a52" }}>
-            <div style={{ fontSize: 48, marginBottom: 16, opacity: 0.3 }}>*</div>
-            <p style={{ fontSize: 15, color: "#3a3a52" }}>No community images yet.</p>
-            <p style={{ fontSize: 13, color: "#2a2a3a", marginTop: 6 }}>Generate an image in the studio and hit <strong style={{ color: "#7c5cfc" }}>Share</strong>!</p>
-          </div>
-        )}
-
-        {/* Grid */}
-        {!galleryLoading && galleryPosts.length > 0 && (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 16, marginTop: 42 }}>
-            {galleryPosts.map((post) => (
-              <div
-                key={post.id}
-                className="card-hover"
-                style={{ borderRadius: 18, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", background: "#0d0d18", cursor: "pointer", position: "relative" }}
-              >
-                {/* Image */}
-                <div
-                  onClick={() => setGalleryModalPost(post)}
-                  style={{ position: "relative", paddingBottom: "100%", overflow: "hidden", background: "#080812" }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={post.image_url}
-                    alt={post.prompt ?? "Community image"}
-                    style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.3s ease" }}
-                    onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.04)"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; }}
-                  />
-                  {/* Hover overlay */}
-                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(transparent 50%, rgba(0,0,0,0.7) 100%)", opacity: 0, transition: "opacity 0.2s" }}
-                    onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.opacity = "0"; }}
-                  />
-                  {/* Comment badge */}
-                  <div style={{ position: "absolute", top: 10, right: 10, padding: "3px 9px", borderRadius: 999, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)", fontSize: 11, color: "rgba(255,255,255,0.6)", display: "flex", alignItems: "center", gap: 4 }}>
-                    Comment
-                  </div>
-                </div>
-
-                {/* Footer */}
-                <div style={{ padding: "12px 14px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
-                    <div style={{
-                      width: 26, height: 26, borderRadius: "50%", flexShrink: 0,
-                      background: `hsl(${post.username.charCodeAt(0) * 13 % 360}, 50%, 38%)`,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: 11, fontWeight: 700, color: "white",
-                    }}>
-                      {post.username[0].toUpperCase()}
-                    </div>
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ fontSize: 12, fontWeight: 600, color: "#c4b8ff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{post.username}</div>
-                      {post.prompt && (
-                        <div style={{ fontSize: 11, color: "#4a4a62", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 120 }}>{post.prompt}</div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Like button */}
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleGalleryLike(post); }}
-                    style={{
-                      display: "flex", alignItems: "center", gap: 5,
-                      padding: "5px 10px", borderRadius: 999,
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      background: "rgba(255,255,255,0.04)",
-                      color: "#6b7280", fontSize: 12, cursor: "pointer",
-                      transition: "all 0.15s", fontFamily: "inherit", flexShrink: 0,
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(239,68,68,0.35)"; e.currentTarget.style.color = "#f87171"; e.currentTarget.style.background = "rgba(239,68,68,0.08)"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "#6b7280"; e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
-                  >
-                    Like <span style={{ fontWeight: 600 }}>{post.likes_count}</span>
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* CTA */}
-        {!galleryLoading && (
-          <div style={{ textAlign: "center", marginTop: 40 }}>
-            <Link href="/create" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "11px 24px", borderRadius: 999, border: "1px solid rgba(124,92,252,0.3)", background: "rgba(124,92,252,0.08)", color: "#a78bff", fontSize: 13, fontWeight: 600, textDecoration: "none", transition: "all 0.2s" }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(124,92,252,0.16)"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(124,92,252,0.08)"; }}
-            >
-              Create & Share Your Own
-            </Link>
-          </div>
-        )}
-      </section>
-
       {/* Gallery Modal */}
       {galleryModalPost && (
         <GalleryModal
           post={galleryModalPost}
-          currentUsername={communityUsername}
+          currentUsername={userName}
           onClose={() => setGalleryModalPost(null)}
-          onAskUsername={askCommunityUsername}
+          onRequireAuth={openAuthGate}
         />
       )}
 
-      {/* Community username modal */}
-      {communityUsernameModal && (
-        <div
-          onClick={(e) => { if (e.target === e.currentTarget) setCommunityUsernameModal(null); }}
-          style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.75)", backdropFilter: "blur(10px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
-        >
-          <div style={{ background: "#13131f", border: "1px solid rgba(168,85,247,0.3)", borderRadius: 20, padding: "32px 28px", width: "100%", maxWidth: 360, boxShadow: "0 24px 80px rgba(0,0,0,0.7)" }}>
-            <div style={{ textAlign: "center", marginBottom: 24 }}>
-              <div style={{ fontSize: 28, marginBottom: 10 }}>*</div>
-              <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 18, fontWeight: 700, color: "#e2d9ff", marginBottom: 6 }}>Choose a display name</div>
-              <p style={{ fontSize: 13, color: "#6b6b8a", lineHeight: 1.6 }}>This will appear on your likes and comments.</p>
-            </div>
-            <input
-              autoFocus
-              value={communityUsernameInput}
-              onChange={(e) => setCommunityUsernameInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") confirmCommunityUsername(); if (e.key === "Escape") setCommunityUsernameModal(null); }}
-              placeholder="e.g. creative_fox"
-              maxLength={30}
-              style={{ width: "100%", padding: "11px 14px", borderRadius: 10, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(168,85,247,0.3)", color: "white", fontSize: 14, outline: "none", fontFamily: "inherit", marginBottom: 14 }}
-              onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(168,85,247,0.6)"; }}
-              onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(168,85,247,0.3)"; }}
-            />
-            <div style={{ display: "flex", gap: 8 }}>
-              <button onClick={() => setCommunityUsernameModal(null)} style={{ flex: 1, padding: "11px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "#6b7280", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>Cancel</button>
-              <button onClick={confirmCommunityUsername} disabled={!communityUsernameInput.trim()} style={{ flex: 2, padding: "11px", borderRadius: 10, border: "none", background: "linear-gradient(135deg, #7c3aed, #a855f7)", color: "white", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", opacity: communityUsernameInput.trim() ? 1 : 0.4, transition: "opacity 0.15s" }}>Continue</button>
-            </div>
-          </div>
-        </div>
+      {showAuthGate && (
+        <AuthGateModal
+          nextPath="/"
+          onClose={() => setShowAuthGate(false)}
+          onSuccess={() => {
+            setShowAuthGate(false);
+            showToast("Signed in. You can now like and comment.");
+          }}
+        />
       )}
 
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Plans Modal Ã¢â€â‚¬Ã¢â€â‚¬ */}
+      {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Plans Modal ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
       {showPlansModal && (
         <div
           onClick={(e) => { if (e.target === e.currentTarget) setShowPlansModal(false); }}
@@ -1786,5 +1639,6 @@ function SectionHead({
     </>
   );
 }
+
 
 

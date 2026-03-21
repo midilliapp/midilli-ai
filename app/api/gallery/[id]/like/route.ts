@@ -1,14 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 
-function getSupabase() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key =
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) throw new Error("Supabase not configured");
-  return createClient(url, key);
-}
+import { getAuthenticatedIdentity, getSupabaseServer } from "@/lib/gallery-auth";
 
 // POST /api/gallery/[id]/like — toggle like
 export async function POST(
@@ -16,13 +8,14 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const sb = getSupabase();
-    const { id: postId } = await params;
-    const { username } = (await req.json()) as { username: string };
-
-    if (!username?.trim()) {
-      return NextResponse.json({ error: "username required" }, { status: 400 });
+    const identity = await getAuthenticatedIdentity(req);
+    if (!identity) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
     }
+
+    const sb = getSupabaseServer();
+    const { id: postId } = await params;
+    const username = identity.username;
 
     // Check existing like
     const { data: existing } = await sb

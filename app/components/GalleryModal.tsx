@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import { supabase } from "@/lib/supabase";
+
 type Comment = {
   id: string;
   username: string;
@@ -23,14 +25,14 @@ interface Props {
   post: Post;
   currentUsername: string | null;
   onClose: () => void;
-  onAskUsername: (cb: (name: string) => void) => void;
+  onRequireAuth: () => void;
 }
 
 export default function GalleryModal({
   post,
   currentUsername,
   onClose,
-  onAskUsername,
+  onRequireAuth,
 }: Props) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentsLoading, setCommentsLoading] = useState(true);
@@ -75,61 +77,78 @@ export default function GalleryModal({
     return () => window.removeEventListener("keydown", h);
   }, [onClose]);
 
-  const handleLike = () => {
-    const doLike = (username: string) => {
-      const wasLiked = liked;
-      setLiked(!wasLiked);
-      setLikesCount((c) => (wasLiked ? c - 1 : c + 1));
+  const getAuthHeaders = async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
-      fetch(`/api/gallery/${post.id}/like`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username }),
-      })
-        .then((r) => r.json())
-        .then((d) => {
-          if (d.likes_count !== undefined) setLikesCount(d.likes_count);
-          if (d.liked !== undefined) setLiked(d.liked as boolean);
-        })
-        .catch(() => {
-          // revert on error
-          setLiked(wasLiked);
-          setLikesCount((c) => (wasLiked ? c + 1 : c - 1));
-        });
-    };
-
-    if (currentUsername) {
-      doLike(currentUsername);
-    } else {
-      onAskUsername(doLike);
+    if (!session?.access_token) {
+      onRequireAuth();
+      return null;
     }
+
+    return {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session.access_token}`,
+    };
   };
 
-  const handleComment = () => {
-    if (!commentText.trim()) return;
-
-    const doComment = (username: string) => {
-      setSubmitting(true);
-      fetch(`/api/gallery/${post.id}/comment`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, content: commentText.trim() }),
-      })
-        .then((r) => r.json())
-        .then((d) => {
-          if (d.comment) {
-            setComments((prev) => [...prev, d.comment as Comment]);
-            setCommentText("");
-          }
-        })
-        .finally(() => setSubmitting(false));
-    };
-
-    if (currentUsername) {
-      doComment(currentUsername);
-    } else {
-      onAskUsername(doComment);
+  const handleLike = async () => {
+    if (!currentUsername) {
+      onRequireAuth();
+      return;
     }
+
+    const wasLiked = liked;
+    setLiked(!wasLiked);
+    setLikesCount((c) => (wasLiked ? c - 1 : c + 1));
+
+    const headers = await getAuthHeaders();
+    if (!headers) {
+      setLiked(wasLiked);
+      setLikesCount((c) => (wasLiked ? c : Math.max(0, c - 1)));
+      return;
+    }
+
+    fetch(`/api/gallery/${post.id}/like`, {
+      method: "POST",
+      headers,
+    })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.likes_count !== undefined) setLikesCount(d.likes_count);
+        if (d.liked !== undefined) setLiked(d.liked as boolean);
+      })
+      .catch(() => {
+        setLiked(wasLiked);
+        setLikesCount((c) => (wasLiked ? c + 1 : Math.max(0, c - 1)));
+      });
+  };
+
+  const handleComment = async () => {
+    if (!commentText.trim()) return;
+    if (!currentUsername) {
+      onRequireAuth();
+      return;
+    }
+
+    const headers = await getAuthHeaders();
+    if (!headers) return;
+
+    setSubmitting(true);
+    fetch(`/api/gallery/${post.id}/comment`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ content: commentText.trim() }),
+    })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.comment) {
+          setComments((prev) => [...prev, d.comment as Comment]);
+          setCommentText("");
+        }
+      })
+      .finally(() => setSubmitting(false));
   };
 
   const timeAgo = (iso: string) => {
@@ -323,7 +342,7 @@ export default function GalleryModal({
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleComment(); }
               }}
-              placeholder="Add a comment…"
+              placeholder={currentUsername ? "Add a comment..." : "Sign in to comment..."}
               rows={1}
               style={{
                 flex: 1, resize: "none", background: "rgba(255,255,255,0.05)",

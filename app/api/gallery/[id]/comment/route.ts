@@ -1,14 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 
-function getSupabase() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key =
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) throw new Error("Supabase not configured");
-  return createClient(url, key);
-}
+import { getAuthenticatedIdentity, getSupabaseServer } from "@/lib/gallery-auth";
 
 // GET /api/gallery/[id]/comment — fetch comments for a post
 export async function GET(
@@ -16,7 +8,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const sb = getSupabase();
+    const sb = getSupabaseServer();
     const { id: postId } = await params;
 
     const { data, error } = await sb
@@ -38,16 +30,20 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const sb = getSupabase();
+    const identity = await getAuthenticatedIdentity(req);
+    if (!identity) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
+    const sb = getSupabaseServer();
     const { id: postId } = await params;
-    const { username, content } = (await req.json()) as {
-      username: string;
+    const { content } = (await req.json()) as {
       content: string;
     };
 
-    if (!username?.trim() || !content?.trim()) {
+    if (!content?.trim()) {
       return NextResponse.json(
-        { error: "username and content required" },
+        { error: "content required" },
         { status: 400 }
       );
     }
@@ -56,7 +52,7 @@ export async function POST(
       .from("gallery_comments")
       .insert({
         post_id: postId,
-        username: username.trim(),
+        username: identity.username,
         content: content.trim(),
       })
       .select()

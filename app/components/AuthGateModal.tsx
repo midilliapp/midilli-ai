@@ -6,9 +6,10 @@ import { supabase } from "@/lib/supabase";
 interface Props {
   onSuccess: () => void;
   onClose: () => void;
+  nextPath?: string;
 }
 
-export default function AuthGateModal({ onSuccess, onClose }: Props) {
+export default function AuthGateModal({ onSuccess, onClose, nextPath = "/create" }: Props) {
   const [mode, setMode] = useState<"login" | "signup">("signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,7 +29,7 @@ export default function AuthGateModal({ onSuccess, onClose }: Props) {
   const handleGoogle = async () => {
     setError(null);
     setGoogleLoading(true);
-    const redirectUrl = `${window.location.origin}/auth/callback?next=/create`;
+    const redirectUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`;
     const { error: err } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: redirectUrl, queryParams: { access_type: "offline", prompt: "select_account" } },
@@ -48,7 +49,7 @@ export default function AuthGateModal({ onSuccess, onClose }: Props) {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback?next=/create`,
+            emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`,
             data: { full_name: fullName.trim() },
           },
         });
