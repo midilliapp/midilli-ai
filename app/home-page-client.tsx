@@ -636,9 +636,9 @@ export default function HomePageClient() {
       <LiquidMetalHero
         title={
           <>
-            From idea to image
+            Create visuals that
             <br />
-            <span className="shimmer-text">in one fluid motion.</span>
+            <span className="shimmer-text">feel ready to launch.</span>
           </>
         }
       />
