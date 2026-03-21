@@ -303,7 +303,7 @@ export default function DashboardClient() {
               </div>
             </div>
             <Link href="/#generate" className="btn-primary-dash">
-              ✦ New Generation
+              New Generation
             </Link>
           </div>
         </div>
@@ -316,10 +316,10 @@ export default function DashboardClient() {
           marginBottom: 32,
         }}>
           {[
-            { label: "Credits Balance", value: "20", unit: "credits", color: "#38d9f5", icon: "◈" },
-            { label: "Images Created", value: "0", unit: "total", color: "#a78bff", icon: "⬡" },
-            { label: "Videos Created", value: "0", unit: "total", color: "#e84fbc", icon: "▶" },
-            { label: "Plan", value: "Free", unit: "tier", color: "#4cebb8", icon: "★" },
+            { label: "Credits Balance", value: "20", unit: "credits", color: "#38d9f5", icon: "*" },
+            { label: "Images Created", value: "0", unit: "total", color: "#a78bff", icon: "[]" },
+            { label: "Videos Created", value: "0", unit: "total", color: "#e84fbc", icon: ">" },
+            { label: "Plan", value: "Free", unit: "tier", color: "#4cebb8", icon: "+" },
           ].map(({ label, value, unit, color, icon }) => (
             <div key={label} className="stat-card">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -360,10 +360,10 @@ export default function DashboardClient() {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {[
-                { icon: "✦", label: "Generate Image", sub: "Text to image", href: "/#generate", color: "#a78bff" },
-                { icon: "▶", label: "Create Video", sub: "Image to video", href: "/#generate", color: "#38d9f5" },
-                { icon: "◈", label: "Buy Credits", sub: "Top up balance", href: "/#credits", color: "#e84fbc" },
-                { icon: "⬡", label: "View Gallery", sub: "Community works", href: "/#gallery", color: "#4cebb8" },
+                { icon: "*", label: "Generate Image", sub: "Text to image", href: "/#generate", color: "#a78bff" },
+                { icon: ">", label: "Create Video", sub: "Image to video", href: "/#generate", color: "#38d9f5" },
+                { icon: "+", label: "Buy Credits", sub: "Top up balance", href: "/#credits", color: "#e84fbc" },
+                { icon: "[]", label: "View Gallery", sub: "Community works", href: "/#gallery", color: "#4cebb8" },
               ].map(({ icon, label, sub, href, color }) => (
                 <Link key={label} href={href} className="action-card">
                   <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -399,7 +399,7 @@ export default function DashboardClient() {
                 Recent Generations
               </div>
               <Link href="/#gallery" style={{ color: "#7c5cfc", fontSize: 13, textDecoration: "none" }}>
-                View all →
+                View all {"->"}
               </Link>
             </div>
 
@@ -479,7 +479,7 @@ export default function DashboardClient() {
             textDecoration: "none",
             fontWeight: 600,
           }}>
-            Upgrade to Pro →
+            Upgrade to Pro {"->"}
           </Link>
         </div>
 

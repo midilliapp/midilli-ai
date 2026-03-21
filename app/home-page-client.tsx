@@ -194,19 +194,19 @@ export default function HomePageClient() {
     {
       prompt: "Cyberpunk city at night, neon rain, cinematic",
       src: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=900&q=85&auto=format&fit=crop",
-      use: "YouTube Thumbnail — 120K views",
+      use: "YouTube Thumbnail - 120K views",
       tag: "Sci-Fi / Cinematic",
     },
     {
       prompt: "Futuristic product ad, chrome robot, dark studio",
       src: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=900&q=85&auto=format&fit=crop",
-      use: "Product Ad — Used in paid campaign",
+      use: "Product Ad - Used in paid campaign",
       tag: "AI Product Ad",
     },
     {
       prompt: "Luxury fashion editorial, minimal white background",
       src: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=900&q=85&auto=format&fit=crop",
-      use: "Instagram Campaign — 4.1% CTR",
+      use: "Instagram Campaign - 4.1% CTR",
       tag: "Fashion Editorial",
     },
   ];
@@ -217,7 +217,7 @@ export default function HomePageClient() {
     setTypedText("");
     setTypingDone(false);
 
-    // Small delay before typing starts — image already visible
+    // Small delay before typing starts - image already visible
     const startDelay = window.setTimeout(() => {
       const typeInterval = window.setInterval(() => {
         charIndex++;
@@ -284,7 +284,7 @@ export default function HomePageClient() {
       return;
     }
     if (credits < 1) {
-      showToast("Kredi bitti. Aşağıdan paket seçebilirsin.");
+      showToast("Kredi bitti. Asagidan paket secebilirsin.");
       return;
     }
 
@@ -308,7 +308,7 @@ export default function HomePageClient() {
       setCredits((c) => c - 1);
       setImageResult(data.url ?? null);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Bir hata oluştu.";
+      const msg = err instanceof Error ? err.message : "Bir hata olustu.";
       setGenerationError(msg);
       showToast("Hata: " + msg);
     } finally {
@@ -619,7 +619,7 @@ export default function HomePageClient() {
           animation: ticker 28s linear infinite;
         }
 
-        /* ── Image Showcase Slider ── */
+        /* Ã¢â€â‚¬Ã¢â€â‚¬ Image Showcase Slider Ã¢â€â‚¬Ã¢â€â‚¬ */
         .showcase-row {
           overflow: hidden;
           mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
@@ -705,7 +705,7 @@ export default function HomePageClient() {
         }
       `}</style>
 
-      {/* ── Page Transition Overlay ── */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Page Transition Overlay Ã¢â€â‚¬Ã¢â€â‚¬ */}
       {transitioning && (
         <div style={{
           position: "fixed", inset: 0, zIndex: 9999,
@@ -745,7 +745,7 @@ export default function HomePageClient() {
         </div>
       )}
 
-      {/* ── Animated background ── */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Animated background Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <div style={{ position: "fixed", inset: 0, zIndex: 0, overflow: "hidden", pointerEvents: "none" }}>
         <div className="bg-blob bg-blob-1" />
         <div className="bg-blob bg-blob-2" />
@@ -754,7 +754,7 @@ export default function HomePageClient() {
       </div>
       <div className="bg-grid" />
 
-      {/* ── Header ── */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Header Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <header
         style={{
           position: "sticky",
@@ -812,14 +812,14 @@ export default function HomePageClient() {
         </nav>
       </header>
 
-      {/* ── HERO ── */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ HERO Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <section className="hero-section-pad" style={{ padding: "80px 40px 72px", position: "relative", zIndex: 1 }}>
         <div
           className="hero-two-col"
           style={{ maxWidth: 1360, margin: "0 auto", display: "grid", gridTemplateColumns: "38% 62%", gap: 56, alignItems: "center" }}
         >
 
-          {/* ── LEFT: editorial copy ── */}
+          {/* Ã¢â€â‚¬Ã¢â€â‚¬ LEFT: editorial copy Ã¢â€â‚¬Ã¢â€â‚¬ */}
           <div>
             <div
               className="badge-pulse hero-animate"
@@ -835,7 +835,8 @@ export default function HomePageClient() {
             >
               From idea
               <br />to image.
-              <br /><span className="shimmer-text">10 seconds.</span>
+              <br />
+              <span className="shimmer-text">10 seconds.</span>
             </h1>
 
             <p
@@ -847,24 +848,24 @@ export default function HomePageClient() {
 
             <div className="hero-animate-delay2" style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 32 }}>
               <button onClick={goToStudio} className="btn-primary" style={{ fontSize: 14, padding: "14px 26px", cursor: "pointer", fontFamily: "inherit", border: "none" }}>
-                ✦ Start Creating — Free
+                Start Creating - Free
               </button>
               <button
                 onClick={() => setShowPlansModal(true)}
                 className="btn-secondary"
                 style={{ fontSize: 14, padding: "14px 22px", cursor: "pointer", fontFamily: "inherit" }}
               >
-                See Plans ↗
+                See Plans {"->"}
               </button>
             </div>
 
             <div className="hero-animate-delay2" style={{ marginTop: 14, color: "#8885a8", fontSize: 12 }}>
-              20 free credits · No credit card · No tutorial
+              20 free credits - No credit card - No tutorial
             </div>
             <div className="hero-animate-delay2" style={{ marginTop: 6, color: "#8885a8", fontSize: 12 }}>
               Used for{" "}
               {["ads", "thumbnails", "products", "pitch decks"].map((t, i, arr) => (
-                <span key={t}><span style={{ color: "#a78bff" }}>{t}</span>{i < arr.length - 1 ? " · " : ""}</span>
+                <span key={t}><span style={{ color: "#a78bff" }}>{t}</span>{i < arr.length - 1 ? " - " : ""}</span>
               ))}
             </div>
 
@@ -872,7 +873,7 @@ export default function HomePageClient() {
               {[
                 { value: "~8s", label: "Avg. generation" },
                 { value: "50K+", label: "Images created" },
-                { value: "4.9★", label: "User rating" },
+                { value: "4.9/5", label: "User rating" },
               ].map(({ value, label }) => (
                 <div key={label}>
                   <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 22, fontWeight: 800, background: "linear-gradient(135deg,#a78bff,#38d9f5)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", lineHeight: 1 }}>{value}</div>
@@ -882,14 +883,14 @@ export default function HomePageClient() {
             </div>
           </div>
 
-          {/* ── RIGHT: Visual engine — always alive ── */}
+          {/* Ã¢â€â‚¬Ã¢â€â‚¬ RIGHT: Visual engine Ã¢â‚¬â€ always alive Ã¢â€â‚¬Ã¢â€â‚¬ */}
           <div className="hero-animate-delay" style={{ position: "relative" }}>
 
             {/* Ambient glow layers */}
             <div style={{ position: "absolute", top: "5%", left: "5%", width: "90%", height: "90%", background: "radial-gradient(ellipse at 55% 45%, rgba(124,92,252,0.3) 0%, rgba(232,79,188,0.1) 40%, transparent 68%)", filter: "blur(48px)", pointerEvents: "none", zIndex: 0 }} />
             <div style={{ position: "absolute", top: "15%", right: "-5%", width: "55%", height: "65%", background: "radial-gradient(ellipse, rgba(56,217,245,0.1) 0%, transparent 65%)", filter: "blur(40px)", pointerEvents: "none", zIndex: 0 }} />
 
-            {/* Canvas — no app chrome, pure visual */}
+            {/* Canvas Ã¢â‚¬â€ no app chrome, pure visual */}
             <div
               style={{
                 position: "relative", zIndex: 1,
@@ -902,7 +903,7 @@ export default function HomePageClient() {
               {/* Full-bleed image area */}
               <div className="hero-canvas" style={{ position: "relative", height: 460, overflow: "hidden", background: "#050508" }}>
 
-                {/* All images — always rendered, crossfade between them */}
+                {/* All images Ã¢â‚¬â€ always rendered, crossfade between them */}
                 {demoExamples.map((ex, i) => (
                   <img
                     key={ex.src}
@@ -918,7 +919,7 @@ export default function HomePageClient() {
                   />
                 ))}
 
-                {/* Category tag — top left, subtle */}
+                {/* Category tag Ã¢â‚¬â€ top left, subtle */}
                 <div style={{
                   position: "absolute", top: 18, left: 18,
                   padding: "5px 12px", borderRadius: 999,
@@ -931,13 +932,13 @@ export default function HomePageClient() {
                   {demoExamples[demoIndex].tag}
                 </div>
 
-                {/* Bottom overlay — always visible, shows prompt while typing, use case when done */}
+                {/* Bottom overlay Ã¢â‚¬â€ always visible, shows prompt while typing, use case when done */}
                 <div style={{
                   position: "absolute", bottom: 0, left: 0, right: 0,
                   padding: "72px 26px 24px",
                   background: "linear-gradient(to top, rgba(3,3,10,0.96) 0%, rgba(3,3,10,0.55) 50%, transparent 100%)",
                 }}>
-                  {/* Prompt line — typing animation */}
+                  {/* Prompt line Ã¢â‚¬â€ typing animation */}
                   <div style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", fontStyle: "italic", marginBottom: 12, lineHeight: 1.5, minHeight: 20 }}>
                     {typedText
                       ? <>&ldquo;{typedText}<span style={{ display: "inline-block", width: 1.5, height: 13, background: "#7c5cfc", marginLeft: 2, verticalAlign: "middle", animation: typingDone ? "none" : "glow-pulse 0.7s ease-in-out infinite" }} />&rdquo;</>
@@ -977,18 +978,18 @@ export default function HomePageClient() {
         </div>
       </section>
 
-      {/* ── Hero → Slider Bridge ── */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Hero Ã¢â€ â€™ Slider Bridge Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <div style={{ position: "relative", zIndex: 1, textAlign: "center", padding: "0 24px 0" }}>
         <div style={{ display: "inline-flex", alignItems: "center", gap: 12, padding: "10px 24px", borderRadius: 999, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", color: "#8885a8", fontSize: 13 }}>
           <span style={{ display: "inline-flex", gap: 4 }}>
             {[0,1,2].map(i => <span key={i} style={{ width: 6, height: 6, borderRadius: 999, background: i === 0 ? "#7c5cfc" : i === 1 ? "#e84fbc" : "#38d9f5", opacity: 0.7 }} />)}
           </span>
           Here is what people are creating right now
-          <span style={{ opacity: 0.4 }}>↓</span>
+          <span style={{ opacity: 0.4 }}>-</span>
         </div>
       </div>
 
-      {/* ── Image Showcase Slider ── */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Image Showcase Slider Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <section
         style={{ padding: "36px 0 64px", position: "relative", zIndex: 1, overflow: "hidden" }}
         onMouseEnter={() => setSliderPaused(true)}
@@ -1006,11 +1007,11 @@ export default function HomePageClient() {
             </span>
           </h2>
           <p style={{ color: "#8885a8", fontSize: 15, marginTop: 14, marginBottom: 0, maxWidth: 480, margin: "14px auto 0" }}>
-            Every image below was created from a single sentence. Sci-fi, fashion, product ads, gaming — no limits.
+            Every image below was created from a single sentence. Sci-fi, fashion, product ads, gaming - no limits.
           </p>
         </div>
 
-        {/* Row 1 — slides left */}
+        {/* Row 1 Ã¢â‚¬â€ slides left */}
         {(() => {
           const fallbackW1 = [440, 360, 400, 460, 380, 420, 350, 380];
           const fallback1 = [
@@ -1074,7 +1075,7 @@ export default function HomePageClient() {
           );
         })()}
 
-        {/* Row 2 — slides right (opposite direction) */}
+        {/* Row 2 Ã¢â‚¬â€ slides right (opposite direction) */}
         {(() => {
           const fallbackW2 = [370, 430, 400, 380, 350, 420, 360, 390];
           const fallback2 = [
@@ -1140,11 +1141,11 @@ export default function HomePageClient() {
 
         {/* Bottom fade hint */}
         <div style={{ textAlign: "center", marginTop: 32, color: "#8885a8", fontSize: 13 }}>
-          Hover to pause · Every image generated from a single sentence
+          Hover to pause - Every image generated from a single sentence
         </div>
       </section>
 
-      {/* ── Generate ── */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Generate Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <section id="generate" style={{ padding: "80px 24px 0", position: "relative", zIndex: 1 }}>
         <div style={{ maxWidth: 980, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 32 }}>
@@ -1249,7 +1250,7 @@ export default function HomePageClient() {
                     className="btn-primary"
                     style={{ padding: "13px 28px", opacity: loading ? 0.7 : 1 }}
                   >
-                    {loading ? "Generating..." : "Generate Image →"}
+                    {loading ? "Generating..." : "Generate Image ->"}
                   </button>
                 </div>
 
@@ -1264,7 +1265,7 @@ export default function HomePageClient() {
                     )}
                     {!loading && generationError && (
                       <div style={{ padding: 24, textAlign: "center", color: "#fc5c5c", fontSize: 14 }}>
-                        ⚠ {generationError}
+                        Error: {generationError}
                       </div>
                     )}
                     {!loading && imageResult && (
@@ -1284,13 +1285,13 @@ export default function HomePageClient() {
                               onClick={() => { if (imageResult) void downloadImage(imageResult); }}
                               style={{ padding: "8px 16px", borderRadius: 999, background: "rgba(124,92,252,0.25)", border: "1px solid rgba(124,92,252,0.4)", color: "#c4b8ff", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
                             >
-                              ↓ Download
+                              Download
                             </button>
                             <button
                               onClick={() => { void generateImage(); }}
                               style={{ padding: "8px 16px", borderRadius: 999, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "#c4b8ff", fontSize: 12, cursor: "pointer" }}
                             >
-                              ↻ Retry
+                              Retry
                             </button>
                           </div>
                         </div>
@@ -1315,7 +1316,7 @@ export default function HomePageClient() {
                   />
                   {uploadedFile ? `Selected: ${uploadedFile}` : (
                     <div style={{ textAlign: "center", color: "#8885a8" }}>
-                      <div style={{ fontSize: 32, marginBottom: 8 }}>↑</div>
+                      <div style={{ fontSize: 32, marginBottom: 8 }}>{"<-"}</div>
                       <div>Upload source image</div>
                       <div style={{ fontSize: 12, marginTop: 4, opacity: 0.6 }}>PNG, JPG, WEBP</div>
                     </div>
@@ -1345,11 +1346,11 @@ export default function HomePageClient() {
         </div>
       </section>
 
-      {/* ── Visual Proof ── */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Visual Proof Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <section style={{ maxWidth: 1100, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1 }}>
         <SectionHead
           label="Real Results"
-          title="Idea → usable visual. Every time."
+          title="Idea -> usable visual. Every time."
           sub="These are real outputs. Real prompts. Real use cases. No touching up, no fixing needed."
         />
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 16, marginTop: 48 }}>
@@ -1397,12 +1398,12 @@ export default function HomePageClient() {
         </div>
         <div style={{ textAlign: "center", marginTop: 32 }}>
           <Link href="/gallery" className="btn-secondary" style={{ display: "inline-block" }}>
-            See all community works →
+            See all community works {"->"}
           </Link>
         </div>
       </section>
 
-      {/* ── Why This Feels Different ── */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Why This Feels Different Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <section style={{ maxWidth: 960, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1 }}>
         <SectionHead
           label="Why MIDILLI"
@@ -1412,25 +1413,25 @@ export default function HomePageClient() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 20, marginTop: 52 }}>
           {[
             {
-              icon: "✦",
+              icon: "*",
               title: "No prompt engineering.",
               desc: "Just describe it. Plain English, any language, any level of detail. If you can text it, you can create it.",
               color: "#a78bff",
             },
             {
-              icon: "⚡",
+              icon: "[]",
               title: "Works on your first try.",
               desc: "No trial and error. No Discord. No setup. You type, you get a result. That's the whole flow.",
               color: "#38d9f5",
             },
             {
-              icon: "↓",
+              icon: "-",
               title: "Ready-to-use outputs.",
-              desc: "No fixing needed. Download and use directly — as a thumbnail, ad, product image, or pitch visual.",
+              desc: "No fixing needed. Download and use directly - as a thumbnail, ad, product image, or pitch visual.",
               color: "#4cebb8",
             },
             {
-              icon: "∞",
+              icon: "oo",
               title: "Instant iterations.",
               desc: "Don't like it? Hit generate again. Different result in 8 seconds. Change anything, instantly.",
               color: "#e84fbc",
@@ -1445,7 +1446,7 @@ export default function HomePageClient() {
         </div>
       </section>
 
-      {/* ── Comparison ── */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Comparison Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <section style={{ maxWidth: 960, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1 }}>
         <SectionHead
           label="vs The Alternatives"
@@ -1461,9 +1462,9 @@ export default function HomePageClient() {
             ))}
           </div>
           {[
-            { label: "Time to first result", vals: ["2–5 days", "~10 min setup", "8 seconds"] },
+            { label: "Time to first result", vals: ["2-5 days", "~10 min setup", "8 seconds"] },
             { label: "Skill required", vals: ["Write a brief", "Learn prompts + Discord", "Plain language"] },
-            { label: "Cost to start", vals: ["$200–$500", "$30/month", "Free"] },
+            { label: "Cost to start", vals: ["$200-$500", "$30/month", "Free"] },
             { label: "Works in browser", vals: ["Email back-and-forth", "Needs Discord app", "Yes. Right now."] },
             { label: "Revisions", vals: ["Extra cost", "1 credit each try", "Instant, unlimited"] },
             { label: "Commercial rights", vals: ["Extra fee", "Paid tiers only", "Included on Pro"] },
@@ -1472,7 +1473,7 @@ export default function HomePageClient() {
               <div style={{ padding: "16px 20px", fontSize: 14, color: "#c4b8ff", fontWeight: 500 }}>{label}</div>
               {vals.map((v, i) => (
                 <div key={v} style={{ padding: "16px 20px", textAlign: "center", fontSize: 13, borderLeft: "1px solid rgba(255,255,255,0.05)", background: i === 2 ? "rgba(124,92,252,0.04)" : "transparent", color: i === 2 ? "#4cebb8" : "#8885a8", fontWeight: i === 2 ? 600 : 400 }}>
-                  {i === 2 ? "✓ " : "✗ "}{v}
+                  {i === 2 ? "+ " : "- "}{v}
                 </div>
               ))}
             </div>
@@ -1481,12 +1482,12 @@ export default function HomePageClient() {
 
         <div style={{ textAlign: "center", marginTop: 28 }}>
           <a href="#generate" className="btn-primary" style={{ fontSize: 15, padding: "15px 32px" }}>
-            Try MIDILLI Free — No Card
+            Try MIDILLI Free - No Card
           </a>
         </div>
       </section>
 
-      {/* ── Use Cases ── */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Use Cases Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <section style={{ maxWidth: 900, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1 }}>
         <SectionHead
           label="Use Cases"
@@ -1495,12 +1496,12 @@ export default function HomePageClient() {
         />
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 14, marginTop: 48 }}>
           {[
-            { label: "YouTube thumbnails that get clicks", time: "8 sec", color: "#e84fbc", icon: "▶" },
-            { label: "Product images that sell", time: "8 sec", color: "#38d9f5", icon: "◈" },
-            { label: "7 days of social content in minutes", time: "3 min", color: "#a78bff", icon: "⬡" },
-            { label: "Slides that actually impress", time: "8 sec", color: "#4cebb8", icon: "✦" },
-            { label: "App store screenshots that convert", time: "30 sec", color: "#fbbf24", icon: "⊞" },
-            { label: "Blog covers that stop the scroll", time: "8 sec", color: "#fc5c5c", icon: "✎" },
+            { label: "YouTube thumbnails that get clicks", time: "8 sec", color: "#e84fbc", icon: ">" },
+            { label: "Product images that sell", time: "8 sec", color: "#38d9f5", icon: "*" },
+            { label: "7 days of social content in minutes", time: "3 min", color: "#a78bff", icon: "[]" },
+            { label: "Slides that actually impress", time: "8 sec", color: "#4cebb8", icon: "*" },
+            { label: "App store screenshots that convert", time: "30 sec", color: "#fbbf24", icon: "#" },
+            { label: "Blog covers that stop the scroll", time: "8 sec", color: "#fc5c5c", icon: "+" },
           ].map(({ label, time, color, icon }) => (
             <div key={label} className="card-hover" style={{ padding: "20px 22px", borderRadius: 18, background: "rgba(15,15,26,0.85)", border: "1px solid rgba(255,255,255,0.07)", backdropFilter: "blur(12px)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -1513,7 +1514,7 @@ export default function HomePageClient() {
         </div>
       </section>
 
-      {/* ── Mid CTA ── */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Mid CTA Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <section style={{ maxWidth: 700, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1, textAlign: "center" }}>
         <div style={{ padding: "52px 48px", borderRadius: 28, background: "rgba(124,92,252,0.07)", border: "1px solid rgba(124,92,252,0.2)", backdropFilter: "blur(12px)" }}>
           <div style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(24px,3.5vw,38px)", fontWeight: 800, letterSpacing: -1, marginBottom: 16 }}>
@@ -1524,12 +1525,12 @@ export default function HomePageClient() {
             No credit card. Instant result. Then decide.
           </div>
           <button onClick={goToStudio} className="btn-primary" style={{ fontSize: 16, padding: "18px 40px", cursor: "pointer", fontFamily: "inherit", border: "none" }}>
-            ✦ Start Creating — Free
+            Start Creating - Free
           </button>
         </div>
       </section>
 
-      {/* ── Objections / FAQ ── */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Objections / FAQ Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <section style={{ maxWidth: 760, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1 }}>
         <SectionHead
           label="Objections"
@@ -1538,12 +1539,12 @@ export default function HomePageClient() {
         />
         <div style={{ marginTop: 40, display: "flex", flexDirection: "column", gap: 8 }}>
           {[
-            { q: "Why is this better than Midjourney?", a: "Midjourney requires Discord, prompt engineering, and a paid plan just to start. MIDILLI works in your browser, in plain language, for free. You'll get a result in 8 seconds — no setup, no queue, no learning curve." },
+            { q: "Why is this better than Midjourney?", a: "Midjourney requires Discord, prompt engineering, and a paid plan just to start. MIDILLI works in your browser, in plain language, for free. You will get a result in 8 seconds - no setup, no queue, no learning curve." },
             { q: "Is this actually free?", a: "Yes. 20 credits, no card, no catch. You can generate 20 images before we ever ask for a dollar. Most users create something they love within the first 3." },
-            { q: "What if the result isn't good enough?", a: "Hit generate again. Different result, same 8 seconds, one credit. Most people find exactly what they want within 2–3 tries. And if not — your credits don't expire." },
+            { q: "What if the result is not good enough?", a: "Hit generate again. Different result, same 8 seconds, one credit. Most people find exactly what they want within 2-3 tries. And if not - your credits do not expire." },
             { q: "Do I need to know how to write prompts?", a: "No. If you can send a text message, you can use MIDILLI. 'A cozy coffee shop in autumn' works perfectly. No technical jargon needed." },
-            { q: "Can I use this for business?", a: "Yes. Commercial rights are included on all paid plans. You own what you create — sell it, publish it, use it in ads. No watermarks on paid plans." },
-            { q: "How is this different from Canva or Figma?", a: "Canva and Figma are editors — you still have to design. MIDILLI generates the visual from scratch. You start with a finished result, not a blank canvas." },
+            { q: "Can I use this for business?", a: "Yes. Commercial rights are included on all paid plans. You own what you create - sell it, publish it, use it in ads. No watermarks on paid plans." },
+            { q: "How is this different from Canva or Figma?", a: "Canva and Figma are editors - you still have to design. MIDILLI generates the visual from scratch. You start with a finished result, not a blank canvas." },
           ].map(({ q, a }, i) => (
             <div key={q} style={{ borderRadius: 16, border: `1px solid ${openFaq === i ? "rgba(124,92,252,0.35)" : "rgba(255,255,255,0.07)"}`, background: openFaq === i ? "rgba(124,92,252,0.06)" : "rgba(15,15,26,0.7)", overflow: "hidden", transition: "border-color 0.2s ease, background 0.2s ease" }}>
               <button
@@ -1561,7 +1562,7 @@ export default function HomePageClient() {
         </div>
       </section>
 
-      {/* ── Community Gallery ── */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Community Gallery Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <section id="gallery" style={{ maxWidth: 1140, margin: "0 auto", padding: "110px 24px 0", position: "relative", zIndex: 1 }}>
         <SectionHead label="Community" title="Made with MIDILLI" sub="Real images shared by creators. Like, comment, and get inspired." />
 
@@ -1577,7 +1578,7 @@ export default function HomePageClient() {
         {/* Empty state */}
         {!galleryLoading && galleryPosts.length === 0 && (
           <div style={{ textAlign: "center", padding: "60px 24px", color: "#3a3a52" }}>
-            <div style={{ fontSize: 48, marginBottom: 16, opacity: 0.3 }}>✦</div>
+            <div style={{ fontSize: 48, marginBottom: 16, opacity: 0.3 }}>*</div>
             <p style={{ fontSize: 15, color: "#3a3a52" }}>No community images yet.</p>
             <p style={{ fontSize: 13, color: "#2a2a3a", marginTop: 6 }}>Generate an image in the studio and hit <strong style={{ color: "#7c5cfc" }}>Share</strong>!</p>
           </div>
@@ -1612,7 +1613,7 @@ export default function HomePageClient() {
                   />
                   {/* Comment badge */}
                   <div style={{ position: "absolute", top: 10, right: 10, padding: "3px 9px", borderRadius: 999, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)", fontSize: 11, color: "rgba(255,255,255,0.6)", display: "flex", alignItems: "center", gap: 4 }}>
-                    💬 Comment
+                    Comment
                   </div>
                 </div>
 
@@ -1649,7 +1650,7 @@ export default function HomePageClient() {
                     onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(239,68,68,0.35)"; e.currentTarget.style.color = "#f87171"; e.currentTarget.style.background = "rgba(239,68,68,0.08)"; }}
                     onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "#6b7280"; e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
                   >
-                    🤍 <span style={{ fontWeight: 600 }}>{post.likes_count}</span>
+                    Like <span style={{ fontWeight: 600 }}>{post.likes_count}</span>
                   </button>
                 </div>
               </div>
@@ -1664,7 +1665,7 @@ export default function HomePageClient() {
               onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(124,92,252,0.16)"; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(124,92,252,0.08)"; }}
             >
-              ✦ Create & Share Your Own
+              Create & Share Your Own
             </Link>
           </div>
         )}
@@ -1688,7 +1689,7 @@ export default function HomePageClient() {
         >
           <div style={{ background: "#13131f", border: "1px solid rgba(168,85,247,0.3)", borderRadius: 20, padding: "32px 28px", width: "100%", maxWidth: 360, boxShadow: "0 24px 80px rgba(0,0,0,0.7)" }}>
             <div style={{ textAlign: "center", marginBottom: 24 }}>
-              <div style={{ fontSize: 28, marginBottom: 10 }}>✦</div>
+              <div style={{ fontSize: 28, marginBottom: 10 }}>*</div>
               <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 18, fontWeight: 700, color: "#e2d9ff", marginBottom: 6 }}>Choose a display name</div>
               <p style={{ fontSize: 13, color: "#6b6b8a", lineHeight: 1.6 }}>This will appear on your likes and comments.</p>
             </div>
@@ -1711,7 +1712,7 @@ export default function HomePageClient() {
         </div>
       )}
 
-      {/* ── Plans Modal ── */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Plans Modal Ã¢â€â‚¬Ã¢â€â‚¬ */}
       {showPlansModal && (
         <div
           onClick={(e) => { if (e.target === e.currentTarget) setShowPlansModal(false); }}
@@ -1761,7 +1762,7 @@ export default function HomePageClient() {
             <button
               onClick={() => setShowPlansModal(false)}
               style={{ position: "absolute", top: -14, right: -14, zIndex: 10, width: 34, height: 34, borderRadius: "50%", background: "#1a1a2e", border: "1px solid rgba(255,255,255,0.12)", color: "#9ca3af", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit" }}
-            >×</button>
+            >x</button>
 
             {/* Header */}
             <div style={{ textAlign: "center", marginBottom: 40 }}>
@@ -1785,7 +1786,7 @@ export default function HomePageClient() {
                 <ul style={{ listStyle: "none", padding: 0, margin: "0 0 auto", display: "flex", flexDirection: "column", gap: 10 }}>
                   {["10 generations to start", "2 AI models only", "Slow generation speed", "Watermarked exports", "Personal use only"].map((f) => (
                     <li key={f} style={{ display: "flex", gap: 8, fontSize: 12, color: "#4a4a62", lineHeight: 1.4 }}>
-                      <span style={{ color: "#2e2e42", flexShrink: 0 }}>·</span>{f}
+                      <span style={{ color: "#2e2e42", flexShrink: 0 }}>-</span>{f}
                     </li>
                   ))}
                 </ul>
@@ -1807,11 +1808,11 @@ export default function HomePageClient() {
                 <ul style={{ listStyle: "none", padding: 0, margin: "0 0 auto", display: "flex", flexDirection: "column", gap: 10 }}>
                   {["150 generations / month", "5 AI models unlocked", "Standard speed", "Watermark-free exports", "Session history", "Personal use license"].map((f) => (
                     <li key={f} style={{ display: "flex", gap: 8, fontSize: 12, color: "#9d9abf", lineHeight: 1.4 }}>
-                      <span style={{ color: "#5a5a7a", flexShrink: 0 }}>·</span>{f}
+                      <span style={{ color: "#5a5a7a", flexShrink: 0 }}>-</span>{f}
                     </li>
                   ))}
                 </ul>
-                <button onClick={() => { setShowPlansModal(false); showToast("Basic plan — coming soon."); }} style={{ marginTop: 22, padding: "10px", borderRadius: 9, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.05)", color: "#c4b8ff", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                <button onClick={() => { setShowPlansModal(false); showToast("Basic plan - coming soon."); }} style={{ marginTop: 22, padding: "10px", borderRadius: 9, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.05)", color: "#c4b8ff", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
                   Get Basic
                 </button>
               </div>
@@ -1831,16 +1832,16 @@ export default function HomePageClient() {
                 <p style={{ fontSize: 12, color: "#9d9abf", marginBottom: 18, marginTop: 4 }}>The complete creative setup.</p>
                 <div style={{ width: "100%", height: 1, background: "linear-gradient(90deg, transparent, rgba(148,85,247,0.3), transparent)", marginBottom: 18 }} />
                 <ul style={{ listStyle: "none", padding: 0, margin: "0 0 auto", display: "flex", flexDirection: "column", gap: 10 }}>
-                  {[["600 generations / month", true], ["All 10 AI models", true], ["Image-to-video included", true], ["Priority queue — no wait", true], ["Commercial license", true], ["Private gallery", false], ["Email support", false]].map(([f, h]) => (
+                  {[ ["600 generations / month", true], ["All 10 AI models", true], ["Image-to-video included", true], ["Priority queue - no wait", true], ["Commercial license", true], ["Private gallery", false], ["Email support", false] ].map(([f, h]) => (
                     <li key={f as string} style={{ display: "flex", gap: 8, fontSize: 12.5, color: h ? "#e0d7ff" : "#b8b0e0", lineHeight: 1.4, fontWeight: h ? 500 : 400 }}>
-                      <span style={{ color: "#c084fc", flexShrink: 0 }}>✓</span>{f}
+                      <span style={{ color: "#c084fc", flexShrink: 0 }}>*</span>{f}
                     </li>
                   ))}
                 </ul>
-                <button onClick={() => { setShowPlansModal(false); showToast("Pro plan — coming soon."); }} style={{ marginTop: 24, padding: "13px", borderRadius: 11, border: "none", background: "linear-gradient(135deg, #7c3aed, #a855f7, #c026d3)", color: "white", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", boxShadow: "0 8px 28px rgba(124,92,252,0.5)" }}>
+                <button onClick={() => { setShowPlansModal(false); showToast("Pro plan - coming soon."); }} style={{ marginTop: 24, padding: "13px", borderRadius: 11, border: "none", background: "linear-gradient(135deg, #7c3aed, #a855f7, #c026d3)", color: "white", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", boxShadow: "0 8px 28px rgba(124,92,252,0.5)" }}>
                   Get Pro
                 </button>
-                <p style={{ textAlign: "center", marginTop: 8, fontSize: 11, color: "#5a527a" }}>No contract · Cancel anytime</p>
+                <p style={{ textAlign: "center", marginTop: 8, fontSize: 11, color: "#5a527a" }}>No contract - Cancel anytime</p>
               </div>
 
               {/* ULTRA */}
@@ -1859,11 +1860,11 @@ export default function HomePageClient() {
                 <ul style={{ listStyle: "none", padding: 0, margin: "0 0 auto", display: "flex", flexDirection: "column", gap: 10 }}>
                   {["2,000 generations / month", "Always-first queue", "4K video exports", "Full API access", "All models + early access", "Dedicated support"].map((f) => (
                     <li key={f} style={{ display: "flex", gap: 8, fontSize: 12, color: "#8b7a5a", lineHeight: 1.4 }}>
-                      <span style={{ color: "#a89060", flexShrink: 0 }}>✓</span>{f}
+                      <span style={{ color: "#a89060", flexShrink: 0 }}>*</span>{f}
                     </li>
                   ))}
                 </ul>
-                <button onClick={() => { setShowPlansModal(false); showToast("Ultra plan — coming soon."); }} style={{ marginTop: 22, padding: "10px", borderRadius: 9, border: "1px solid rgba(251,191,36,0.2)", background: "rgba(251,191,36,0.05)", color: "#a89060", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                <button onClick={() => { setShowPlansModal(false); showToast("Ultra plan - coming soon."); }} style={{ marginTop: 22, padding: "10px", borderRadius: 9, border: "1px solid rgba(251,191,36,0.2)", background: "rgba(251,191,36,0.05)", color: "#a89060", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
                   Go Ultra
                 </button>
               </div>
@@ -1871,7 +1872,7 @@ export default function HomePageClient() {
 
             {/* Trust row */}
             <div style={{ display: "flex", justifyContent: "center", gap: 28, marginTop: 28, flexWrap: "wrap" }}>
-              {["No contracts — cancel anytime", "All paid plans include commercial license", "Upgrade or downgrade instantly"].map((t) => (
+              {["No contracts - cancel anytime", "All paid plans include commercial license", "Upgrade or downgrade instantly"].map((t) => (
                 <span key={t} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11.5, color: "#3a3a52" }}>
                   <span style={{ width: 3, height: 3, borderRadius: "50%", background: "#4a3a6a", display: "inline-block" }} />{t}
                 </span>
@@ -1881,7 +1882,7 @@ export default function HomePageClient() {
         </div>
       )}
 
-      {/* ── Credits ── */}
+      {/* Credits */}
       <section id="credits" style={{ maxWidth: 980, margin: "0 auto", padding: "110px 24px 90px", position: "relative", zIndex: 1 }}>
         <SectionHead label="Credit Store" title="Buy Credits" sub="One-time packs. No subscription. Instant delivery." />
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 14, marginTop: 42 }}>
@@ -1967,7 +1968,7 @@ export default function HomePageClient() {
         </div>
       </section>
 
-      {/* ── Final CTA ── */}
+      {/* Final CTA */}
       <section style={{ maxWidth: 800, margin: "0 auto", padding: "0 24px 140px", position: "relative", zIndex: 1, textAlign: "center" }}>
         <div style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(32px,5vw,64px)", fontWeight: 800, letterSpacing: -2, lineHeight: 1.05, marginBottom: 24 }}>
           Stop thinking.
@@ -1981,10 +1982,10 @@ export default function HomePageClient() {
         </div>
         <div style={{ display: "flex", justifyContent: "center", gap: 14, flexWrap: "wrap" }}>
           <Link href="/signup" className="btn-primary" style={{ fontSize: 16, padding: "18px 40px" }}>
-            Create Your First Image — Free
+            Create Your First Image - Free
           </Link>
           <Link href="/gallery" className="btn-secondary" style={{ fontSize: 16, padding: "18px 36px" }}>
-            See Real Results First →
+            See Real Results First {"->"}
           </Link>
         </div>
         <div style={{ marginTop: 20, color: "#8885a8", fontSize: 13 }}>
@@ -1992,7 +1993,7 @@ export default function HomePageClient() {
         </div>
       </section>
 
-      {/* ── Footer ── */}
+      {/* Footer */}
       <footer style={{
         textAlign: "center",
         padding: "32px 24px 40px",
@@ -2011,10 +2012,38 @@ export default function HomePageClient() {
         }}>
           MIDILLI
         </div>
-        © 2026 MIDILLI. All rights reserved.
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: 12,
+            flexWrap: "wrap",
+            marginBottom: 12,
+          }}
+        >
+          {[
+            { href: "/price", label: "Pricing" },
+            { href: "/terms", label: "Terms" },
+            { href: "/privacy", label: "Privacy" },
+            { href: "/refund", label: "Refunds" },
+          ].map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              style={{
+                color: "#c4b8ff",
+                fontSize: 13,
+                textDecoration: "none",
+              }}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+        Copyright 2026 MIDILLI. All rights reserved.
       </footer>
 
-      {/* ── Toast ── */}
+      {/* Toast */}
       {toast && (
         <div
           style={{

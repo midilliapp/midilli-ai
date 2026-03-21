@@ -101,7 +101,7 @@ export default function CreateClient() {
     setTimeout(() => setToast(null), 3500);
   };
 
-  // ── NOTIFICATIONS ──
+  // Notifications
   useEffect(() => {
     if (typeof window !== "undefined" && "Notification" in window) {
       setNotifPerm(Notification.permission);
@@ -112,7 +112,7 @@ export default function CreateClient() {
     if (!("Notification" in window)) { showToast("Your browser doesn't support notifications."); return; }
     const perm = await Notification.requestPermission();
     setNotifPerm(perm);
-    if (perm === "granted") showToast("🔔 Notifications enabled!");
+    if (perm === "granted") showToast("Notifications enabled!");
     else if (perm === "denied") showToast("Notifications blocked. Enable in browser settings.");
   };
 
@@ -241,7 +241,7 @@ export default function CreateClient() {
       const data = await res.json();
       if (data.url) {
         setImageResult(data.url);
-        sendNotif("✦ Image Ready!", `"${prompt.trim().slice(0, 60)}" generated successfully.`);
+        sendNotif("Image Ready", `"${prompt.trim().slice(0, 60)}" generated successfully.`);
         // Save session
         const session: Session = {
           id: Date.now().toString(),
@@ -256,7 +256,7 @@ export default function CreateClient() {
         setActiveSessionId(session.id);
       } else {
         setError(data.error ?? "Generation failed.");
-        sendNotif("⚠️ Generation Failed", data.error ?? "Image generation failed. Please try again.");
+        sendNotif("Generation Failed", data.error ?? "Image generation failed. Please try again.");
       }
     } catch {
       setError("Network error. Please try again.");
@@ -285,14 +285,14 @@ export default function CreateClient() {
       if (data.url) {
         setVideoResult(data.url);
         const modelName = VIDEO_MODELS.find(m => m.id === selectedVideoModel)?.name ?? "Video";
-        sendNotif("▶ Video Ready!", `Your ${modelName} video has been generated. Click to view.`);
+        sendNotif("Video Ready", `Your ${modelName} video has been generated. Click to view.`);
       } else {
         setVideoError(data.error ?? "Video generation failed.");
-        sendNotif("⚠️ Video Failed", data.error ?? "Video generation failed. Please try again.");
+        sendNotif("Video Failed", data.error ?? "Video generation failed. Please try again.");
       }
     } catch {
       setVideoError("Network error. Please try again.");
-      sendNotif("⚠️ Video Failed", "Network error during video generation.");
+      sendNotif("Video Failed", "Network error during video generation.");
     } finally {
       setVideoLoading(false);
     }
@@ -339,7 +339,7 @@ export default function CreateClient() {
           body: JSON.stringify({ image_url: url, prompt: prompt.trim(), username, model: selectedModel }),
         });
         const data = await res.json();
-        if (data.post) showToast("✦ Shared to community gallery!");
+        if (data.post) showToast("Shared to community gallery!");
         else showToast(data.error ?? "Share failed.");
       } catch { showToast("Network error."); }
       finally { setShareLoading(false); }
@@ -471,7 +471,7 @@ export default function CreateClient() {
         .generate-btn-main:disabled { opacity: 0.4; cursor: not-allowed; }
       `}</style>
 
-      {/* ── Entry Curtain (slides up & away) ── */}
+      {/* Entry curtain */}
       {!curtainDone && (
         <div style={{
           position: "fixed", inset: 0, zIndex: 9998,
@@ -491,7 +491,7 @@ export default function CreateClient() {
         </div>
       )}
 
-      {/* ── TOP NAV ── */}
+      {/* Top nav */}
       <nav className="studio-nav-enter" style={{ height: 52, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0, background: "rgba(10,10,15,0.95)", backdropFilter: "blur(12px)" }}>
         <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 6 }}>
           <span style={{ fontSize: 16, fontWeight: 900, letterSpacing: "-0.03em", color: tab === "video" ? "#38bdf8" : "#c4b8ff" }}>MIDILLI</span>
@@ -502,8 +502,8 @@ export default function CreateClient() {
         {/* Tab */}
         <div style={{ display: "flex", gap: 2, background: "rgba(255,255,255,0.05)", borderRadius: 10, padding: 3 }}>
           {[
-            { key: "image", label: "✦ Image" },
-            { key: "video", label: "▶ Video" },
+            { key: "image", label: "Image" },
+            { key: "video", label: "Video" },
           ].map((t) => (
             <button key={t.key} onClick={() => switchTab(t.key as "image" | "video")}
               style={{ padding: "6px 16px", borderRadius: 7, border: "none", background: tab === t.key ? (t.key === "video" ? "rgba(0,180,220,0.25)" : "rgba(124,92,252,0.3)") : "transparent", color: tab === t.key ? (t.key === "video" ? "#00d4ff" : "white") : "#6b7280", fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.2s", fontFamily: "inherit" }}
@@ -520,7 +520,7 @@ export default function CreateClient() {
               onMouseEnter={(e) => { e.currentTarget.style.background = tab === "video" ? "rgba(0,212,255,0.15)" : "rgba(124,92,252,0.2)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = tab === "video" ? "rgba(0,212,255,0.08)" : "rgba(124,92,252,0.1)"; }}
             >
-              ⚡ {credits === null ? "…" : credits} credits
+              Credits: {credits === null ? "..." : credits}
             </button>
           ) : (
             <button
@@ -531,8 +531,8 @@ export default function CreateClient() {
 
           {/* Notification bell */}
           <button
-            onClick={() => notifPerm === "granted" ? showToast("🔔 Notifications already enabled!") : void requestNotifPermission()}
-            title={notifPerm === "granted" ? "Notifications enabled" : notifPerm === "denied" ? "Notifications blocked — enable in browser settings" : "Enable notifications"}
+            onClick={() => notifPerm === "granted" ? showToast("Notifications already enabled!") : void requestNotifPermission()}
+            title={notifPerm === "granted" ? "Notifications enabled" : notifPerm === "denied" ? "Notifications blocked - enable in browser settings" : "Enable notifications"}
             style={{
               width: 32, height: 32, borderRadius: "50%", border: "none", cursor: "pointer",
               background: notifPerm === "granted" ? "rgba(34,197,94,0.15)" : "rgba(255,255,255,0.06)",
@@ -543,21 +543,21 @@ export default function CreateClient() {
             onMouseEnter={(e) => { e.currentTarget.style.background = notifPerm === "granted" ? "rgba(34,197,94,0.25)" : "rgba(255,255,255,0.12)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = notifPerm === "granted" ? "rgba(34,197,94,0.15)" : "rgba(255,255,255,0.06)"; }}
           >
-            {notifPerm === "granted" ? "🔔" : notifPerm === "denied" ? "🔕" : "🔔"}
+            {notifPerm === "granted" ? "On" : notifPerm === "denied" ? "Off" : "Bell"}
             {/* green dot if granted */}
             {notifPerm === "granted" && (
               <span style={{ position: "absolute", top: 4, right: 4, width: 7, height: 7, borderRadius: "50%", background: "#4ade80", border: "1.5px solid #0a0a0f", boxShadow: "0 0 6px rgba(74,222,128,0.8)" }} />
             )}
           </button>
 
-          <Link href="/" style={{ padding: "5px 14px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.1)", color: "#6b7280", fontSize: 12, textDecoration: "none" }}>← Home</Link>
+          <Link href="/" style={{ padding: "5px 14px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.1)", color: "#6b7280", fontSize: 12, textDecoration: "none" }}>&lt;- Home</Link>
         </div>
       </nav>
 
-      {/* ── BODY (sidebar + canvas) ── */}
+      {/* Body */}
       <div className="studio-body-enter" style={{ flex: 1, display: "flex", overflow: "hidden" }}>
 
-      {/* ── SESSIONS SIDEBAR ── */}
+      {/* Sessions sidebar */}
       <div style={{ width: 200, flexShrink: 0, background: "#0d0d18", borderRight: "1px solid rgba(255,255,255,0.06)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
         {/* Header */}
         <div style={{ padding: "14px 14px 8px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
@@ -607,16 +607,16 @@ export default function CreateClient() {
               {/* Delete btn */}
               <button className="del-btn" onClick={(e) => deleteSession(s.id, e)}
                 style={{ opacity: 0, position: "absolute", right: 6, top: "50%", transform: "translateY(-50%)", width: 20, height: 20, borderRadius: "50%", background: "rgba(239,68,68,0.2)", border: "1px solid rgba(239,68,68,0.3)", color: "#f87171", fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "opacity 0.15s", fontFamily: "inherit", flexShrink: 0 }}
-              >×</button>
+              >x</button>
             </div>
           ))}
         </div>
       </div>
 
-      {/* ── MAIN CANVAS ── */}
+      {/* Main canvas */}
       <div style={{ flex: 1, position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
 
-        {/* ── TAB SWITCH FLASH ── */}
+        {/* Tab switch flash */}
         {tabFlash && (
           <>
             {/* Background tint */}
@@ -643,7 +643,7 @@ export default function CreateClient() {
               }} />
             </div>
 
-            {/* Horizontal glow line — center */}
+            {/* Horizontal glow line - center */}
             <div style={{
               position: "absolute", left: 0, right: 0, top: "50%", height: 1,
               background: tabFlash === "video"
@@ -672,14 +672,14 @@ export default function CreateClient() {
               <div style={{ textAlign: "center", zIndex: 1 }}>
                 <div style={{ width: 56, height: 56, borderRadius: "50%", border: "3px solid rgba(124,92,252,0.2)", borderTopColor: "#a855f7", animation: "spin 0.8s linear infinite", margin: "0 auto 20px" }} />
                 <div style={{ color: "#e2d9ff", fontSize: 16, fontWeight: 600, marginBottom: 6 }}>Creating your image...</div>
-                <div style={{ color: "#6b5a8a", fontSize: 13 }}>{MODELS.find(m => m.id === selectedModel)?.name} · {MODELS.find(m => m.id === selectedModel)?.speed}</div>
+                <div style={{ color: "#6b5a8a", fontSize: 13 }}>{MODELS.find(m => m.id === selectedModel)?.name} - {MODELS.find(m => m.id === selectedModel)?.speed}</div>
               </div>
             )}
 
             {/* Empty state */}
             {!loading && !imageResult && !error && (
               <div style={{ textAlign: "center", zIndex: 1, userSelect: "none" }}>
-                <div style={{ fontSize: 80, marginBottom: 20, opacity: 0.07, lineHeight: 1 }}>✦</div>
+                <div style={{ fontSize: 80, marginBottom: 20, opacity: 0.07, lineHeight: 1 }}>*</div>
                 <div style={{ color: "#3a3a5a", fontSize: 15, fontWeight: 500, marginBottom: 8 }}>Your creation will appear here</div>
                 <div style={{ color: "#2a2a3a", fontSize: 13 }}>Type a prompt below and hit generate</div>
                 {/* Example cards */}
@@ -698,7 +698,7 @@ export default function CreateClient() {
             {/* Error */}
             {error && !loading && (
               <div style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 16, padding: "24px 32px", textAlign: "center", zIndex: 1, maxWidth: 400 }}>
-                <div style={{ fontSize: 28, marginBottom: 12 }}>⚠️</div>
+                <div style={{ fontSize: 28, marginBottom: 12 }}>!</div>
                 <div style={{ color: "#fca5a5", fontSize: 14, lineHeight: 1.6 }}>{error}</div>
                 <button onClick={() => void generateImage()} style={{ marginTop: 14, padding: "8px 20px", borderRadius: 999, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", color: "white", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>Try Again</button>
               </div>
@@ -710,13 +710,13 @@ export default function CreateClient() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={imageResult} alt="Generated" style={{ maxWidth: "100%", maxHeight: "calc(100vh - 260px)", borderRadius: 16, boxShadow: "0 24px 80px rgba(0,0,0,0.7)", display: "block", objectFit: "contain" }} />
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
-                  <button onClick={() => void downloadImage(imageResult)} style={{ padding: "9px 20px", borderRadius: 999, background: "linear-gradient(135deg, #7c3aed, #a855f7)", border: "none", color: "white", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>↓ Download</button>
+                  <button onClick={() => void downloadImage(imageResult)} style={{ padding: "9px 20px", borderRadius: 999, background: "linear-gradient(135deg, #7c3aed, #a855f7)", border: "none", color: "white", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>Download</button>
                   <button
                     onClick={() => void shareImage(imageResult)}
                     disabled={shareLoading}
                     style={{ padding: "9px 20px", borderRadius: 999, background: "rgba(124,92,252,0.15)", border: "1px solid rgba(168,85,247,0.4)", color: "#c4b8ff", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", opacity: shareLoading ? 0.5 : 1, transition: "opacity 0.15s" }}
-                  >{shareLoading ? "Sharing…" : "✦ Share"}</button>
-                  <button onClick={() => void generateImage()} style={{ padding: "9px 20px", borderRadius: 999, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", color: "#c4b8ff", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>↻ Regenerate</button>
+                  >{shareLoading ? "Sharing..." : "Share"}</button>
+                  <button onClick={() => void generateImage()} style={{ padding: "9px 20px", borderRadius: 999, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", color: "#c4b8ff", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>Regenerate</button>
                   <button onClick={() => { setImageResult(null); setPrompt(""); setError(null); }} style={{ padding: "9px 20px", borderRadius: 999, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "#6b7280", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>+ New</button>
                 </div>
               </div>
@@ -728,16 +728,16 @@ export default function CreateClient() {
         {tab === "video" && (
           <div className="tab-content-enter" style={{ textAlign: "center", zIndex: 1, padding: 40, width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
 
-            {/* VIDEO LOADING */}
+            {/* Video loading */}
             {videoLoading && (
               <div style={{ textAlign: "center" }}>
                 <div style={{ position: "relative", width: 80, height: 80, margin: "0 auto 24px" }}>
                   <div style={{ width: 80, height: 80, borderRadius: "50%", border: "3px solid rgba(0,212,255,0.1)", borderTopColor: "#00d4ff", animation: "spin 0.9s linear infinite" }} />
                   <div style={{ position: "absolute", inset: 10, borderRadius: "50%", border: "2px solid rgba(0,212,255,0.08)", borderBottomColor: "#0ea5e9", animation: "spin 1.4s linear infinite reverse" }} />
-                  <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>▶</span>
+                  <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>&gt;</span>
                 </div>
                 <div style={{ color: "#38bdf8", fontSize: 16, fontWeight: 600, marginBottom: 8 }}>Generating your video...</div>
-                <div style={{ color: "#1e4a5a", fontSize: 13, marginBottom: 6 }}>{VIDEO_MODELS.find(m => m.id === selectedVideoModel)?.name} · This may take 1–2 minutes</div>
+                <div style={{ color: "#1e4a5a", fontSize: 13, marginBottom: 6 }}>{VIDEO_MODELS.find(m => m.id === selectedVideoModel)?.name} - This may take 1-2 minutes</div>
                 <div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 20 }}>
                   {[0.3, 0.6, 1, 0.6, 0.3].map((o, i) => (
                     <div key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: "#00d4ff", opacity: o, animation: `pulseRing ${1 + i * 0.15}s ease-in-out infinite` }} />
@@ -746,14 +746,14 @@ export default function CreateClient() {
               </div>
             )}
 
-            {/* VIDEO ERROR */}
+            {/* Video error */}
             {videoError && !videoLoading && (
               <div style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 16, padding: "24px 32px", textAlign: "center", maxWidth: 420 }}>
-                <div style={{ fontSize: 28, marginBottom: 12 }}>⚠️</div>
+                <div style={{ fontSize: 28, marginBottom: 12 }}>!</div>
                 <div style={{ color: "#fca5a5", fontSize: 14, lineHeight: 1.6, marginBottom: 16 }}>{videoError}</div>
                 <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
-                  <button onClick={() => void generateVideo()} style={{ padding: "8px 20px", borderRadius: 999, background: "rgba(0,212,255,0.12)", border: "1px solid rgba(0,212,255,0.3)", color: "#00d4ff", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>↻ Try Again</button>
-                  <button onClick={() => { setVideoError(null); setUploadedFile(null); setUploadedPreview(null); }} style={{ padding: "8px 20px", borderRadius: 999, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#6b7280", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>← Start Over</button>
+                  <button onClick={() => void generateVideo()} style={{ padding: "8px 20px", borderRadius: 999, background: "rgba(0,212,255,0.12)", border: "1px solid rgba(0,212,255,0.3)", color: "#00d4ff", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>Try Again</button>
+                  <button onClick={() => { setVideoError(null); setUploadedFile(null); setUploadedPreview(null); }} style={{ padding: "8px 20px", borderRadius: 999, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#6b7280", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>Start Over</button>
                 </div>
               </div>
             )}
@@ -773,14 +773,14 @@ export default function CreateClient() {
                   <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg, transparent, #00d4ff, transparent)", opacity: 0.6 }} />
                 </div>
                 <div style={{ display: "flex", gap: 8 }}>
-                  <button onClick={() => void downloadVideo(videoResult)} style={{ padding: "9px 20px", borderRadius: 999, background: "linear-gradient(135deg, #0369a1, #0ea5e9)", border: "none", color: "white", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", boxShadow: "0 4px 16px rgba(0,180,220,0.4)" }}>↓ Download Video</button>
-                  <button onClick={() => void generateVideo()} style={{ padding: "9px 20px", borderRadius: 999, background: "rgba(0,212,255,0.1)", border: "1px solid rgba(0,212,255,0.3)", color: "#38bdf8", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>↻ Regenerate</button>
+                  <button onClick={() => void downloadVideo(videoResult)} style={{ padding: "9px 20px", borderRadius: 999, background: "linear-gradient(135deg, #0369a1, #0ea5e9)", border: "none", color: "white", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", boxShadow: "0 4px 16px rgba(0,180,220,0.4)" }}>Download Video</button>
+                  <button onClick={() => void generateVideo()} style={{ padding: "9px 20px", borderRadius: 999, background: "rgba(0,212,255,0.1)", border: "1px solid rgba(0,212,255,0.3)", color: "#38bdf8", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>Regenerate</button>
                   <button onClick={() => { setVideoResult(null); setVideoError(null); setUploadedFile(null); setUploadedPreview(null); setMotionPrompt(""); }} style={{ padding: "9px 20px", borderRadius: 999, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "#6b7280", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>+ New</button>
                 </div>
               </div>
             )}
 
-            {/* UPLOAD / IDLE state — only shown when no loading/result/error */}
+            {/* Upload / idle state */}
             {!videoLoading && !videoResult && !videoError && (
               <>
                 {!uploadedPreview ? (
@@ -788,14 +788,14 @@ export default function CreateClient() {
                     <div style={{ width: 100, height: 100, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,212,255,0.12), transparent)", border: "1px solid rgba(0,212,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", animation: "float 4s ease-in-out infinite", cursor: "pointer", position: "relative", overflow: "hidden" }}
                       onClick={() => fileInputRef.current?.click()}
                     >
-                      <span style={{ fontSize: 36, opacity: 0.5 }}>▶</span>
+                      <span style={{ fontSize: 36, opacity: 0.5 }}>&gt;</span>
                       <div style={{ position: "absolute", width: "100%", height: 2, background: "linear-gradient(90deg, transparent, rgba(0,212,255,0.7), transparent)", animation: "scanLine 3s ease-in-out infinite" }} />
                     </div>
                     <div style={{ color: "#38a3c4", fontSize: 16, fontWeight: 600, marginBottom: 8 }}>Video Studio</div>
                     <div style={{ color: "#1a4a5a", fontSize: 13, marginBottom: 24 }}>Upload an image to bring it to life with AI motion</div>
                     <button onClick={() => fileInputRef.current?.click()}
                       style={{ padding: "10px 24px", borderRadius: 999, background: "rgba(0,212,255,0.12)", border: "1px solid rgba(0,212,255,0.3)", color: "#00d4ff", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                      ↑ Upload Image
+                      Upload Image
                     </button>
                     <div style={{ display: "flex", gap: 8, marginTop: 28, justifyContent: "center", opacity: 0.25 }}>
                       {[...Array(7)].map((_, i) => (
@@ -807,8 +807,8 @@ export default function CreateClient() {
                   <div style={{ position: "relative", display: "inline-block" }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={uploadedPreview} alt="Source" style={{ maxWidth: "min(500px, 80vw)", maxHeight: "50vh", borderRadius: 16, boxShadow: "0 24px 60px rgba(0,0,0,0.6)", border: "1px solid rgba(0,212,255,0.2)" }} />
-                    <button onClick={() => { setUploadedFile(null); setUploadedPreview(null); }} style={{ position: "absolute", top: 10, right: 10, width: 28, height: 28, borderRadius: "50%", background: "rgba(0,0,0,0.7)", border: "1px solid rgba(255,255,255,0.2)", color: "white", fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit" }}>×</button>
-                    <div style={{ marginTop: 16, color: "#38a3c4", fontSize: 13 }}>Ready to animate · Add a motion prompt below ↓</div>
+                    <button onClick={() => { setUploadedFile(null); setUploadedPreview(null); }} style={{ position: "absolute", top: 10, right: 10, width: 28, height: 28, borderRadius: "50%", background: "rgba(0,0,0,0.7)", border: "1px solid rgba(255,255,255,0.2)", color: "white", fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit" }}>x</button>
+                    <div style={{ marginTop: 16, color: "#38a3c4", fontSize: 13 }}>Ready to animate - Add a motion prompt below</div>
                   </div>
                 )}
               </>
@@ -820,14 +820,14 @@ export default function CreateClient() {
       </div>
       </div>{/* end body wrapper */}
 
-      {/* ── TOAST ── */}
+      {/* Toast */}
       {toast && (
         <div style={{ position: "fixed", bottom: 110, left: "50%", transform: "translateX(-50%)", background: "#1a1a2e", border: "1px solid rgba(0,212,255,0.4)", borderRadius: 12, padding: "12px 20px", color: "#e2f8ff", fontSize: 13, fontWeight: 500, zIndex: 9999, boxShadow: "0 8px 32px rgba(0,0,0,0.5)", animation: "fadeUp 0.2s ease", whiteSpace: "nowrap", pointerEvents: "none" }}>
           {toast}
         </div>
       )}
 
-      {/* ── BOTTOM BAR ── */}
+      {/* Bottom bar */}
       <div ref={popupRef} className="studio-bar-enter" style={{ flexShrink: 0, padding: "12px 20px 16px", background: "rgba(10,10,15,0.98)", borderTop: "1px solid rgba(255,255,255,0.06)", backdropFilter: "blur(20px)", position: "relative" }}>
 
         {/* Popups */}
@@ -939,49 +939,49 @@ export default function CreateClient() {
           {tab === "image" ? (
             <>
               <button className={`chip-btn ${openPopup === "model" ? "active" : ""}`} onClick={() => setOpenPopup(openPopup === "model" ? null : "model")}>
-                <span style={{ fontSize: 11 }}>⚡</span> {currentModelName} <span style={{ opacity: 0.5, fontSize: 10 }}>▾</span>
+                <span style={{ fontSize: 11 }}>Model</span> {currentModelName} <span style={{ opacity: 0.5, fontSize: 10 }}>v</span>
               </button>
               <button className={`chip-btn ${openPopup === "ratio" ? "active" : ""}`} onClick={() => setOpenPopup(openPopup === "ratio" ? null : "ratio")}>
-                <span style={{ fontSize: 11 }}>⊞</span> {aspectRatio} <span style={{ opacity: 0.5, fontSize: 10 }}>▾</span>
+                <span style={{ fontSize: 11 }}>Ratio</span> {aspectRatio} <span style={{ opacity: 0.5, fontSize: 10 }}>v</span>
               </button>
               <div style={{ width: 1, height: 18, background: "rgba(255,255,255,0.1)", margin: "0 2px" }} />
               <button className="chip-btn" onClick={() => { const r = EXAMPLE_PROMPTS[Math.floor(Math.random() * EXAMPLE_PROMPTS.length)]; setPrompt(r); }}>
-                🎲 Random
+                Random
               </button>
               <button className="chip-btn" onClick={() => { setPrompt(""); setImageResult(null); setError(null); }}>
-                🗑 Clear
+                Clear
               </button>
             </>
           ) : (
             <>
               <button className={`chip-btn ${openPopup === "videoModel" ? "active" : ""}`} style={{ borderColor: "rgba(0,212,255,0.25)", color: "#38a3c4" }} onClick={() => setOpenPopup(openPopup === "videoModel" ? null : "videoModel")}>
-                <span style={{ fontSize: 11 }}>🎬</span> {currentVideoModelName} <span style={{ opacity: 0.5, fontSize: 10 }}>▾</span>
+                <span style={{ fontSize: 11 }}>Video</span> {currentVideoModelName} <span style={{ opacity: 0.5, fontSize: 10 }}>v</span>
               </button>
               <button className={`chip-btn ${openPopup === "duration" ? "active" : ""}`} style={{ borderColor: "rgba(0,212,255,0.25)", color: "#38a3c4" }} onClick={() => setOpenPopup(openPopup === "duration" ? null : "duration")}>
-                <span style={{ fontSize: 11 }}>⏱</span> {videoDuration} <span style={{ opacity: 0.5, fontSize: 10 }}>▾</span>
+                <span style={{ fontSize: 11 }}>Time</span> {videoDuration} <span style={{ opacity: 0.5, fontSize: 10 }}>v</span>
               </button>
               <button className={`chip-btn ${openPopup === "resolution" ? "active" : ""}`} style={{ borderColor: "rgba(0,212,255,0.25)", color: "#38a3c4" }} onClick={() => setOpenPopup(openPopup === "resolution" ? null : "resolution")}>
-                <span style={{ fontSize: 11 }}>📺</span> {videoResolution} <span style={{ opacity: 0.5, fontSize: 10 }}>▾</span>
+                <span style={{ fontSize: 11 }}>Res</span> {videoResolution} <span style={{ opacity: 0.5, fontSize: 10 }}>v</span>
               </button>
               <div style={{ width: 1, height: 18, background: "rgba(0,212,255,0.15)", margin: "0 2px" }} />
               {!uploadedFile && (
                 <button className="chip-btn" style={{ borderColor: "rgba(0,212,255,0.3)", color: "#38a3c4" }} onClick={() => fileInputRef.current?.click()}>
-                  ↑ Upload Image
+                  Upload Image
                 </button>
               )}
             </>
           )}
 
-          <span style={{ marginLeft: "auto", fontSize: 11, color: "#2a2a3a" }}>Enter ↵ to generate</span>
+          <span style={{ marginLeft: "auto", fontSize: 11, color: "#2a2a3a" }}>Press Enter to generate</span>
         </div>
       </div>
 
-      {/* ── Upgrade Modal ── */}
+      {/* Upgrade modal */}
       {showUpgrade && (
         <UpgradeModal onClose={() => setShowUpgrade(false)} onToast={showToast} />
       )}
 
-      {/* ── Auth Gate Modal ── */}
+      {/* Auth gate modal */}
       {showAuthGate && (
         <AuthGateModal
           onSuccess={() => {
@@ -996,7 +996,7 @@ export default function CreateClient() {
         />
       )}
 
-      {/* ── Username modal (for Share / Like / Comment) ── */}
+      {/* Username modal */}
       {usernameModal && (
         <div
           onClick={(e) => { if (e.target === e.currentTarget) setUsernameModal(null); }}
@@ -1004,7 +1004,7 @@ export default function CreateClient() {
         >
           <div style={{ background: "#13131f", border: "1px solid rgba(168,85,247,0.3)", borderRadius: 20, padding: "32px 28px", width: "100%", maxWidth: 360, boxShadow: "0 24px 80px rgba(0,0,0,0.7)" }}>
             <div style={{ textAlign: "center", marginBottom: 24 }}>
-              <div style={{ fontSize: 28, marginBottom: 10 }}>✦</div>
+              <div style={{ fontSize: 28, marginBottom: 10 }}>*</div>
               <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 18, fontWeight: 700, color: "#e2d9ff", marginBottom: 6 }}>Choose a display name</div>
               <p style={{ fontSize: 13, color: "#6b6b8a", lineHeight: 1.6 }}>This will appear on your shared images and comments.</p>
             </div>

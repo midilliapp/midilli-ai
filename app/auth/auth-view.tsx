@@ -170,7 +170,7 @@ export default function AuthView({
       if (!data.session) {
         setNotice({
           tone: "error",
-          text: "Session olusturulamadi. Lutfen tekrar deneyin.",
+          text: "Oturum olusturulamadi. Lutfen tekrar deneyin.",
         });
         setLoading(false);
         return;

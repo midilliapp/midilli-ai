@@ -68,7 +68,7 @@ export default function UpgradeModal({ onClose, onToast }: Props) {
           from { opacity: 0; transform: translateY(24px) scale(0.97); }
           to   { opacity: 1; transform: translateY(0)    scale(1);    }
         }
-        /* Rising light — pseudo-element per tier */
+        /* Rising light â€” pseudo-element per tier */
         .plan-card {
           transition: transform 0.35s cubic-bezier(0.22,1,0.36,1),
                       border-color 0.4s ease,
@@ -92,7 +92,7 @@ export default function UpgradeModal({ onClose, onToast }: Props) {
           transform: translateY(0%);
         }
 
-        /* Free — barely-there cool grey */
+        /* Free â€” barely-there cool grey */
         .plan-card-free::before {
           background: radial-gradient(ellipse 70% 45% at 50% 100%, rgba(110,110,170,0.14) 0%, transparent 70%);
         }
@@ -101,7 +101,7 @@ export default function UpgradeModal({ onClose, onToast }: Props) {
           box-shadow: 0 4px 20px -4px rgba(100,100,160,0.12);
         }
 
-        /* Basic — soft lavender */
+        /* Basic â€” soft lavender */
         .plan-card-basic::before {
           background: radial-gradient(ellipse 70% 50% at 50% 100%, rgba(168,85,247,0.18) 0%, transparent 72%);
         }
@@ -110,7 +110,7 @@ export default function UpgradeModal({ onClose, onToast }: Props) {
           box-shadow: 0 4px 24px -4px rgba(124,92,252,0.18);
         }
 
-        /* Pro — vivid purple, strongest */
+        /* Pro â€” vivid purple, strongest */
         .plan-card-pro::before {
           background: radial-gradient(ellipse 75% 55% at 50% 100%, rgba(192,100,255,0.32) 0%, rgba(168,85,247,0.10) 55%, transparent 75%);
         }
@@ -121,7 +121,7 @@ export default function UpgradeModal({ onClose, onToast }: Props) {
                       inset 0 1px 0 rgba(255,255,255,0.10);
         }
 
-        /* Ultra — warm amber */
+        /* Ultra â€” warm amber */
         .plan-card-ultra::before {
           background: radial-gradient(ellipse 68% 45% at 50% 100%, rgba(251,191,36,0.16) 0%, transparent 70%);
         }
@@ -142,7 +142,7 @@ export default function UpgradeModal({ onClose, onToast }: Props) {
       <div className="upgrade-modal" style={{ width: "100%", maxWidth: 840, position: "relative" }}>
 
         {/* Close */}
-        <button onClick={onClose} style={{ position: "absolute", top: -14, right: -14, zIndex: 10, width: 32, height: 32, borderRadius: "50%", background: "#1a1a2e", border: "1px solid rgba(255,255,255,0.1)", color: "#6b7280", fontSize: 15, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit" }}>×</button>
+        <button onClick={onClose} style={{ position: "absolute", top: -14, right: -14, zIndex: 10, width: 32, height: 32, borderRadius: "50%", background: "#1a1a2e", border: "1px solid rgba(255,255,255,0.1)", color: "#6b7280", fontSize: 15, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit" }}>x</button>
 
         {/* Header */}
         <div style={{ textAlign: "center", marginBottom: 28 }}>
@@ -155,12 +155,12 @@ export default function UpgradeModal({ onClose, onToast }: Props) {
         {/* Tab switcher */}
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 28 }}>
           <div style={{ display: "flex", gap: 2, background: "rgba(255,255,255,0.04)", borderRadius: 11, padding: 3 }}>
-            <button className={`upgrade-tab ${tab === "plans" ? "active" : "inactive"}`} onClick={() => setTab("plans")}>✦ Plans</button>
-            <button className={`upgrade-tab ${tab === "credits" ? "active" : "inactive"}`} onClick={() => setTab("credits")}>⚡ Buy Credits</button>
+            <button className={`upgrade-tab ${tab === "plans" ? "active" : "inactive"}`} onClick={() => setTab("plans")}>Plans</button>
+            <button className={`upgrade-tab ${tab === "credits" ? "active" : "inactive"}`} onClick={() => setTab("credits")}>Buy Credits</button>
           </div>
         </div>
 
-        {/* ── PLANS TAB ── */}
+        {/* â”€â”€ PLANS TAB â”€â”€ */}
         {tab === "plans" && (
           <>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1.08fr 1fr", gap: 10 }}>
@@ -190,7 +190,7 @@ export default function UpgradeModal({ onClose, onToast }: Props) {
                       {plan.badge}
                     </div>
                   )}
-                  {/* Top glow — pro only */}
+                  {/* Top glow â€” pro only */}
                   {plan.id === "pro" && <div style={{ position: "absolute", top: 0, left: "15%", right: "15%", height: 1, background: "linear-gradient(90deg, transparent, rgba(192,132,252,0.8), transparent)" }} />}
 
                   {/* Plan name */}
@@ -210,7 +210,7 @@ export default function UpgradeModal({ onClose, onToast }: Props) {
                   <ul style={{ listStyle: "none", padding: 0, margin: "0 0 auto", display: "flex", flexDirection: "column", gap: 7 }}>
                     {plan.features.map((f) => (
                       <li key={f} style={{ display: "flex", gap: 7, fontSize: 11, color: plan.id === "pro" ? "#c4b8ff" : plan.id === "ultra" ? "#8b7a5a" : "#4a4a62", lineHeight: 1.4 }}>
-                        <span style={{ color: plan.id === "pro" ? "#c084fc" : plan.id === "ultra" ? "#a89060" : "#2e2e42", flexShrink: 0, fontSize: 10 }}>✓</span>{f}
+                        <span style={{ color: plan.id === "pro" ? "#c084fc" : plan.id === "ultra" ? "#a89060" : "#2e2e42", flexShrink: 0, fontSize: 10 }}>*</span>{f}
                       </li>
                     ))}
                   </ul>
@@ -221,13 +221,13 @@ export default function UpgradeModal({ onClose, onToast }: Props) {
                       <Link href="/create" onClick={onClose} style={{ display: "block", textAlign: "center", padding: "9px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.06)", color: "#2e2e42", fontSize: 11, fontWeight: 600, textDecoration: "none" }}>Current plan</Link>
                     )}
                     {plan.ctaStyle === "normal" && (
-                      <button onClick={() => { onClose(); onToast("Basic plan — coming soon."); }} style={{ width: "100%", padding: "9px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.04)", color: "#c4b8ff", fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>{plan.cta}</button>
+                      <button onClick={() => { onClose(); onToast("Basic plan - coming soon."); }} style={{ width: "100%", padding: "9px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.04)", color: "#c4b8ff", fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>{plan.cta}</button>
                     )}
                     {plan.ctaStyle === "primary" && (
-                      <button onClick={() => { onClose(); onToast("Pro plan — coming soon."); }} style={{ width: "100%", padding: "11px", borderRadius: 9, border: "none", background: "linear-gradient(135deg, #7c3aed, #a855f7, #c026d3)", color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", boxShadow: "0 6px 20px rgba(124,92,252,0.45)" }}>{plan.cta}</button>
+                      <button onClick={() => { onClose(); onToast("Pro plan - coming soon."); }} style={{ width: "100%", padding: "11px", borderRadius: 9, border: "none", background: "linear-gradient(135deg, #7c3aed, #a855f7, #c026d3)", color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", boxShadow: "0 6px 20px rgba(124,92,252,0.45)" }}>{plan.cta}</button>
                     )}
                     {plan.ctaStyle === "amber" && (
-                      <button onClick={() => { onClose(); onToast("Ultra plan — coming soon."); }} style={{ width: "100%", padding: "9px", borderRadius: 8, border: "1px solid rgba(251,191,36,0.18)", background: "rgba(251,191,36,0.04)", color: "#a89060", fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>{plan.cta}</button>
+                      <button onClick={() => { onClose(); onToast("Ultra plan - coming soon."); }} style={{ width: "100%", padding: "9px", borderRadius: 8, border: "1px solid rgba(251,191,36,0.18)", background: "rgba(251,191,36,0.04)", color: "#a89060", fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>{plan.cta}</button>
                     )}
                   </div>
                 </div>
@@ -237,13 +237,13 @@ export default function UpgradeModal({ onClose, onToast }: Props) {
             {/* Switch to credits */}
             <div style={{ textAlign: "center", marginTop: 20 }}>
               <button onClick={() => setTab("credits")} style={{ background: "none", border: "none", color: "#5a527a", fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>
-                Just need more credits? <span style={{ color: "#a78bff", fontWeight: 600 }}>Buy a one-time pack ↓</span>
+                Just need more credits? <span style={{ color: "#a78bff", fontWeight: 600 }}>Buy a one-time pack below</span>
               </button>
             </div>
           </>
         )}
 
-        {/* ── CREDITS TAB ── */}
+        {/* Credits tab */}
         {tab === "credits" && (
           <>
             <div style={{ textAlign: "center", marginBottom: 24 }}>
@@ -255,7 +255,7 @@ export default function UpgradeModal({ onClose, onToast }: Props) {
                 <button
                   key={pack.credits}
                   className={`pack-card ${pack.popular ? "popular" : ""}`}
-                  onClick={() => { onClose(); onToast(`${pack.label} pack — payment coming soon.`); }}
+                  onClick={() => { onClose(); onToast(`${pack.label} pack - payment coming soon.`); }}
                   style={{ cursor: "pointer", fontFamily: "inherit", textAlign: "left" }}
                 >
                   {/* Popular badge */}
@@ -274,20 +274,20 @@ export default function UpgradeModal({ onClose, onToast }: Props) {
 
                   <div style={{ marginTop: "auto", padding: "8px 0 0", borderTop: `1px solid ${pack.popular ? "rgba(168,85,247,0.2)" : "rgba(255,255,255,0.05)"}`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <span style={{ fontFamily: "'Syne',sans-serif", fontSize: 18, fontWeight: 800, color: pack.popular ? "#c4b8ff" : "#6b7280" }}>${pack.price}</span>
-                    <span style={{ fontSize: 10, color: "#3a3a52" }}>${(pack.price / pack.credits * 100).toFixed(1)}¢ / cr</span>
+                    <span style={{ fontSize: 10, color: "#3a3a52" }}>${(pack.price / pack.credits * 100).toFixed(1)}c / cr</span>
                   </div>
                 </button>
               ))}
             </div>
 
             <p style={{ textAlign: "center", marginTop: 20, fontSize: 12, color: "#3a3a52" }}>
-              Credits are added instantly after purchase · Never expire
+              Credits are added instantly after purchase - Never expire
             </p>
 
             {/* Switch to plans */}
             <div style={{ textAlign: "center", marginTop: 10 }}>
               <button onClick={() => setTab("plans")} style={{ background: "none", border: "none", color: "#5a527a", fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>
-                Want unlimited generations? <span style={{ color: "#a78bff", fontWeight: 600 }}>See plans ↑</span>
+                Want unlimited generations? <span style={{ color: "#a78bff", fontWeight: 600 }}>See plans above</span>
               </button>
             </div>
           </>
