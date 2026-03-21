@@ -218,10 +218,10 @@ export default function GalleryClient() {
           <span style={{ color: "#a78bff" }}>MIDILLI</span>
         </Link>
         <nav style={{ display: "flex", gap: 24, alignItems: "center" }}>
-          <Link href="/#generate" className="nav-link-g">Generate</Link>
+          <Link href="/create" className="nav-link-g">Generate</Link>
           <Link href="/gallery" style={{ color: "white", textDecoration: "none", fontSize: 14, fontWeight: 600 }}>Gallery</Link>
           <Link href="/#pricing" className="nav-link-g">Pricing</Link>
-          <Link href="/#generate" style={{ padding: "10px 22px", borderRadius: 999, color: "white", fontWeight: 700, fontFamily: "'Syne', sans-serif", fontSize: 14, background: "linear-gradient(135deg,#7c5cfc,#e84fbc)", textDecoration: "none" }}>
+          <Link href="/create" style={{ padding: "10px 22px", borderRadius: 999, color: "white", fontWeight: 700, fontFamily: "'Syne', sans-serif", fontSize: 14, background: "linear-gradient(135deg,#7c5cfc,#e84fbc)", textDecoration: "none" }}>
             ✦ Create
           </Link>
         </nav>
@@ -388,7 +388,7 @@ export default function GalleryClient() {
                 {likedIds.has(lightbox.id) ? "♥ Liked" : "♡ Like this"} · {lightbox.likes + (likedIds.has(lightbox.id) ? 1 : 0)}
               </button>
 
-              <Link href="/#generate" style={{ display: "block", textAlign: "center", padding: "13px 0", borderRadius: 999, color: "white", fontWeight: 700, fontFamily: "'Syne', sans-serif", background: "linear-gradient(135deg,#7c5cfc,#e84fbc)", textDecoration: "none", fontSize: 14 }}>
+            <Link href="/create" style={{ display: "block", textAlign: "center", padding: "13px 0", borderRadius: 999, color: "white", fontWeight: 700, fontFamily: "'Syne', sans-serif", background: "linear-gradient(135deg,#7c5cfc,#e84fbc)", textDecoration: "none", fontSize: 14 }}>
                 ✦ Create similar
               </Link>
             </div>

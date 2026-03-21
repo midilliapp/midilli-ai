@@ -264,7 +264,7 @@ export default function DashboardClient() {
           <span style={{ color: "#a78bff" }}>MIDILLI</span>
         </Link>
         <nav style={{ display: "flex", gap: 24, alignItems: "center" }}>
-          <Link href="/#generate" className="nav-link-dash">Generate</Link>
+          <Link href="/create" className="nav-link-dash">Generate</Link>
           <Link href="/#gallery" className="nav-link-dash">Gallery</Link>
           <Link href="/#pricing" className="nav-link-dash">Pricing</Link>
           <button onClick={handleLogout} disabled={loggingOut} className="btn-ghost">
@@ -302,7 +302,7 @@ export default function DashboardClient() {
                 </h1>
               </div>
             </div>
-            <Link href="/#generate" className="btn-primary-dash">
+              <Link href="/create" className="btn-primary-dash">
               New Generation
             </Link>
           </div>
@@ -360,8 +360,8 @@ export default function DashboardClient() {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {[
-                { icon: "*", label: "Generate Image", sub: "Text to image", href: "/#generate", color: "#a78bff" },
-                { icon: ">", label: "Create Video", sub: "Image to video", href: "/#generate", color: "#38d9f5" },
+    { icon: "*", label: "Generate Image", sub: "Text to image", href: "/create", color: "#a78bff" },
+    { icon: ">", label: "Create Video", sub: "Image to video", href: "/create", color: "#38d9f5" },
                 { icon: "+", label: "Buy Credits", sub: "Top up balance", href: "/#credits", color: "#e84fbc" },
                 { icon: "[]", label: "View Gallery", sub: "Community works", href: "/#gallery", color: "#4cebb8" },
               ].map(({ icon, label, sub, href, color }) => (
